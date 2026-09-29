@@ -2,6 +2,64 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "cat-ledger",
+      "code": "CAT//LEDGER",
+      "title": "薛定谔的猫 · 账本时空块",
+      "title_en": "Schrödinger’s cat as a ledger spacetime",
+      "summary": "400 只盒子里的猫画成一块记录时空：计数器第一次响就是猫的死亡时刻。盒内账本随时写下事实，盒外账本到开箱才读到；改检查频率、衰变方式和暗态会改变历史，改开箱时刻、账本、钟和条件化只是读账，档案一个字节也不变。还可以调记录副本数看相干怎样消失，试一次 Wigner 撤销，并切换到只在写入记录时前进的账本钟。",
+      "summary_en": "Cats in 400 boxes drawn as one block of records: the counter’s first click is a cat’s death time. The inside ledger writes each fact as it happens and the outside ledger reads it only at opening. Changing the check interval, the decay coupling or the dark state changes the history; changing the opening time, the ledger, the clock or the conditioning only reads it, and the archive does not change by a byte. You can also vary the number of record copies to watch coherence vanish, try Wigner’s undo, and switch to a ledger clock that moves only when a record is written.",
+      "path": "viz/cat-ledger/",
+      "thumbnail": "viz/cat-ledger/thumb.jpg",
+      "status": "live",
+      "added": "2026-09-29",
+      "tags": [
+        "薛定谔的猫",
+        "首次探测",
+        "账本相对事实",
+        "Wigner 撤销",
+        "账本钟",
+        "WebGL"
+      ],
+      "tags_en": [
+        "Schrödinger’s cat",
+        "first detection",
+        "ledger-relative facts",
+        "Wigner’s undo",
+        "ledger clock",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "波粒整体的关系全息表示 §5 §8 §11–§13",
+          "label_en": "Relational holography of the wave–particle whole §5 §8 §11–§13",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/RECURSIVE_RELATIONAL_OBSERVATION_WAVE_PARTICLE_EVENTS.md"
+        },
+        {
+          "label": "观察者量子论 §8 嵌套观察者 · §18.2 账本与时间",
+          "label_en": "Observer quantum theory §8 nested observers · §18.2 ledger and time",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/OBSERVER-QUANTUM.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "finite_detection_survival_limit",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Measurement/FiniteDetectionSurvivalLimit.lean"
+        },
+        {
+          "label": "repeated_record_exponential_decay",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Decoherence/RepeatedRecordExponentialDecay.lean"
+        },
+        {
+          "label": "pure_record_distinguishability_coherence_complementarity",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/PureState/RecordCoherenceComplementarity.lean"
+        },
+        {
+          "label": "word_probability_trace_representation",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Measurement/WordProbabilityTraceRepresentation.lean"
+        }
+      ]
+    },
+    {
       "id": "chrono-slit",
       "code": "CHRONO//SLIT",
       "title": "双缝时空体",

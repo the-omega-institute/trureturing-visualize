@@ -5,6 +5,7 @@
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { createServer, BASE } from '../scripts/serve.mjs';
+import { readRegistry } from '../scripts/site.mjs';
 
 async function loadPlaywright() {
   try { return await import('playwright'); } catch { /* fall back to a global install */ }
@@ -239,8 +240,9 @@ await page.click('[data-lang-set="zh"]'); await wait(200);
 await page.click('[data-lang-set="en"]'); await wait(100);
 await page.click('.crumb'); await page.waitForLoadState('load'); await wait(800);
 check('language choice carries to the index', (await D(() => document.documentElement.dataset.lang)) === 'en');
-check('index lists the visualization', (await D(() => document.querySelectorAll('.card').length)) === 1);
-await page.click('.card .enter'); await page.waitForLoadState('load'); await wait(1200);
+const live = readRegistry().visualizations.filter(v => v.status === 'live').length;
+check('index lists every live visualization', (await D(() => document.querySelectorAll('.card').length)) === live, `live ${live}`);
+await page.click('.card:has(a[href*="chrono-slit"]) .enter'); await page.waitForLoadState('load'); await wait(1200);
 check('index card opens the page', (await D(() => document.body.dataset.vizId)) === 'chrono-slit');
 
 // --- resize
