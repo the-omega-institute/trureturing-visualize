@@ -9,7 +9,8 @@
     "validate": "node scripts/validate.mjs",
     "build": "node scripts/build.mjs _site",
     "thumbs": "node scripts/thumbs.mjs",
-    "new": "node scripts/new-viz.mjs"
+    "new": "node scripts/new-viz.mjs",
+    "test": "node scripts/test-browser.mjs"
   },
   "engines": {
     "node": ">=20"

@@ -1,6 +1,6 @@
 name: pages
 
-# Validate on every pull request; validate and deploy the site on pushes to main.
+# Validate and run the browser suites on every pull request; on pushes to main, deploy once both pass.
 on:
   push:
     branches: [main]
@@ -38,9 +38,29 @@ jobs:
         with:
           path: _site
 
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Playwright with Chromium
+        run: |
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+
+      - name: Browser regression suites
+        run: node scripts/test-browser.mjs
+
   deploy:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-    needs: build
+    needs: [build, browser]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

@@ -108,7 +108,7 @@ const walk = (dir) => {
     else if (/\.(m?js)$/.test(name)) scripts.push(rel);
   }
 };
-for (const d of ['assets', 'viz', 'scripts', 'templates']) if (exists(d)) walk(d);
+for (const d of ['assets', 'viz', 'scripts', 'templates', 'tests']) if (exists(d)) walk(d);
 for (const rel of scripts) {
   try { execFileSync(process.execPath, ['--check', path.join(ROOT, rel)], { stdio: 'pipe' }); }
   catch (e) { fail(`${rel}: ${String(e.stderr || e.message).trim().split('\n').slice(0, 4).join(' | ')}`); }

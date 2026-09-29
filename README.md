@@ -27,7 +27,8 @@ assets/
   vendor/               pinned third-party scripts (three.js r128, MIT)
 viz/<id>/               one visualization: index.html, style.css, main.js, thumb.jpg
 templates/viz-starter/  starting point copied by scripts/new-viz.mjs (not published)
-scripts/                validate, serve, build, thumbs, new-viz (Node >= 20, no dependencies)
+tests/<id>.test.mjs     browser regression suite for a visualization (Playwright)
+scripts/                validate, serve, build, thumbs, new-viz, test-browser (Node >= 20, no runtime dependencies)
 ```
 
 There is no build step. The published site is the repository's `index.html`, `404.html`, `visualizations.json`, `assets/` and `viz/`, copied as they are.
@@ -37,6 +38,7 @@ There is no build step. The published site is the repository's `index.html`, `40
 ```sh
 node scripts/serve.mjs          # http://127.0.0.1:8765/trureturing-visualize/
 node scripts/validate.mjs       # registry, page contract, links, script syntax
+node scripts/test-browser.mjs   # browser suites in tests/ (needs Playwright with Chromium)
 ```
 
 The server mounts the site under `/trureturing-visualize/`, the same prefix GitHub Pages uses, so root-relative mistakes show up locally.
@@ -55,7 +57,8 @@ The server mounts the site under `/trureturing-visualize/`, the same prefix GitH
    node scripts/thumbs.mjs <id>
    ```
    It screenshots the element marked `data-thumb`, or the page's `.stage`. A page can define `window.TRV_THUMB()` to switch into a cover state first. Playwright is needed only for this step (`npm i -D playwright`, or a global install).
-5. Set `status` to `live`, run `node scripts/validate.mjs`, and open a pull request. CI validates every pull request; merging to `main` deploys.
+5. Add `tests/<id>.test.mjs` for the page's controls and invariants; `tests/chrono-slit.test.mjs` shows the pattern, reading state through a read-only `window.<NAME>_DEBUG` probe.
+6. Set `status` to `live`, run `node scripts/validate.mjs` and `node scripts/test-browser.mjs`, and open a pull request. CI validates every pull request; merging to `main` deploys.
 
 ## Two languages
 
@@ -82,7 +85,7 @@ One night-console look across pages: tokens in `assets/theme.css`, Chakra Petch 
 
 ## Deployment
 
-`.github/workflows/pages.yml` validates on every pull request. On a push to `main` it validates, assembles `_site/` with `scripts/build.mjs`, and deploys with `actions/deploy-pages`. Two repository settings are required once:
+`.github/workflows/pages.yml` validates and runs the browser suites on every pull request. On a push to `main` it does the same, assembles `_site/` with `scripts/build.mjs`, and deploys with `actions/deploy-pages` once both jobs pass. Two repository settings are required once:
 
 - Settings → Pages → Build and deployment → Source: **GitHub Actions**.
 - The repository must be allowed to publish Pages: either it is public, or the organization's plan allows Pages from private repositories.

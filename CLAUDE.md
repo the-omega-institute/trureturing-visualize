@@ -17,5 +17,5 @@
 4. **诚实标注。** 每个页面的理论接口抽屉必须写明：依据的理论卷与节号；哪些结论是 trureturing 中已冻结的 Lean 定理（给定理名和文件链接）；哪些是示意模型及其简化。只有在 trureturing 的 `Golden/Frozen/state/` 中确有冻结状态片的定理才能标 `LEAN ✓`；不得把示意模型的数值说成物理模拟，也不得把理论卷散文说成已证。
 5. **双语。** 所有可见文字都要中英两份：静态文字写成成对的 `<span class="zh">…</span><span class="en">…</span>`；脚本生成的文字用 `TRV.L('中文', 'English')`，并在 `TRV.onLang(...)` 里重绘；`aria-label` 写中文、`data-aria-en` 写英文；`<html data-title-en>` 给英文标题。注册表的已发布条目要有 `title_en`、`summary_en`、`tags_en`、`label_en`。英文要自然、准确，不逐字硬译；理论卷只有中文时，在英文说明里注明。
 6. **颜色有语义。** 分支/类别用 `TRV.rgb` 或页面自己的分支色板；琥珀色只留给“现在”与当前选择；绿色只留给 Lean 已验证。保持 `prefers-reduced-motion` 与手机宽度（约 400px）无横向滚动。
-7. **提交前验证。** 至少运行 `node scripts/validate.mjs`；改动页面时用 `node scripts/serve.mjs` 在桌面和手机宽度、中英两种语言（`?lang=zh`、`?lang=en`）实际打开，确认无脚本错误、英文模式下没有漏译。缩略图用 `node scripts/thumbs.mjs <id>` 生成（页面可定义 `window.TRV_THUMB()` 切到封面状态）。
+7. **提交前验证。** 至少运行 `node scripts/validate.mjs` 和 `node scripts/test-browser.mjs`（每个可视化在 `tests/<id>.test.mjs` 有浏览器回归测试，覆盖全部控件与页面声称的不变量；页面承诺的性质要有对应检查）；改动页面时用 `node scripts/serve.mjs` 在桌面和手机宽度、中英两种语言（`?lang=zh`、`?lang=en`）实际打开，确认无脚本错误、英文模式下没有漏译。缩略图用 `node scripts/thumbs.mjs <id>` 生成（页面可定义 `window.TRV_THUMB()` 切到封面状态）。
 8. **经 PR 合入 `main`。** CI 对每个 PR 运行校验；合入 `main` 后自动部署 Pages。完成以 PR 合并且部署成功为准。

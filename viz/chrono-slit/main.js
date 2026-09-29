@@ -129,7 +129,13 @@ function computeDensities() {
   coef.alpha = ms.map((m) => [m[0], -m[1]]);
   coef.gamma = ms.map((m) => [m[0] * kap + m[2] * s, -m[1] * kap - m[3] * s]);
   const pc = Math.cos(S.phi), ps = Math.sin(S.phi);
-  pS.fill(0);
+  // The unsorted whole ||Ψ(x)||² = ½(|u_L|² + |u_R|²) + κ·Re(ū_L e^{iφ} u_R) does not involve the instrument,
+  // so it is computed on its own: changing β, χ or N then cannot move a single hit, not even by rounding.
+  for (let idx = 0; idx < NZ * NX; idx++) {
+    const Lr = uLr[idx], Li = uLi[idx];
+    const Rr = uRr[idx] * pc - uRi[idx] * ps, Ri = uRr[idx] * ps + uRi[idx] * pc;
+    pS[idx] = 0.5 * (Lr * Lr + Li * Li + Rr * Rr + Ri * Ri) + kap * (Lr * Rr + Li * Ri);
+  }
   for (let k = 0; k < n; k++) {
     const [a0, a1] = coef.alpha[k], [g0, g1] = coef.gamma[k], p = pB[k];
     for (let idx = 0; idx < NZ * NX; idx++) {
@@ -137,8 +143,7 @@ function computeDensities() {
       const Rr = uRr[idx] * pc - uRi[idx] * ps, Ri = uRr[idx] * ps + uRi[idx] * pc;
       const Ar = a0 * Lr - a1 * Li + g0 * Rr - g1 * Ri;
       const Ai = a0 * Li + a1 * Lr + g0 * Ri + g1 * Rr;
-      const v = 0.5 * (Ar * Ar + Ai * Ai);
-      p[idx] = v; pS[idx] += v;
+      p[idx] = 0.5 * (Ar * Ar + Ai * Ai);
     }
   }
   const cum = (src, dst) => {
@@ -147,12 +152,12 @@ function computeDensities() {
   cum(pS, cdfS);
   for (let k = 0; k < n; k++) cum(pB[k], cdfB[k]);
   const last = (NZ - 1) * NX;
-  let sS = 0, mx = 0;
-  for (let i = 0; i < NX; i++) { sS += pS[last + i]; mx = Math.max(mx, pS[last + i]); }
+  let sS = 0, mx = 0, sB = 0;
+  for (let i = 0; i < NX; i++) { sS += pS[last + i]; mx = Math.max(mx, pS[last + i]); for (let k = 0; k < n; k++) sB += pB[k][last + i]; }
   for (let k = 0; k < KMAX; k++) {
     if (k >= n) { stats.P[k] = 0; stats.V[k] = 0; continue; }
     let sk = 0; for (let i = 0; i < NX; i++) sk += pB[k][last + i];
-    stats.P[k] = sS > 0 ? sk / sS : 1 / n;
+    stats.P[k] = sB > 0 ? sk / sB : 1 / n;
     const A = Math.hypot(...coef.alpha[k]), G = Math.hypot(...coef.gamma[k]), den = A * A + G * G;
     stats.V[k] = den > 1e-12 ? 2 * A * G / den : 0;
   }
@@ -196,6 +201,7 @@ for (let i = 0; i < N_RUNS; i++) {
 }
 const EX = new Float32Array(N_RUNS), EK = new Uint8Array(N_RUNS), EPK = new Float32Array(N_RUNS);
 const ALL_RUNS = Array.from({ length: N_RUNS }, (_, i) => i);
+let centerOpacity = 1;
 let byBranch = [];
 let archiveHash = '--------';
 function resampleEvents() {
@@ -203,7 +209,8 @@ function resampleEvents() {
   byBranch = Array.from({ length: n }, () => []);
   for (let i = 0; i < N_RUNS; i++) {
     const x = sampleRow(cdfS, r, U1[i]);
-    const ps = interpRow(pS, r, x);
+    let ps = 0;
+    for (let j = 0; j < n; j++) ps += interpRow(pB[j], r, x);
     let acc = 0, k = n - 1, pk = 1 / n;
     for (let j = 0; j < n; j++) {
       const pj = ps > 1e-12 ? interpRow(pB[j], r, x) / ps : 1 / n;
@@ -674,8 +681,10 @@ function updateGL(time) {
   nowPlane.material.uniforms.uTime.value = time;
   nowPlane.material.uniforms.uOp.value = block ? 0.55 : 1.0;
 
-  // walls per block
-  const centerOp = 1 - 0.75 * S.split;
+  // walls per block; the centre block holds the unsorted runs, so it fades as they are sorted away
+  let sortedMean = 0; for (let i = 0; i < N_RUNS; i++) sortedMean += RUN.sorted[i]; sortedMean /= N_RUNS;
+  centerOpacity = 1 - 0.92 * S.split * sortedMean;
+  const centerOp = centerOpacity;
   wallCenter.grid.material.opacity = 0.35 * centerOp; wallCenter.edge.material.opacity = 0.7 * centerOp;
   for (let k = 0; k < KMAX; k++) {
     const w = wallB[k];
@@ -775,7 +784,7 @@ function labelStaticTags() {
 }
 labelStaticTags();
 const branchTags = []; for (let k = 0; k < KMAX; k++) branchTags.push(mkTag('cy', ''));
-const tickTags = []; for (let i = 0; i < 9; i++) tickTags.push(mkTag('tick', ''));
+const tickTags = []; for (let i = 0; i < 12; i++) tickTags.push(mkTag('tick', ''));
 function placeTag(el, x, y, z, show = true) {
   if (!glOK || !show) { el.style.display = 'none'; return; }
   const p = projectToStage(new THREE.Vector3(x, y, z));
@@ -784,9 +793,9 @@ function placeTag(el, x, y, z, show = true) {
   el.style.left = p.x + 'px'; el.style.top = p.y + 'px';
 }
 function updateTags() {
-  const top = H / 2 + 0.16, n = K();
-  placeTag(tagSource, 0, top, Z_SRC); placeTag(tagSlit, 0, top, Z_SLIT); placeTag(tagScreen, 0, top, Z_SCR); placeTag(tagRail, RAIL_X, top, Z_SLIT);
-  placeTag(tagAxis, -1.12, H / 2 + 0.05, Z_SCR);
+  const top = H / 2 + 0.16, n = K(), centre = centerOpacity > 0.35;
+  placeTag(tagSource, 0, top, Z_SRC, centre); placeTag(tagSlit, 0, top, Z_SLIT, centre); placeTag(tagScreen, 0, top, Z_SCR, centre); placeTag(tagRail, RAIL_X, top, Z_SLIT, centre);
+  placeTag(tagAxis, -1.12, H / 2 + 0.05, Z_SCR, centre);
   const now = nowAbs();
   tagNow.textContent = (S.mode === 1 ? L('ρ(τ) 条件化切面 · τ=', 'ρ(τ) conditioning slice · τ=') : 'NOW · τ=') + now.toFixed(2);
   let mx = 0; for (let k = 0; k < n; k++) mx = Math.max(mx, branchOffset(k, 1)[0]);
@@ -803,7 +812,7 @@ function updateTags() {
   let j = 0;
   for (let t = 0; t <= Sp + 1e-6 && j < tickTags.length; t += step, j++) {
     tickTags[j].textContent = t.toFixed(step < 1 ? 1 : 0);
-    placeTag(tickTags[j], -1.04, yOf(t), Z_SCR);
+    placeTag(tickTags[j], -1.04, yOf(t), Z_SCR, centre);
   }
   for (; j < tickTags.length; j++) tickTags[j].style.display = 'none';
 }
@@ -1201,7 +1210,9 @@ function syncOutputs() {
   $('pillMode').innerHTML = `MODE <strong>${S.mode === 1 ? 'BLOCK' : 'LINEAR'}</strong>`;
   $('pillClock').innerHTML = `CLOCK <strong>${S.frame < 0.02 ? 'RUN' : S.frame > 0.98 ? 'LAB' : 'MIX'}</strong>`;
   $('splitLabel').textContent = L(`${n} 个记录分支`, `${n} record branches`);
-  if (S.preset) $('presetNote').textContent = L(PRESETS[S.preset].zh, PRESETS[S.preset].en);
+  $('presetNote').textContent = S.preset ? L(PRESETS[S.preset].zh, PRESETS[S.preset].en) : L('自定义参数。', 'Custom settings.');
+  updateMarks();
+  if (S.sel >= 0) selectRun(S.sel);
 }
 function bindRange(id, fn) { const el = $(id); el.addEventListener('input', () => { fn(parseFloat(el.value)); syncOutputs(); }); }
 bindRange('kappa', v => { S.kappa = v; markPrep(); clearPreset(); });
@@ -1214,6 +1225,10 @@ bindRange('frame', v => { S.frame = v; dirtyWalls = true; });
 bindRange('warpK', v => { S.warpK = v; dirtyWalls = true; });
 bindRange('split', v => { S.split = v; });
 $('now').addEventListener('input', () => { S.nowFrac = parseFloat($('now').value); S.hold = 0; });
+let scrubbing = false;
+$('now').addEventListener('pointerdown', () => { scrubbing = true; });
+window.addEventListener('pointerup', () => { scrubbing = false; });
+window.addEventListener('pointercancel', () => { scrubbing = false; });
 
 function setN(v) {
   const n = Math.max(2, Math.min(KMAX, Math.round(v)));
@@ -1233,7 +1248,7 @@ function applyPreset(name) {
   S.preset = name;
   document.querySelectorAll('.preset').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.preset === name)));
   $('presetNote').textContent = L(p.zh, p.en);
-  S.sel = -1; markPrep(); syncOutputs();
+  selectRun(-1); markPrep(); syncOutputs();
   if (S.mode === 0 && !reduceMotion) { S.nowFrac = 0; S.dir = 1; S.playing = true; setPlayUI(); }
   glitch();
 }
@@ -1277,14 +1292,21 @@ document.addEventListener('keydown', (ev) => {
   else if (/^[1-9]$/.test(ev.key)) setFocus(+ev.key - 1);
 });
 
+let selSorted = false;
 function selectRun(i) {
   S.sel = i;
   const card = $('runcard');
   if (i < 0) { card.innerHTML = L('点击落点或直方图，选出一次运行：它的落点、记录读数和二者之间的关联线会跨越不同钟时刻一起高亮。', 'Click a hit or the histogram to pick one run: its hit, its record reading and the link between them light up together across different clock times.'); return; }
   const off = S.frame * LAB[i], k = EK[i];
   const xs = `${EX[i] >= 0 ? '+' : ''}${EX[i].toFixed(3)}`, gap = Math.abs(S.TR - TF).toFixed(2);
-  card.innerHTML = `RUN <b>#${String(i).padStart(3, '0')}</b> · ${L('落点', 'hit')} x = <b>${xs}</b> · ${L('记录', 'record')} <b style="color:${BCSS[k]}">${outcomeName(k)} (${branchName(k)})</b><br>`
-    + `p(${outcomeName(k)} | x) = ${EPK[i].toFixed(3)} · ${L('落点', 'lands at')} τ = ${(off + TF).toFixed(2)} · ${L('读取', 'read at')} τ = ${(off + S.TR).toFixed(2)}<br>`
+  const unread = RUN.sorted[i] < 0.5;
+  selSorted = !unread;
+  const record = unread
+    ? `${L('记录', 'record')} <b>${L('尚未读取', 'not read yet')}</b>`
+    : `${L('记录', 'record')} <b style="color:${BCSS[k]}">${outcomeName(k)} (${branchName(k)})</b>`;
+  const prob = unread ? L('读数在 τ 之后才产生，LINEAR 模式不预先显示', 'the reading comes after τ; LINEAR mode does not reveal it early') : `p(${outcomeName(k)} | x) = ${EPK[i].toFixed(3)}`;
+  card.innerHTML = `RUN <b>#${String(i).padStart(3, '0')}</b> · ${L('落点', 'hit')} x = <b>${xs}</b> · ${record}<br>`
+    + `${prob} · ${L('落点', 'lands at')} τ = ${(off + TF).toFixed(2)} · ${L('读取', 'read at')} τ = ${(off + S.TR).toFixed(2)}<br>`
     + L(`关联切面：由这一对事件定义，跨越 ${gap} 的钟间隔。`, `Relational slice: defined by this pair of events, spanning a clock interval of ${gap}.`);
 }
 
@@ -1320,7 +1342,7 @@ function frame(tms) {
   if (dirtyBranches) { buildBranchUI(); dirtyBranches = false; syncOutputs(); }
   if (S.warpMix < 1) { S.warpMix = Math.min(1, S.warpMix + dt / 0.9); dirtyWalls = true; if (S.warpMix >= 1) S.warpFrom = S.warpType; }
   if (dirtyWalls) { buildWalls(); dirtyWalls = false; updateMarks(); }
-  if (S.playing) {
+  if (S.playing && !scrubbing) {
     if (S.hold > 0) { S.hold -= dt; if (S.hold <= 0) S.nowFrac = S.dir > 0 ? 0 : 1; }
     else {
       S.nowFrac += S.dir * dt * S.speed / 17;
@@ -1336,6 +1358,7 @@ function frame(tms) {
   }
   prevNow = now;
   runDynamics();
+  if (S.sel >= 0 && (RUN.sorted[S.sel] >= 0.5) !== selSorted) selectRun(S.sel);
   $('tau').innerHTML = `τ ${now.toFixed(3)} <small>/ ${span().toFixed(3)}</small>`;
   $('hudBig').textContent = `${S.mode === 1 ? 'BLOCK' : 'LINEAR'} · τ = ${now.toFixed(3)}`;
   const fb = focusBranch();
@@ -1357,6 +1380,16 @@ function frame(tms) {
 
 TRV.onLang(() => { labelStaticTags(); buildBranchUI(); buildBranchTable(); syncOutputs(); selectRun(S.sel); updateMarks(); });
 
+/* read-only probe for automated browser tests */
+window.CHRONO_DEBUG = {
+  state: () => JSON.parse(JSON.stringify(S)),
+  archive: () => ({ x: Array.from(EX), k: Array.from(EK), hash: archiveHash }),
+  stats: () => ({ P: Array.from(stats.P).slice(0, K()), V: Array.from(stats.V).slice(0, K()), n: K() }),
+  sums: () => { let worst = 0; for (let q = 0; q < NZ * NX; q++) { let t = 0; for (let k = 0; k < K(); k++) t += pB[k][q]; worst = Math.max(worst, Math.abs(t - pS[q])); } return worst; },
+  project: (i, which) => { if (!glOK) return null; const a = which === 'read' ? RUN.readP : RUN.clickP; const p = projectToStage(new THREE.Vector3(a[3 * i], a[3 * i + 1], a[3 * i + 2])); return { x: p.x, y: p.y, visible: (which === 'read' ? RUN.read[i] : RUN.hit[i]) * RUN.focusA[i] }; },
+  run: (i) => ({ sorted: RUN.sorted[i], hit: RUN.hit[i], focusA: RUN.focusA[i], dx: RUN.dx[i], dz: RUN.dz[i] })
+};
+
 /* cover state for scripts/thumbs.mjs: three conditional spacetimes unfolded, conditioned on the whole block */
 window.TRV_THUMB = () => {
   applyPreset('trine'); setMode(1);
@@ -1370,5 +1403,6 @@ refreshBranchColors();
 applyPreset('delayed');
 S.nowFrac = 0.8; S.playing = !reduceMotion; $('now').value = S.nowFrac;
 setPlayUI(); syncOutputs(); selectRun(-1);
+prevNow = nowAbs();
 requestAnimationFrame(frame);
 })();
