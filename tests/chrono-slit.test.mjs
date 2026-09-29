@@ -23,7 +23,16 @@ const errors = [];
 page.on('pageerror', e => errors.push(e.message));
 page.on('console', m => { if (m.type() === 'error' && !/ERR_CERT|fonts\.g/.test(m.text())) errors.push('console: ' + m.text()); });
 const D = (expr) => page.evaluate(expr);
-const setRange = (id, v) => page.evaluate(([id, v]) => { const el = document.getElementById(id); el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); }, [id, v]);
+// Controls are applied on the next animation frame; wait until the page has no pending recomputation,
+// so the checks do not depend on how fast the machine renders.
+const settle = async () => {
+  const start = await page.evaluate(() => CHRONO_DEBUG.frames());
+  await page.waitForFunction((f0) => !CHRONO_DEBUG.pending() && CHRONO_DEBUG.frames() >= f0 + 2, start, { timeout: 20000 });
+};
+const setRange = async (id, v) => {
+  await page.evaluate(([id, v]) => { const el = document.getElementById(id); el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); }, [id, v]);
+  await settle();
+};
 const wait = (ms) => page.waitForTimeout(ms);
 
 await page.goto(origin + BASE + 'viz/chrono-slit/');
@@ -196,7 +205,7 @@ await page.click('#play');
 
 // --- presets
 for (const p of ['young', 'whichway', 'eraser', 'delayed', 'partial', 'quarter', 'trine', 'octet']) {
-  await page.click(`[data-preset="${p}"]`); await wait(250);
+  await page.click(`[data-preset="${p}"]`); await settle();
   const st = await D(() => CHRONO_DEBUG.state());
   const note = await D(() => document.getElementById('presetNote').textContent);
   check(`preset ${p} applies and explains itself`, st.preset === p && note.length > 10);

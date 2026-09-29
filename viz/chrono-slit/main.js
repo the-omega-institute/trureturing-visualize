@@ -95,6 +95,7 @@ for (let k = 0; k < KMAX; k++) { pB.push(new Float32Array(NZ * NX)); cdfB.push(n
 // alpha[k] = <m_k|d_L>, gamma[k] = <m_k|d_R>, theta[k] = fringe offset of outcome k (phase instrument only)
 const coef = { alpha: [], gamma: [], theta: [] };
 const stats = { P: new Float32Array(KMAX), V: new Float32Array(KMAX), rowMass: 1, scrMax: 1 };
+let densityVersion = 0;
 const K = () => S.nOut;
 const sub = (n) => String(n).split('').map((c) => '₀₁₂₃₄₅₆₇₈₉'[+c]).join('');
 function outcomeName(k) { return K() === 2 ? (k === 0 ? 'e₊' : 'e₋') : 'e' + sub(k); }
@@ -162,6 +163,7 @@ function computeDensities() {
     stats.V[k] = den > 1e-12 ? 2 * A * G / den : 0;
   }
   stats.rowMass = sS * DXG; stats.scrMax = mx;
+  densityVersion++;
 }
 
 function sampleRow(cdf, r, u) {
@@ -914,6 +916,7 @@ const sliceCanvas = document.createElement('canvas'); sliceCanvas.width = SW; sl
 const sliceCtx = sliceCanvas.getContext('2d');
 const sliceData = sliceCtx.createImageData(SW, SH);
 const zOfRow = (j) => Z_SRC + (Z_SCR - Z_SRC) * (j + 0.5) / SH;
+const ghostCache = { key: '', max: 1 };
 /* Accumulate one density layer. wS weights Σ; wB[k] weights branch k's joint density (all ones reproduce Σ). */
 function accumulate(R, G, B, zc, sigZ, env0, wS, wB) {
   const n = K();
@@ -983,13 +986,19 @@ function drawSlice() {
   }
   let mx = 1e-12;
   for (let q = 0; q < SW * SH; q++) mx = Math.max(mx, R_[q], G_[q], B_[q]);
-  // ghost: clock marginal of the block (all times at once) under the current conditioning
-  gR.fill(0); gG.fill(0); gB.fill(0);
+  // ghost: clock marginal of the block (all times at once) under the current conditioning.
+  // It only depends on the densities, the focus and the sorted fraction, so it is recomputed when those change.
   const sG = block ? 1 : smooth((now - S.TR) / 0.05 + 0.5);
-  const gs = (1 - sG) * fS * (1 - c) + c * fS * 0.5;
-  accumulate(gR, gG, gB, null, 0, 1, gs, branchWeights(sG * (1 - c) + c * 0.5, -1));
-  let gmx = 1e-12;
-  for (let q = 0; q < SW * SH; q++) gmx = Math.max(gmx, gR[q], gG[q], gB[q]);
+  const ghostKey = `${densityVersion}|${S.focus}|${K()}|${sG.toFixed(2)}|${c.toFixed(3)}`;
+  if (ghostKey !== ghostCache.key) {
+    gR.fill(0); gG.fill(0); gB.fill(0);
+    const gs = (1 - sG) * fS * (1 - c) + c * fS * 0.5;
+    accumulate(gR, gG, gB, null, 0, 1, gs, branchWeights(sG * (1 - c) + c * 0.5, -1));
+    let m = 1e-12;
+    for (let q = 0; q < SW * SH; q++) m = Math.max(m, gR[q], gG[q], gB[q]);
+    ghostCache.key = ghostKey; ghostCache.max = m;
+  }
+  const gmx = ghostCache.max;
   const gk = packets ? 0.10 * mx / gmx : 0.30 / gmx;
   if (!packets) mx = 1;
   const d = sliceData.data;
@@ -1334,7 +1343,9 @@ function resize() {
   camera.aspect = Math.max(0.2, r.width / Math.max(1, r.height));
   camera.updateProjectionMatrix();
 }
+let frameCount = 0;
 function frame(tms) {
+  frameCount++;
   const dt = Math.min(0.1, (tms - lastT) / 1000); lastT = tms; tAcc += dt;
   if (dirtyBranches) refreshBranchColors();
   if (dirtyDensity) { computeDensities(); sampleTemplates(); dirtyDensity = false; }
@@ -1382,6 +1393,9 @@ TRV.onLang(() => { labelStaticTags(); buildBranchUI(); buildBranchTable(); syncO
 
 /* read-only probe for automated browser tests */
 window.CHRONO_DEBUG = {
+  /* true while a control change is waiting for the next frame to recompute densities, archive or labels */
+  pending: () => dirtyDensity || dirtyEvents || dirtyBranches || dirtyWalls,
+  frames: () => frameCount,
   state: () => JSON.parse(JSON.stringify(S)),
   archive: () => ({ x: Array.from(EX), k: Array.from(EK), hash: archiveHash }),
   stats: () => ({ P: Array.from(stats.P).slice(0, K()), V: Array.from(stats.V).slice(0, K()), n: K() }),
