@@ -35,6 +35,11 @@ const setRange = async (id, v) => {
   await settle();
 };
 const wait = (ms) => page.waitForTimeout(ms);
+// playback checks wait for rendered frames, not wall-clock time, so a slow renderer cannot make them flaky
+const waitFrames = async (n) => {
+  const f0 = await page.evaluate(() => CHRONO_DEBUG.frames());
+  await page.waitForFunction(([f0, n]) => CHRONO_DEBUG.frames() >= f0 + n, [f0, n], { timeout: 30000 });
+};
 
 await page.goto(origin + BASE + 'viz/chrono-slit/');
 await wait(600);
@@ -158,13 +163,14 @@ await page.click('#camChips [data-cam="top"]'); await wait(600);
 check('camera preset chip highlights', (await D(() => document.querySelector('#camChips [aria-pressed="true"]')?.dataset.cam)) === 'top');
 await page.click('#camChips [data-cam="iso"]'); await wait(300);
 
-// --- transport
-await page.click('#play'); await wait(400);
-const f1 = await D(() => CHRONO_DEBUG.state().nowFrac); await wait(500);
+// --- transport (start mid-way so neither end of the clock is reached while measuring)
+await setRange('now', 0.5);
+await page.click('#play'); await waitFrames(4);
+const f1 = await D(() => CHRONO_DEBUG.state().nowFrac); await waitFrames(12);
 const f2 = await D(() => CHRONO_DEBUG.state().nowFrac);
 check('play advances the clock', f2 > f1, `${f1.toFixed(3)} → ${f2.toFixed(3)}`);
-await page.click('#rev'); await wait(500);
-const f3 = await D(() => CHRONO_DEBUG.state().nowFrac); await wait(500);
+await page.click('#rev'); await waitFrames(4);
+const f3 = await D(() => CHRONO_DEBUG.state().nowFrac); await waitFrames(12);
 const f4 = await D(() => CHRONO_DEBUG.state().nowFrac);
 check('reverse runs the clock backwards', f4 < f3, `${f3.toFixed(3)} → ${f4.toFixed(3)}`);
 await page.click('#rev'); await page.click('#play'); await wait(200);

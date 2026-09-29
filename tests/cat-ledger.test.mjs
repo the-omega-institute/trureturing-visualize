@@ -44,6 +44,11 @@ const toastOn = async () => (await D(() => document.getElementById('toast').styl
 const tNow = () => D(() => CAT_DEBUG.state().nowFrac * 60);
 const deathsUpTo = (arch, t) => arch.t.filter(x => x > 0 && x <= t + 1e-9).length;
 const wait = (ms) => page.waitForTimeout(ms);
+// playback checks wait for rendered frames, not wall-clock time, so a slow renderer cannot make them flaky
+const waitFrames = async (n) => {
+  const f0 = await page.evaluate(() => CAT_DEBUG.frames());
+  await page.waitForFunction(([f0, n]) => CAT_DEBUG.frames() >= f0 + n, [f0, n], { timeout: 30000 });
+};
 
 await page.goto(origin + BASE + 'viz/cat-ledger/');
 await wait(600);
@@ -109,6 +114,13 @@ await setNow(50);
 const bars = await D(() => [...document.querySelectorAll('#condBars .row b')].map(b => +b.textContent));
 const sAt50 = await D(() => CAT_DEBUG.survival(50));
 check('conditional state: P(dark | alive at t) = w / s(t)', Math.abs(bars[1] - 0.35 / sAt50) < 1e-3 && Math.abs(bars[0] + bars[1] - 1) < 2e-3, bars.join(' / '));
+let staleScrubs = 0;
+for (let i = 0; i < 12; i++) {
+  await setNow(5 + 4.3 * i);
+  const r = await D(() => { const t = CAT_DEBUG.state().nowFrac * 60; return { b: +document.querySelectorAll('#condBars .row b')[1].textContent, want: 0.35 / CAT_DEBUG.survival(t), note: document.getElementById('condNote').textContent, t }; });
+  if (Math.abs(r.b - r.want) > 1e-3 || !r.note.includes(r.t.toFixed(1))) staleScrubs++;
+}
+check('readouts follow every scrub of the clock (no stale notes)', staleScrubs === 0, `${staleScrubs}/12 stale`);
 await setRange('dark', 0);
 check('removing the dark state restores the archive', (await D(() => CAT_DEBUG.archive().hash)) === a0.hash);
 
@@ -274,12 +286,12 @@ await page.keyboard.press('Escape');
 
 // --- transport
 await setNow(10);
-await page.click('#play'); await wait(400);
-const f1 = await D(() => CAT_DEBUG.state().nowFrac); await wait(600);
+await page.click('#play'); await waitFrames(4);
+const f1 = await D(() => CAT_DEBUG.state().nowFrac); await waitFrames(12);
 const f2 = await D(() => CAT_DEBUG.state().nowFrac);
 check('play advances the clock', f2 > f1, `${f1.toFixed(4)} → ${f2.toFixed(4)}`);
-await page.click('#rev'); await wait(400);
-const f3 = await D(() => CAT_DEBUG.state().nowFrac); await wait(600);
+await page.click('#rev'); await waitFrames(4);
+const f3 = await D(() => CAT_DEBUG.state().nowFrac); await waitFrames(12);
 const f4 = await D(() => CAT_DEBUG.state().nowFrac);
 check('reverse runs the clock backwards', f4 < f3, `${f3.toFixed(4)} → ${f4.toFixed(4)}`);
 await page.click('#rev');

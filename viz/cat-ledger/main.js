@@ -779,8 +779,10 @@ function updateBars() {
     : L('没有暗态时，每只活猫都只是“还没衰变”，长期存活概率趋于 0。把暗态权重 w 调大，看条件态怎样随存活时间偏向暗态。',
         'Without a dark state every living cat is simply “not yet decayed”, and long-run survival tends to 0. Raise the dark weight w to see the conditional state lean towards the dark part the longer a cat survives.');
 }
+let syncedT = NaN;                                           // the moment the notes and bars were last written for
 function syncOutputs() {
   const d = dt(), N = nMax(), t = viewT();
+  syncedT = t;
   $('oDt').textContent = `${d.toFixed(2)} min`;
   $('oDark').textContent = S.dark.toFixed(2);
   $('oOpen').textContent = mins(S.open);
@@ -1004,7 +1006,7 @@ function frame(tms) {
     toast(L(`<b>开箱</b>：盒外账本一次读入 ${N_RUNS} 只盒子，其中 ${deathsBy(S.open)} 条死亡早已写在盒内。档案一个字节也没变，变的只是这本账上有了什么。`,
       `<b>Opened</b>: the outside ledger reads all ${N_RUNS} boxes at once; ${deathsBy(S.open)} of the deaths were written inside long before. Not a byte of the archive changed, only what this ledger holds.`));
   }
-  if (Math.abs(t - prevT) > 1e-9 && panelTick % 3 === 0) syncOutputs();
+  if (!(Math.abs(t - syncedT) <= 1e-9) && (panelTick % 3 === 0 || !S.playing)) syncOutputs();
   prevT = t;
   runLayout(dtSec);
   if (dirtyFrame || S.split > 0) { buildFrame(Math.max(0.15, centerOpacity)); dirtyFrame = false; }
@@ -1043,8 +1045,8 @@ TRV.onLang(() => { labelStaticTags(); buildBranchUI(); buildBranchTable(); syncO
 
 /* read-only probe for automated browser tests */
 window.CAT_DEBUG = {
-  /* true while a control change is waiting for the next frame to recompute the archive, the clock or the frame */
-  pending: () => dirtyArchive || dirtyClock || dirtyFrame || S.clockMix < 1,
+  /* true while a control change is waiting for the next frame to recompute the archive, the clock, the frame or the notes */
+  pending: () => dirtyArchive || dirtyClock || dirtyFrame || S.clockMix < 1 || !(Math.abs(viewT() - syncedT) <= 1e-9),
   frames: () => frameCount,
   state: () => JSON.parse(JSON.stringify(S)),
   archive: () => ({ t: Array.from(DT), n: Array.from(DR), hash: archiveHash }),
