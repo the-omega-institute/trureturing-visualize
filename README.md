@@ -9,6 +9,7 @@ Every page is bilingual (中文 / English, switchable in the header) and states 
 
 | id | Page | Theory |
 | --- | --- | --- |
+| `friend-bell` | [FRIEND//BELL Wigner 之友 · 贝尔竞技场](https://the-omega-institute.github.io/trureturing-visualize/viz/friend-bell/) | OBSERVER-QUANTUM §8 · GICT 观察 6.30 |
 | `cat-ledger` | [CAT//LEDGER 薛定谔的猫 · 账本时空块](https://the-omega-institute.github.io/trureturing-visualize/viz/cat-ledger/) | 波粒整体的关系全息表示 §5 §8 §11–§13 · OBSERVER-QUANTUM §8 §18.2 |
 | `chrono-slit` | [CHRONO//SLIT 双缝时空体](https://the-omega-institute.github.io/trureturing-visualize/viz/chrono-slit/) | 波粒整体的关系全息表示 §3 §4 §5 §8 §24 |
 

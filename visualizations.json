@@ -2,6 +2,60 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "friend-bell",
+      "code": "FRIEND//BELL",
+      "title": "Wigner 之友 · 贝尔竞技场",
+      "title_en": "Wigner’s friend in a Bell arena",
+      "summary": "朋友写下的结果作 CHSH 的一臂，Wigner 撤销朋友之后的相干测量作另一臂。量子比特朋友给出 2√2，超过任何“绝对事实答案表”都达不到的 2；朋友的记录副本越多、撤销越难，违背越小，真人朋友只剩 2。换参考系可以让 Wigner 或 Bob 先测，关联不变；两份结果只在汇合处才成为同一本账上的事实。",
+      "summary_en": "The friend’s written result is one arm of a CHSH test and Wigner’s coherent measurement after undoing the friend is the other. A qubit friend gives 2√2, beyond the 2 that no absolute answer table can exceed; the more copies of the friend’s record and the harder the undo, the smaller the violation, down to 2 for a human friend. Boosting to another frame lets Wigner or Bob measure first without changing the correlations, and the two results become facts in one ledger only where they meet.",
+      "path": "viz/friend-bell/",
+      "thumbnail": "viz/friend-bell/thumb.jpg",
+      "status": "live",
+      "added": "2026-09-29",
+      "tags": [
+        "Wigner 之友",
+        "贝尔不等式",
+        "CHSH",
+        "账本相对事实",
+        "参考系",
+        "WebGL"
+      ],
+      "tags_en": [
+        "Wigner’s friend",
+        "Bell inequality",
+        "CHSH",
+        "ledger-relative facts",
+        "reference frames",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "观察者量子论 §8 嵌套观察者与事实的账本相对性",
+          "label_en": "Observer quantum theory §8 nested observers and ledger-relative facts",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/OBSERVER-QUANTUM.md"
+        },
+        {
+          "label": "GICT 观察 6.30 账本相对事实",
+          "label_en": "GICT Observation 6.30 ledger-relative facts",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/GICT.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "classical_chsh_bound_is_exact",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumBounds/ClassicalFiberBound.lean"
+        },
+        {
+          "label": "bell_chsh_state_expectation_is_greatest",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumBounds/TsirelsonTightness.lean"
+        },
+        {
+          "label": "landau_identity",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumBounds/LandauIdentity.lean"
+        }
+      ]
+    },
+    {
       "id": "cat-ledger",
       "code": "CAT//LEDGER",
       "title": "薛定谔的猫 · 账本时空块",
