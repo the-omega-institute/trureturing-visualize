@@ -1,0 +1,17 @@
+{
+  "name": "trureturing-visualize",
+  "private": true,
+  "description": "Interactive visualizations of trureturing theory, published with GitHub Pages.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "serve": "node scripts/serve.mjs",
+    "validate": "node scripts/validate.mjs",
+    "build": "node scripts/build.mjs _site",
+    "thumbs": "node scripts/thumbs.mjs",
+    "new": "node scripts/new-viz.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

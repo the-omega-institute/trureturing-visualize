@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "visualizations": [
+    {
+      "id": "chrono-slit",
+      "code": "CHRONO//SLIT",
+      "title": "双缝时空体",
+      "title_en": "Double-slit spacetime block",
+      "summary": "把双缝与延迟选择擦除的一次运行画成静态时空体。路径记录可以用 2 到 8 个读数的仪器读取，每个读数一个条件时空，它们相加总是同一个总体；还可以切换钟条件化、展开第四轴、交换读取顺序，并对时间做非线性重标。",
+      "summary_en": "One run of the double-slit and delayed-choice eraser drawn as a static spacetime block. The path record can be read by an instrument with 2 to 8 outcomes; each outcome defines a conditional spacetime, and together they always add up to the same whole. You can also switch clock conditioning, unfold a fourth axis, swap the read order and relabel time nonlinearly.",
+      "path": "viz/chrono-slit/",
+      "thumbnail": "viz/chrono-slit/thumb.jpg",
+      "status": "live",
+      "added": "2026-09-29",
+      "tags": [
+        "波粒",
+        "延迟选择",
+        "量子擦除",
+        "多结果读取",
+        "钟条件化",
+        "WebGL"
+      ],
+      "tags_en": [
+        "wave–particle",
+        "delayed choice",
+        "quantum eraser",
+        "multi-outcome readout",
+        "clock conditioning",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "波粒整体的关系全息表示 §3 §4 §5 §8 §24",
+          "label_en": "Relational holography of the wave–particle whole §3 §4 §5 §8 §24",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/RECURSIVE_RELATIONAL_OBSERVATION_WAVE_PARTICLE_EVENTS.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "pure_record_distinguishability_coherence_complementarity",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/PureState/RecordCoherenceComplementarity.lean"
+        }
+      ]
+    }
+  ]
+}
