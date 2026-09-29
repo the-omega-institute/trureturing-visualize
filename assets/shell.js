@@ -1,6 +1,6 @@
 /* trureturing-visualize · shared runtime (window.TRV)
    Small helpers every visualization uses: language switch, palette, canvas sizing, toast, glitch, theory drawer, seeded RNG.
-   Load it in <head>, before any page script:  <script src="../../assets/shell.js"></script>
+   Load it in <head>, before any page script (src="../../assets/shell.js" from a viz page).
    It sets <html data-lang> immediately, so the paired .zh / .en fragments never flash both languages. */
 (function () {
   'use strict';
