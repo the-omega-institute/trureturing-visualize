@@ -2,6 +2,64 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "darwin-echo",
+      "code": "DARWIN//ECHO",
+      "title": "量子达尔文主义 · 事实的回声",
+      "title_en": "Quantum Darwinism · echoes of a fact",
+      "summary": "系统把自己的一个量一份一份写进环境。第一份完美副本写下之后，任何一小片碎片都恰好带着全部经典信息 H(p)，互不相识的观察者读各自的碎片就会一致；只有拿到整个环境才多出 H(p) 的量子关联。换记录规则就换了指针基；问互补的相位时，碎片一无所知——每份账本只有一种经典。",
+      "summary_en": "A system writes one of its quantities into the environment, copy by copy. From the first perfect copy on, any small fragment carries exactly the whole classical information H(p), and observers reading their own fragments agree; only the whole environment adds H(p) of quantum correlation. Changing the record rule changes the pointer basis; asking about the complementary phase, the fragments know nothing. One classical world per ledger.",
+      "path": "viz/darwin-echo/",
+      "thumbnail": "viz/darwin-echo/thumb.jpg",
+      "status": "live",
+      "added": "2026-09-30",
+      "tags": [
+        "量子达尔文主义",
+        "退相干",
+        "指针基",
+        "冗余",
+        "单配",
+        "WebGL"
+      ],
+      "tags_en": [
+        "quantum Darwinism",
+        "decoherence",
+        "pointer basis",
+        "redundancy",
+        "monogamy",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "观察者量子论 §5 经典性三层定理",
+          "label_en": "Observer quantum theory §5 three layers of classicality",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/OBSERVER-QUANTUM.md"
+        },
+        {
+          "label": "GICT 定理 6.26 经典性三层定理",
+          "label_en": "GICT Theorem 6.26 three layers of classicality",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/GICT.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "orthogonal_record_trace_gives_sbs_consensus",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Information/OrthogonalRecordEntropy.lean"
+        },
+        {
+          "label": "coherent_copy_correlation_tax",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Information/CoherentCopyCorrelationTax.lean"
+        },
+        {
+          "label": "phase_damping_in_basis_fixed_iff",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/PointerBasis.lean"
+        },
+        {
+          "label": "repeated_record_exponential_decay",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Decoherence/RepeatedRecordExponentialDecay.lean"
+        }
+      ]
+    },
+    {
       "id": "friend-bell",
       "code": "FRIEND//BELL",
       "title": "Wigner 之友 · 贝尔竞技场",
