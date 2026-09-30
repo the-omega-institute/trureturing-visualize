@@ -470,7 +470,8 @@ function syncOutputs() {
     ? T(`每人读自己碎片里的 ${S.m} 份记录，读对指针值的概率 ½(1 + √(1 − c<sup>2m</sup>)) = ${pObs(c, S.m).toFixed(3)}。`, `Each observer reads ${S.m} records in their fragment and gets the pointer value right with probability ½(1 + √(1 − c<sup>2m</sup>)) = ${pObs(c, S.m).toFixed(3)}.`)
     : T(`问的是相位：碎片与相位的关联至多 2√(p(1−p))·c<sup>n−m</sup>，只有几乎整个环境才知道答案，每人基本是在猜。`, `The question is the phase: a fragment’s correlation with the phase is at most 2√(p(1−p))·c<sup>n−m</sup>, so only almost the whole environment knows it and each observer is essentially guessing.`);
   $('roP').textContent = p.toFixed(3); $('roH').textContent = h.toFixed(3);
-  $('roCoh').textContent = coherenceLeft(n) >= 1e-3 || coherenceLeft(n) === 0 ? coherenceLeft(n).toFixed(3) : coherenceLeft(n).toExponential(1);
+  const coh = coherenceLeft(n), cohTxt = coh >= 1e-3 || coh === 0 ? coh.toFixed(3) : coh.toExponential(1);
+  $('roCoh').textContent = cohTxt;
   $('roSS').textContent = h2(rs).toFixed(3);
   $('roR').innerHTML = red.R === null ? T('— 无信息可记', '— nothing to record') : red.m ? `${red.R.toFixed(1)} <small>(m<sub>δ</sub> = ${red.m})</small>` : '&lt; 1';
   const cs = consensus(), pAll = allAgreeProbability();
@@ -490,7 +491,7 @@ function syncOutputs() {
   const redTxt = red.R === null ? T('没有可记的信息', 'nothing to record') : red.m ? T(`R<sub>δ</sub> = ${red.R.toFixed(1)} 片互不重叠的碎片各自带着九成经典信息`, `R<sub>δ</sub> = ${red.R.toFixed(1)} disjoint fragments each carry 90% of the classical information`) : T('还没有碎片能带走九成经典信息', 'no fragment carries 90% of the classical information yet');
   $('layers').innerHTML = [
     T('<b>中心层</b>：强制、无选择的公共经典核（本页不演示）。', '<b>Central layer</b>: a forced public classical core with no choice (not shown here).'),
-    T(`<b>指针基层</b>：记录规则选定指针轴 η = ${S.eta}°；剩余相干 ${$('roCoh').textContent}。`, `<b>Pointer layer</b>: the record rule selects the pointer axis η = ${S.eta}°; coherence left ${$('roCoh').textContent}.`),
+    T(`<b>指针基层</b>：记录规则选定指针轴 η = ${S.eta}°；剩余相干 ${cohTxt}。`, `<b>Pointer layer</b>: the record rule selects the pointer axis η = ${S.eta}°; coherence left ${cohTxt}.`),
     T(`<b>冗余层</b>：${redTxt}。`, `<b>Redundancy layer</b>: ${redTxt}.`)
   ].map((x) => `<li>${x}</li>`).join('');
   $('presetNote').textContent = S.preset ? T(PRESETS[S.preset].zh, PRESETS[S.preset].en) : T('自定义参数。', 'Custom settings.');
