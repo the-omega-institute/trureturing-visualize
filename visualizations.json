@@ -2,6 +2,60 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "zeno-watch",
+      "code": "ZENO//WATCH",
+      "title": "量子芝诺效应 · 被盯住的跃迁",
+      "title_en": "Quantum Zeno effect · the watched transition",
+      "summary": "一个被 Rabi 驱动的量子比特，在翻转途中被反复刷新：刷新越密，翻转越难发生。刷新是一次物理交互，所以它还能做别的事——不完全的记录只能减弱冻结，强度随间隔变小的刷新只把跃迁拖慢；缓慢转动的测量能把态拖到正交的位置；对向环境衰变的不稳定态，适中的测量频率反而加速衰变。",
+      "summary_en": "A Rabi-driven qubit is refreshed again and again while it flips: the denser the refreshes, the harder the flip. A refresh is a physical interaction, so it can do more: incomplete records only weaken the freeze, refreshes that weaken with the interval merely slow the transition down, a slowly turning measurement drags the state to an orthogonal position, and for an unstable state decaying into an environment a moderate measurement rate speeds the decay up.",
+      "path": "viz/zeno-watch/",
+      "thumbnail": "viz/zeno-watch/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-01",
+      "tags": [
+        "量子芝诺",
+        "反芝诺",
+        "测量反作用",
+        "记录强度",
+        "布洛赫球",
+        "WebGL"
+      ],
+      "tags_en": [
+        "quantum Zeno",
+        "anti-Zeno",
+        "measurement back-action",
+        "record strength",
+        "Bloch sphere",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "量子现实 §221–§230 记录强度、Zeno 动力学与稳定—学习权衡",
+          "label_en": "Quantum reality §221–§230 record strength, Zeno dynamics and the stability–learning trade-off",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/QUANTUM-REALITY.md"
+        },
+        {
+          "label": "锥程序 §5.4 监视熵产律",
+          "label_en": "Cone program §5.4 monitoring entropy law",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/CONE_PROGRAM_FORMAL.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "trace_environment_controlled_record_eq_phase_damping",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/EnvironmentRecords.lean"
+        },
+        {
+          "label": "record_action_controls_coherence_survival",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Decoherence/RecordActionCoherenceSurvival.lean"
+        },
+        {
+          "label": "monitored_return_conservation",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumChannels/ProjectionDiagnostics/MonitoredReturnConservation.lean"
+        }
+      ]
+    },
+    {
       "id": "delay-eraser",
       "code": "DELAY//ERASER",
       "title": "延迟选择量子擦除 · 先落点，后贴标签",
