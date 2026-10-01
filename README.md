@@ -9,6 +9,7 @@ Every page is bilingual (中文 / English, switchable in the header) and states 
 
 | id | Page | Theory |
 | --- | --- | --- |
+| `dark-walk` | [DARK//WALK 首次探测与暗态 · 永远找不到的行走者](https://the-omega-institute.github.io/trureturing-visualize/viz/dark-walk/) | 波粒整体的关系全息表示 §11–§13 §49 |
 | `zeno-watch` | [ZENO//WATCH 量子芝诺效应 · 被盯住的跃迁](https://the-omega-institute.github.io/trureturing-visualize/viz/zeno-watch/) | 量子现实 §221–§230 · 锥程序 §5.4 |
 | `delay-eraser` | [DELAY//ERASER 延迟选择量子擦除 · 先落点，后贴标签](https://the-omega-institute.github.io/trureturing-visualize/viz/delay-eraser/) | 波粒整体的关系全息表示 §5 §8 |
 | `darwin-echo` | [DARWIN//ECHO 量子达尔文主义 · 事实的回声](https://the-omega-institute.github.io/trureturing-visualize/viz/darwin-echo/) | OBSERVER-QUANTUM §5 · GICT 定理 6.26 |
