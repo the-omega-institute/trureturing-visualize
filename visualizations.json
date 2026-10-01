@@ -2,6 +2,55 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "dark-walk",
+      "code": "DARK//WALK",
+      "title": "首次探测与暗态 · 永远找不到的行走者",
+      "title_en": "First detection and dark states · the walker that is never found",
+      "summary": "量子粒子在环或链上行走，探测器每隔 τ 检查一个格点。经典随机行走者最终一定会被找到；量子行走者却有一部分落在暗空间里——那些在探测点上相消为零的驻波——永远不被探到。在特殊的探测间隔上，暗空间会突然变大；从探测点出发时，平均返回轮数是一个整数。",
+      "summary_en": "A quantum particle walks on a ring or a chain while a detector checks one site every τ. A classical random walker is always found in the end; part of a quantum walker can lie in the dark space, standing waves that cancel at the detector, and is never detected. At special detection intervals the dark space suddenly grows; starting at the detector, the mean return round is an integer.",
+      "path": "viz/dark-walk/",
+      "thumbnail": "viz/dark-walk/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-01",
+      "tags": [
+        "首次探测",
+        "暗态",
+        "量子行走",
+        "相干相消",
+        "返回量子化",
+        "WebGL"
+      ],
+      "tags_en": [
+        "first detection",
+        "dark states",
+        "quantum walk",
+        "destructive interference",
+        "return quantization",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "波粒整体的关系全息表示 §11–§13 首次探测与暗空间 · §49 返回量子化",
+          "label_en": "Relational holographic representation of the wave–particle whole §11–§13 first detection and the dark space · §49 return quantization",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/RECURSIVE_RELATIONAL_OBSERVATION_WAVE_PARTICLE_EVENTS.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "dark_space_eq_survival_defect_kernel",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Measurement/FiniteDetectionDarkSpace.lean"
+        },
+        {
+          "label": "finite_detection_survival_limit",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Measurement/FiniteDetectionSurvivalLimit.lean"
+        },
+        {
+          "label": "monitored_return_conservation",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumChannels/ProjectionDiagnostics/MonitoredReturnConservation.lean"
+        }
+      ]
+    },
+    {
       "id": "zeno-watch",
       "code": "ZENO//WATCH",
       "title": "量子芝诺效应 · 被盯住的跃迁",
