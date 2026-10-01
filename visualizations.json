@@ -2,6 +2,59 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "delay-eraser",
+      "code": "DELAY//ERASER",
+      "title": "延迟选择量子擦除 · 先落点，后贴标签",
+      "title_en": "Delayed-choice quantum eraser · hits first, labels later",
+      "summary": "信号光子先落在屏上，孪生的闲置光子绕过延迟线后才被决定：测路径，还是擦除路径。屏上的落点一个也不会移动，D0 从来没有条纹；条纹只在按闲置探测器事后分拣的符合计数里出现，而标签要经由不比光快的电脉冲送来。可以在光子飞行途中扳动开关，也可以把选择放到落点之前或之后的任何时刻。",
+      "summary_en": "The signal photon lands on the screen first; its idler twin runs through a delay line before its fate is decided: measure the path, or erase it. No hit on the screen ever moves and D0 never shows fringes; fringes appear only in the coincidences sorted afterwards by the idler detector, and the labels arrive over electrical pulses no faster than light. Flip the switch while the photons are in flight, or put the choice anywhere before or after the hit.",
+      "path": "viz/delay-eraser/",
+      "thumbnail": "viz/delay-eraser/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-01",
+      "tags": [
+        "量子擦除",
+        "延迟选择",
+        "符合计数",
+        "互补",
+        "光锥",
+        "WebGL"
+      ],
+      "tags_en": [
+        "quantum eraser",
+        "delayed choice",
+        "coincidence counting",
+        "complementarity",
+        "light cones",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "波粒整体的关系全息表示 §5 路线记录与擦除 · §8 顺序事件",
+          "label_en": "Relational holographic representation of the wave–particle whole §5 route records and erasure · §8 sequential events",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/RECURSIVE_RELATIONAL_OBSERVATION_WAVE_PARTICLE_EVENTS.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "nonselective_recording_marginal",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Decoherence/NonselectiveMarginalization.lean"
+        },
+        {
+          "label": "selective_record_conditioning",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Observer/Conditioning/SelectiveRecordConditioning.lean"
+        },
+        {
+          "label": "pure_record_distinguishability_coherence_complementarity",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/PureState/RecordCoherenceComplementarity.lean"
+        },
+        {
+          "label": "local_observation_partial_trace_equivalence",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Entanglement/LocalObservationPartialTraceEquivalence.lean"
+        }
+      ]
+    },
+    {
       "id": "darwin-echo",
       "code": "DARWIN//ECHO",
       "title": "量子达尔文主义 · 事实的回声",
