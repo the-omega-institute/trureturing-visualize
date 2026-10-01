@@ -9,6 +9,7 @@ Every page is bilingual (中文 / English, switchable in the header) and states 
 
 | id | Page | Theory |
 | --- | --- | --- |
+| `delay-eraser` | [DELAY//ERASER 延迟选择量子擦除 · 先落点，后贴标签](https://the-omega-institute.github.io/trureturing-visualize/viz/delay-eraser/) | 波粒整体的关系全息表示 §5 §8 |
 | `darwin-echo` | [DARWIN//ECHO 量子达尔文主义 · 事实的回声](https://the-omega-institute.github.io/trureturing-visualize/viz/darwin-echo/) | OBSERVER-QUANTUM §5 · GICT 定理 6.26 |
 | `friend-bell` | [FRIEND//BELL Wigner 之友 · 贝尔竞技场](https://the-omega-institute.github.io/trureturing-visualize/viz/friend-bell/) | OBSERVER-QUANTUM §8 · GICT 观察 6.30 |
 | `cat-ledger` | [CAT//LEDGER 薛定谔的猫 · 账本时空块](https://the-omega-institute.github.io/trureturing-visualize/viz/cat-ledger/) | 波粒整体的关系全息表示 §5 §8 §11–§13 · OBSERVER-QUANTUM §8 §18.2 |
