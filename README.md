@@ -9,6 +9,7 @@ Every page is bilingual (中文 / English, switchable in the header) and states 
 
 | id | Page | Theory |
 | --- | --- | --- |
+| `syndrome-mend` | [SYNDROME//MEND 量子纠错 · 离开编码空间不等于丢了信息](https://the-omega-institute.github.io/trureturing-visualize/viz/syndrome-mend/) | 量子现实 ST27–ST31 |
 | `dark-walk` | [DARK//WALK 首次探测与暗态 · 永远找不到的行走者](https://the-omega-institute.github.io/trureturing-visualize/viz/dark-walk/) | 波粒整体的关系全息表示 §11–§13 §49 |
 | `zeno-watch` | [ZENO//WATCH 量子芝诺效应 · 被盯住的跃迁](https://the-omega-institute.github.io/trureturing-visualize/viz/zeno-watch/) | 量子现实 §221–§230 · 锥程序 §5.4 |
 | `delay-eraser` | [DELAY//ERASER 延迟选择量子擦除 · 先落点，后贴标签](https://the-omega-institute.github.io/trureturing-visualize/viz/delay-eraser/) | 波粒整体的关系全息表示 §5 §8 |
