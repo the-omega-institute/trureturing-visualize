@@ -2,6 +2,63 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "syndrome-mend",
+      "code": "SYNDROME//MEND",
+      "title": "量子纠错 · 离开编码空间不等于丢了信息",
+      "title_en": "Quantum error correction · leaving the code space is not losing the information",
+      "summary": "三比特重复码把一个逻辑比特写成 α|000⟩ + β|111⟩。噪声把态推出编码空间，落进三份两两正交的错误副本；把副本折回来，哪怕整个态都离开了编码空间、哪怕错误是相干叠加，也能精确找回。两个比特同时翻转会骗过译码：Knill–Laflamme 条件不成立。各分支沿路径带回的相位要靠记录补偿，记录被删掉一位，最优误差就从 0 跳上去。",
+      "summary_en": "The three-qubit repetition code writes one logical qubit as α|000⟩ + β|111⟩. Noise pushes the state out of the code space into three mutually orthogonal error copies; folding the copies back recovers the state exactly, even when the whole state has left the code space and even when the error is a coherent superposition. Two simultaneous flips fool the decoder: the Knill–Laflamme condition fails. Phases that the branches bring back along their paths must be undone from the record, and deleting one record bit raises the best error above 0.",
+      "path": "viz/syndrome-mend/",
+      "thumbnail": "viz/syndrome-mend/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-03",
+      "tags": [
+        "量子纠错",
+        "综合征",
+        "重复码",
+        "Knill–Laflamme",
+        "记录与恢复",
+        "WebGL"
+      ],
+      "tags_en": [
+        "quantum error correction",
+        "syndrome",
+        "repetition code",
+        "Knill–Laflamme",
+        "record and recovery",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "量子现实 ST27–ST31 正交错误副本、带记录的恢复条件与记录不全时的最优误差",
+          "label_en": "Quantum reality ST27–ST31 orthogonal error copies, recovery conditions with records and the best error with an incomplete record",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/QUANTUM-REALITY.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "orthogonal_syndrome_recovery",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Recovery/OrthogonalSyndromeDecoding.lean"
+        },
+        {
+          "label": "syndrome_transport_orthogonal",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Recovery/OrthogonalSyndromeDecoding.lean"
+        },
+        {
+          "label": "full_syndrome_decoder",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Recovery/OrthogonalSyndromeChannel.lean"
+        },
+        {
+          "label": "left_inverse_error_products",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Recovery/KrausLeftInverseNecessity.lean"
+        },
+        {
+          "label": "scalar_products_construct_left_inverse",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Recovery/FiniteKrausReversibility.lean"
+        }
+      ]
+    },
+    {
       "id": "dark-walk",
       "code": "DARK//WALK",
       "title": "首次探测与暗态 · 永远找不到的行走者",
