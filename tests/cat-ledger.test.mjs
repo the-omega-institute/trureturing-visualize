@@ -296,10 +296,10 @@ const f4 = await D(() => CAT_DEBUG.state().nowFrac);
 check('reverse runs the clock backwards', f4 < f3, `${f3.toFixed(4)} → ${f4.toFixed(4)}`);
 await page.click('#rev');
 const nb = await page.locator('#now').boundingBox();
-await page.mouse.move(nb.x + nb.width * 0.3, nb.y + nb.height / 2); await page.mouse.down(); await wait(100);
-const g1 = await D(() => CAT_DEBUG.state().nowFrac); await wait(700);
+await page.mouse.move(nb.x + nb.width * 0.3, nb.y + nb.height / 2); await page.mouse.down(); await waitFrames(3);
+const g1 = await D(() => CAT_DEBUG.state().nowFrac); await waitFrames(12);        // frames, not wall-clock time: rendering can stall under load
 const g2 = await D(() => CAT_DEBUG.state().nowFrac);
-await page.mouse.up(); await wait(700);
+await page.mouse.up(); await waitFrames(12);
 const g3 = await D(() => CAT_DEBUG.state().nowFrac);
 check('holding the clock slider stops playback from moving it', Math.abs(g2 - g1) < 1e-6);
 check('playback resumes after releasing the slider', g3 > g2);

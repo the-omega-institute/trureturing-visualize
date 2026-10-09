@@ -2,6 +2,63 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "hermite-ladder",
+      "code": "HERMITE//LADDER",
+      "title": "量子谐振子 · 能级阶梯与厄米函数",
+      "title_en": "The quantum oscillator · the energy ladder and Hermite functions",
+      "summary": "谐振子的能级是 ħω(n + ½) 的等距阶梯，本征态是厄米函数：基态能量不为零，相干态像经典小球一样来回摆，每个周期精确复原；二维时频率比是有理数，轨道才闭合。厄米函数两两正交、合起来能拼出任何形状，但方盒、三角这类有跳跃或尖角的形状，能量加权的系数平方和发散，哈密顿量作用不上去。",
+      "summary_en": "The oscillator's energies form the evenly spaced ladder ħω(n + ½) and its eigenstates are Hermite functions: the ground-state energy is not zero, a coherent state swings like a classical ball and returns exactly every period, and in 2D the orbit closes only when the frequency ratio is rational. The Hermite functions are orthonormal and together build any shape, but for shapes with jumps or corners, such as a box or a triangle, the energy-weighted sum of squared coefficients diverges and the Hamiltonian cannot act on them.",
+      "path": "viz/hermite-ladder/",
+      "thumbnail": "viz/hermite-ladder/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-09",
+      "tags": [
+        "量子谐振子",
+        "厄米函数",
+        "零点能",
+        "相干态",
+        "算子定义域",
+        "WebGL"
+      ],
+      "tags_en": [
+        "quantum oscillator",
+        "Hermite functions",
+        "zero-point energy",
+        "coherent states",
+        "operator domain",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "谐振子微分图 · 定理 7.1 厄米检验函数 · 定理 6.1 加权系数 · 定理 8.1 条件闭包",
+          "label_en": "Actual oscillator differential graph · Theorem 7.1 Hermite tests · Theorem 6.1 weighted coefficients · Theorem 8.1 conditional closure",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/ACTUAL_OSCILLATOR_GRAPH.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "physical_hermite_tests",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Analysis/PhysicalHermiteTests.lean"
+        },
+        {
+          "label": "physical_product_orthonormal_integral",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Analysis/Hermite/PhysicalProductOrthonormality.lean"
+        },
+        {
+          "label": "physical_product_totality",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Analysis/Hermite/PhysicalProductTotality.lean"
+        },
+        {
+          "label": "eigenbasis_graph_coefficients",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Analysis/EigenbasisGraphCore.lean"
+        },
+        {
+          "label": "physical_graph_closure",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Analysis/PhysicalGraphClosure.lean"
+        }
+      ]
+    },
+    {
       "id": "tomo-glance",
       "code": "TOMO//GLANCE",
       "title": "互补与层析 · 一次看不全",
