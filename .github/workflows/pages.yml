@@ -38,9 +38,15 @@ jobs:
         with:
           path: _site
 
-  browser:
+  # The suites run in four parallel shards; the aggregate `browser` check below passes only when every shard passes.
+  browser-shard:
+    name: browser shard ${{ matrix.shard }}/4
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -56,7 +62,18 @@ jobs:
           npx playwright install --with-deps chromium
 
       - name: Browser regression suites
-        run: node scripts/test-browser.mjs
+        run: node scripts/test-browser.mjs --shard ${{ matrix.shard }}/4
+
+  browser:
+    if: always()
+    needs: [browser-shard]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Every browser shard passed
+        env:
+          RESULT: ${{ needs.browser-shard.result }}
+        run: test "$RESULT" = success
 
   deploy:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
