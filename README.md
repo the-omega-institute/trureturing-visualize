@@ -9,6 +9,7 @@ Every page is bilingual (中文 / English, switchable in the header) and states 
 
 | id | Page | Theory |
 | --- | --- | --- |
+| `fourth-basis` | [FOURTH//BASIS 六维第四组互无偏基 · 一个开放问题](https://the-omega-institute.github.io/trureturing-visualize/viz/fourth-basis/) | 六维第四组互无偏基理论卷 §0 §23 |
 | `whole-parts` | [WHOLE//PARTS 整体大于局部 · 纠缠、局部盲区与隐形传态](https://the-omega-institute.github.io/trureturing-visualize/viz/whole-parts/) | 观察者完备反射 §118–§120 · 递归关系观察 §165 |
 | `hermite-ladder` | [HERMITE//LADDER 量子谐振子 · 能级阶梯与厄米函数](https://the-omega-institute.github.io/trureturing-visualize/viz/hermite-ladder/) | 谐振子微分图 定理 6.1 7.1 8.1 |
 | `tomo-glance` | [TOMO//GLANCE 互补与层析 · 一次看不全](https://the-omega-institute.github.io/trureturing-visualize/viz/tomo-glance/) | 观察者完备反射 §83 §86 §100 · GICT 6.38 E.168 |

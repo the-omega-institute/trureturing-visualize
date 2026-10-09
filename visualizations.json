@@ -2,6 +2,59 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "fourth-basis",
+      "code": "FOURTH//BASIS",
+      "title": "六维第四组互无偏基 · 一个开放问题",
+      "title_en": "A fourth mutually unbiased basis in dimension six · an open problem",
+      "summary": "两组基互无偏，是说一组里的任何态拿去按另一组测，每个结果的概率都是 1/d。素数维有 d + 1 组；六维只构造出 3 组，第四组存不存在至今没有证明。页面用同一个梯度下降在 3、5、7 维里找到第四组，在六维里停住，连一个与已知三组都无偏的向量也找不到。这只是数值线索；本库已冻结的是归约和若干分支的排除。",
+      "summary_en": "Two bases are mutually unbiased when every state of one, measured in the other, gives each outcome with probability 1/d. Prime dimensions have d + 1 of them; in dimension six only 3 have been constructed, and whether a fourth exists is still unproved. One gradient descent finds a fourth basis in dimensions 3, 5 and 7 and stalls in six, where it cannot find even one vector unbiased to the known three. That is only a numerical lead; what the library has frozen is a reduction and the exclusion of some branches.",
+      "path": "viz/fourth-basis/",
+      "thumbnail": "viz/fourth-basis/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-09",
+      "tags": [
+        "互无偏基",
+        "六维",
+        "开放问题",
+        "Zauner 猜想",
+        "数值搜索",
+        "WebGL"
+      ],
+      "tags_en": [
+        "mutually unbiased bases",
+        "dimension six",
+        "open problem",
+        "Zauner's conjecture",
+        "numerical search",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "六维第四组互无偏基理论卷 · §0 开放目标 · §23 关键开放命题",
+          "label_en": "The six-dimensional fourth-basis volume · §0 open target · §23 key open propositions",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/MUB_SIX_FOURTH_BASIS_THEORY.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "mutually_unbiased_diagonal_planes",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Tomography/MutuallyUnbiasedDiagonalPlanes.lean"
+        },
+        {
+          "label": "fourMUBContexts_have_commutator_sum_ten",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Tomography/MUB/MUBHadamardCompatibility.lean"
+        },
+        {
+          "label": "no_fourMUBHadamardWitness_of_no_lifted_atlas",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Tomography/MUB/MUBHadamardCompatibility.lean"
+        },
+        {
+          "label": "zaunerCanonicalCompletion_crossGram_not_nonzero_flat",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Tomography/MUB/ZaunerCompletionFibre.lean"
+        }
+      ]
+    },
+    {
       "id": "whole-parts",
       "code": "WHOLE//PARTS",
       "title": "整体大于局部 · 纠缠、局部盲区与隐形传态",
