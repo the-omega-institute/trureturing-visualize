@@ -2,6 +2,64 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "whole-parts",
+      "code": "WHOLE//PARTS",
+      "title": "整体大于局部 · 纠缠、局部盲区与隐形传态",
+      "title_en": "The whole is more than its parts · entanglement, the local blind spot and teleportation",
+      "summary": "两个量子比特的整体可以正交，两边各自的状态却完全一样：贝尔态是纯态，单看任一边都是完全混合的 I/2。只看一边读不到的关联扇区占两比特全部 15 个方向中的 9 个。隐形传态正好用上这块关联：两边约化态相同的资源，传态保真度可以从 1/3 一直到 1，经典关联只能做到 2/3。",
+      "summary_en": "Two qubits can make orthogonal wholes while each side holds exactly the same state: the Bell state is pure, yet either half alone is the completely mixed I/2. The correlation sector that neither side can read alone takes up 9 of the 15 directions of two qubits. Teleportation uses exactly this correlation: resources whose halves are identical teleport with fidelity anywhere from 1/3 to 1, and classical correlation reaches only 2/3.",
+      "path": "viz/whole-parts/",
+      "thumbnail": "viz/whole-parts/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-09",
+      "tags": [
+        "纠缠",
+        "约化态",
+        "局部-整体余量",
+        "引导椭球",
+        "隐形传态",
+        "WebGL"
+      ],
+      "tags_en": [
+        "entanglement",
+        "reduced states",
+        "local-global residual",
+        "steering ellipsoid",
+        "teleportation",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "观察者完备反射 §118 局部—全局余量 · §119 跨素数相关扇区 · §120 观察层级",
+          "label_en": "Formal observer completion reflection §118 local-global residual · §119 cross-prime correlation sectors · §120 observation hierarchy",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/FORMAL_OBSERVER_COMPLETION_REFLECTION.md"
+        },
+        {
+          "label": "递归关系观察 §165 标准隐形传态过程",
+          "label_en": "Recursive relational observation §165 the standard teleportation process",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/RECURSIVE_RELATIONAL_OBSERVATION_PHASE_BOUNDARY.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "bell_pure_state_has_maximally_mixed_marginal",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Entanglement/BellPureStateMixedMarginal.lean"
+        },
+        {
+          "label": "bell_pair_local_global_residual",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Entanglement/BellPairLocalGlobalResidual.lean"
+        },
+        {
+          "label": "local_marginal_correlation_blind_spot",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Entanglement/LocalMarginalCorrelationBlindSpot.lean"
+        },
+        {
+          "label": "local_observation_partial_trace_equivalence",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Entanglement/LocalObservationPartialTraceEquivalence.lean"
+        }
+      ]
+    },
+    {
       "id": "hermite-ladder",
       "code": "HERMITE//LADDER",
       "title": "量子谐振子 · 能级阶梯与厄米函数",
