@@ -2,6 +2,68 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "tomo-glance",
+      "code": "TOMO//GLANCE",
+      "title": "互补与层析 · 一次看不全",
+      "title_en": "Complementarity and tomography · one look cannot see it all",
+      "summary": "一个量子比特一次只能沿一个方向测，结果只有 ±1。只看 Z 方向时，相位完全看不见，统计相同的态铺满一整张圆盘；加上 X 还剩一条弦；X、Y、Z 三个互补方向才唯一确定态。纯度恰好拆成各方向概率偏差的平方和，再加看不见的残差。单个样本读不全，也复制不了。",
+      "summary_en": "A qubit can be measured along only one direction at a time, and each result is just ±1. Measuring along Z alone, the phase is completely invisible and the states with the same statistics fill a whole disc; adding X leaves a chord; only the three complementary directions X, Y and Z determine the state. The purity splits exactly into the squared probability deviations of the directions plus an invisible residual. A single sample can be neither read completely nor copied.",
+      "path": "viz/tomo-glance/",
+      "thumbnail": "viz/tomo-glance/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-09",
+      "tags": [
+        "量子层析",
+        "互补",
+        "相位盲",
+        "纯度勾股",
+        "不可克隆",
+        "WebGL"
+      ],
+      "tags_en": [
+        "quantum tomography",
+        "complementarity",
+        "phase blindness",
+        "purity Pythagoras",
+        "no-cloning",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "观察者完备反射 §83 可见空间与不可见残差 · §86 结果预算 · §100 单样本与不可克隆",
+          "label_en": "Formal observer completion reflection §83 visible space and invisible residual · §86 outcome budgets · §100 single samples and no-cloning",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/FORMAL_OBSERVER_COMPLETION_REFLECTION.md"
+        },
+        {
+          "label": "GICT 定理 6.38 互补预算 · E.168 碰撞守恒",
+          "label_en": "GICT Theorem 6.38 complementarity budget · E.168 collision conservation",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/GICT.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "purity_pythagoras_decomposition",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Tomography/PurityPythagorasDecomposition.lean"
+        },
+        {
+          "label": "complete_context_tomography",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Tomography/CompleteContextTomography.lean"
+        },
+        {
+          "label": "diagonal_prime_observables_cannot_recover_relative_phase",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Tomography/DiagonalPhaseBlindness.lean"
+        },
+        {
+          "label": "no_cloning_inner_product_criterion",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/PureState/NoCloningInnerProductCriterion.lean"
+        },
+        {
+          "label": "informational_completeness_four_way",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Tomography/InformationalCompletenessEquivalence.lean"
+        }
+      ]
+    },
+    {
       "id": "syndrome-mend",
       "code": "SYNDROME//MEND",
       "title": "量子纠错 · 离开编码空间不等于丢了信息",

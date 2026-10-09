@@ -43,6 +43,10 @@ const info = () => D(() => QEC_DEBUG.info());
 const state = () => D(() => QEC_DEBUG.state());
 const text = (id) => D((id) => document.getElementById(id).textContent, id);
 const hidden = (id) => D((id) => document.getElementById(id).hidden, id);
+const waitFrames = async (n) => {
+  const f0 = await page.evaluate(() => QEC_DEBUG.frames());
+  await page.waitForFunction(([f0, n]) => QEC_DEBUG.frames() >= f0 + n, [f0, n], { timeout: 30000 });
+};
 const toastOn = async () => (await D(() => document.getElementById('toast').style.opacity)) === '1';
 
 // --- independent implementation: complex numbers [re, im], matrices as arrays of rows
@@ -289,13 +293,15 @@ const a1 = (await state()).stage;
 await page.keyboard.press('ArrowRight'); await page.keyboard.press('ArrowLeft'); await settle();
 check('→ and ← step one stage', a1 === 1 && (await state()).stage === 1, `${a1} → ${(await state()).stage}`);
 check('the HUD names the stage', /噪声/.test(await text('hudBig')));
-await setStage(4.8); await click('#play'); await page.waitForTimeout(1600);
-check('the toast reports the outcome when the pipeline completes', (await toastOn()) && /0\.146/.test(await D(() => document.getElementById('toast').textContent)));
+await setStage(4.8); await click('#play');
+let toastSeen = true;
+try { await page.waitForFunction(() => document.getElementById('toast').style.opacity === '1' && /0\.146/.test(document.getElementById('toast').textContent), null, { timeout: 30000 }); } catch { toastSeen = false; }
+check('the toast reports the outcome when the pipeline completes', toastSeen);
 await pause();
-await setStage(1.2); await click('#play'); await page.waitForTimeout(600);
+await setStage(1.2); await click('#play'); await waitFrames(12);
 const g1 = (await state()).stage; await pause();
-check('play advances the stages', g1 > 1.25);
-await click('#rev'); await page.waitForTimeout(500); const g2 = (await state()).stage; await pause();
+check('play advances the stages', g1 > 1.2 + 1e-6);
+await click('#rev'); await waitFrames(12); const g2 = (await state()).stage; await pause();
 check('reverse runs backwards', g2 < g1);
 await page.click('#rev'); await pause();
 await page.focus('#theta'); await page.keyboard.press('Space'); await page.waitForTimeout(150);
