@@ -148,10 +148,10 @@ await preset('universal3'); i = await info();
 const al = [-4 * Math.sqrt(3) / 7, 1 / 7], TT = zeros(3); for (let j = 0; j < 3; j++) { TT.re[j * 3 + (j + 1) % 3] = al[0]; TT.im[j * 3 + (j + 1) % 3] = al[1]; TT.re[j * 3 + (j + 2) % 3] = al[0]; TT.im[j * 3 + (j + 2) % 3] = -al[1]; }
 check('triangle: H = Circ(0, α, ᾱ) with α = (−4√3 + i)/7 of modulus 1 (property 𝕋)', sameH(i.H, TT) && Math.abs(Math.hypot(...al) - 1) < 1e-15);
 const [t1, t2] = i.firstPST;
-check('triangle: at the page’s first transfer times the independent propagator gives F = 1 for 0 → 1 and 0 → 2', prob(expmI(TT, t1), 1, 0) > 1 - 1e-10 && prob(expmI(TT, t2), 2, 0) > 1 - 1e-10 && Math.abs(t2 - 8.4637) < 2e-3 && Math.abs(t1 - 16.928) < 2e-3, `${t1.toFixed(4)} · ${t2.toFixed(4)}`);
+check('triangle: at the page’s first transfer times the independent propagator gives F = 1 for 0 → 1 and 0 → 2', t1 !== null && t2 !== null && prob(expmI(TT, t1), 1, 0) > 1 - 1e-10 && prob(expmI(TT, t2), 2, 0) > 1 - 1e-10 && Math.abs(t2 - 8.4637) < 2e-3 && Math.abs(t1 - 16.928) < 2e-3, `${t1 === null ? 'none' : t1.toFixed(4)} · ${t2 === null ? 'none' : t2.toFixed(4)}`);
 await click('#graphChips [data-graph="triI"]'); i = await info();
 const TI = zeros(3); for (let j = 0; j < 3; j++) { TI.im[j * 3 + (j + 1) % 3] = -1; TI.im[j * 3 + (j + 2) % 3] = 1; }
-check('oriented triangle Circ(0, −i, i): transfer to 2 at its first time, confirmed independently', sameH(i.H, TI) && prob(expmI(TI, i.firstPST[1]), 2, 0) > 1 - 1e-10 && i.zeroSet.length === 0);
+check('oriented triangle Circ(0, −i, i): transfer to 2 at its first time, confirmed independently', sameH(i.H, TI) && i.firstPST[1] !== null && prob(expmI(TI, i.firstPST[1]), 2, 0) > 1 - 1e-10 && i.zeroSet.length === 0);
 
 // --- controls, keys, presets
 for (const name of ['uniform3', 'uniform6', 'kraw9', 'rational5', 'kay8', 'cube', 'zero30', 'universal3']) { await preset(name); const pressed = await D((n) => document.querySelector(`[data-preset="${n}"]`).getAttribute('aria-pressed'), name); check(`preset ${name} applies and explains itself`, pressed === 'true' && (await text('presetNote')).length > 40); }
@@ -169,7 +169,7 @@ check('the rail marks the window in multiples of π', /π/.test(await D(() => do
 
 // --- play and toasts
 await preset('kraw9'); await setFrac(0.47); await click('#play');
-check('the toast reports perfect transfer at t = π', await waitToast(/完美传输/));
+check('the toast reports perfect transfer at t = π', await waitToast(/完美传输.*t = 3\.1416/));
 await pause();
 await preset('rational5'); await setFrac(0.47); await click('#play');
 check('the rational chain toasts the shortfall at t = π', await waitToast(/到不了 1/));
