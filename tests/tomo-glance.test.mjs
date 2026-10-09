@@ -42,8 +42,14 @@ const setFrac = async (f) => { await D((f) => TOMO_DEBUG.setFrac(f), f); await s
 const info = () => D(() => TOMO_DEBUG.info());
 const state = () => D(() => TOMO_DEBUG.state());
 const text = (id) => D((id) => document.getElementById(id).textContent, id);
+const waitFrames = async (n) => {
+  const f0 = await page.evaluate(() => TOMO_DEBUG.frames());
+  await page.waitForFunction(([f0, n]) => TOMO_DEBUG.frames() >= f0 + n, [f0, n], { timeout: 30000 });
+};
+const waitToast = async (re) => {
+  try { await page.waitForFunction((src) => document.getElementById('toast').style.opacity === '1' && new RegExp(src).test(document.getElementById('toast').textContent), re.source, { timeout: 30000 }); return true; } catch { return false; }
+};
 const toastOn = async () => (await D(() => document.getElementById('toast').style.opacity)) === '1';
-const toastText = () => D(() => document.getElementById('toast').textContent);
 
 // --- independent implementation: 2×2 complex matrices as [[a, b], [c, d]] of [re, im]
 const c = (re, im = 0) => [re, im];
@@ -212,15 +218,15 @@ check('R draws a new batch of samples', (await info()).hash !== h0 && (await inf
 for (const name of Object.keys(P)) { await preset(name); const pressed = await D((n) => document.querySelector(`[data-preset="${n}"]`).getAttribute('aria-pressed'), name); check(`preset ${name} applies and explains itself`, pressed === 'true' && (await text('presetNote')).length > 40); }
 
 // --- rail, play, toasts
-await preset('full'); await setFrac(0.97); await click('#play'); await page.waitForTimeout(800);
-check('the toast reports a complete reconstruction when the samples run out', (await toastOn()) && /看全了/.test(await toastText()));
+await preset('full'); await setFrac(0.97); await click('#play');
+check('the toast reports a complete reconstruction when the samples run out', await waitToast(/看全了/));
 await pause();
-await preset('two'); await setFrac(0.97); await click('#play'); await page.waitForTimeout(800);
-check('…and the blind floor when a direction is missing', (await toastOn()) && /再测也没用/.test(await toastText()));
+await preset('two'); await setFrac(0.97); await click('#play');
+check('…and the blind floor when a direction is missing', await waitToast(/再测也没用/));
 await pause();
-await setFrac(0.3); await click('#play'); await page.waitForTimeout(500); const f1 = (await state()).nowFrac; await pause();
+await setFrac(0.3); await click('#play'); await waitFrames(12); const f1 = (await state()).nowFrac; await pause();
 check('play advances the samples', f1 > 0.3);
-await click('#rev'); await page.waitForTimeout(400); const f2 = (await state()).nowFrac; await pause();
+await click('#rev'); await waitFrames(12); const f2 = (await state()).nowFrac; await pause();
 check('reverse runs backwards', f2 < f1);
 await page.click('#rev'); await pause();
 await page.focus('#theta'); await page.keyboard.press('Space'); await page.waitForTimeout(150);

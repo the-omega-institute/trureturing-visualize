@@ -224,7 +224,7 @@ check('octet split renders without errors', errors.length === 0, errors.join(' |
 // --- language
 await page.click('[data-preset="delayed"]'); await wait(200);
 await setRange('kappa', 0.3); await wait(200); // custom note
-await page.click('[data-lang-set="en"]'); await wait(900);
+await page.click('[data-lang-set="en"]'); await wait(900); await waitFrames(3);   // tags are relabelled on the next rendered frames
 const custom = await D(() => document.getElementById('presetNote').textContent);
 check('custom-settings note switches to English', /Custom/.test(custom), custom);
 const leftovers = await D(() => {
