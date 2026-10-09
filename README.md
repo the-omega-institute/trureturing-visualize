@@ -9,6 +9,7 @@ Every page is bilingual (中文 / English, switchable in the header) and states 
 
 | id | Page | Theory |
 | --- | --- | --- |
+| `hermite-ladder` | [HERMITE//LADDER 量子谐振子 · 能级阶梯与厄米函数](https://the-omega-institute.github.io/trureturing-visualize/viz/hermite-ladder/) | 谐振子微分图 定理 6.1 7.1 8.1 |
 | `tomo-glance` | [TOMO//GLANCE 互补与层析 · 一次看不全](https://the-omega-institute.github.io/trureturing-visualize/viz/tomo-glance/) | 观察者完备反射 §83 §86 §100 · GICT 6.38 E.168 |
 | `syndrome-mend` | [SYNDROME//MEND 量子纠错 · 离开编码空间不等于丢了信息](https://the-omega-institute.github.io/trureturing-visualize/viz/syndrome-mend/) | 量子现实 ST27–ST31 |
 | `dark-walk` | [DARK//WALK 首次探测与暗态 · 永远找不到的行走者](https://the-omega-institute.github.io/trureturing-visualize/viz/dark-walk/) | 波粒整体的关系全息表示 §11–§13 §49 |
