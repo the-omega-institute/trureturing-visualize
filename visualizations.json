@@ -2,6 +2,72 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "explicit-formula",
+      "code": "EXPLICIT//FORMULA",
+      "title": "显式公式 · 用 ζ 的零点重建素数",
+      "title_en": "The explicit formula · rebuilding the primes from the zeros of ζ",
+      "summary": "显式公式把素数和黎曼 ζ 函数的零点写进同一条等式。页面用 Odlyzko 表的前一万个零点逐个叠加，看素数的台阶 ψ(x) 和素数幂处的尖峰怎样从波里长出来，逐项核对 Weil 形式的两边；再看 Weil 正性为什么等价于黎曼猜想，以及一个假想的离线零点会怎样让零点和变负。黎曼猜想本身仍是开放问题。",
+      "summary_en": "The explicit formula puts the primes and the zeros of the Riemann zeta function into one identity. The page adds the first ten thousand zeros from Odlyzko's table one by one, watches the staircase ψ(x) and the spikes at prime powers grow out of the waves, and checks both sides of Weil's form term by term; then it shows why Weil positivity is equivalent to the Riemann hypothesis, and how a hypothetical zero off the critical line would make the zero sum negative. The Riemann hypothesis itself remains open.",
+      "path": "viz/explicit-formula/",
+      "thumbnail": "viz/explicit-formula/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-09",
+      "tags": [
+        "ζ 函数",
+        "显式公式",
+        "素数",
+        "黎曼猜想",
+        "Weil 正性",
+        "WebGL"
+      ],
+      "tags_en": [
+        "zeta function",
+        "explicit formula",
+        "primes",
+        "Riemann hypothesis",
+        "Weil positivity",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "Weil 显式公式 Lean 源目录 ZetaBridge",
+          "label_en": "Lean sources of the Weil explicit formula: ZetaBridge",
+          "href": "https://github.com/the-omega-institute/trureturing/tree/dev/D5/S3/Weil/ZetaBridge"
+        },
+        {
+          "label": "Weil 判据与无条件显式公式 Lean 源目录 Separator",
+          "label_en": "Lean sources of Weil's criterion and the unconditional formula: Separator",
+          "href": "https://github.com/the-omega-institute/trureturing/tree/dev/D5/S3/Weil/Separator"
+        }
+      ],
+      "lean": [
+        {
+          "label": "ClassicExplicitFormula.weil_explicit_formula",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/ZetaBridge/ClassicExplicitFormula.lean"
+        },
+        {
+          "label": "UnconditionalExplicitFormula.explicitFormula_unconditional",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/Separator/UnconditionalExplicitFormula.lean"
+        },
+        {
+          "label": "ExplicitFormulaObstruction.isNontrivialZero_infinite",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/ZeroInfinitude/ExplicitFormulaObstruction.lean"
+        },
+        {
+          "label": "ExplicitFormulaWeilCriterion.rh_iff_explicitFormulaPositivity",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/Separator/ExplicitFormulaWeilCriterion.lean"
+        },
+        {
+          "label": "OffLineNonrealZeroNegativeWeilSquare.offLineNonrealZero_yields_negative_weil_square",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/ZetaBridge/OffLineNonrealZeroNegativeWeilSquare.lean"
+        },
+        {
+          "label": "MediumPNT.MediumPNT",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/PrimeNumberTheorem/MediumPNT.lean"
+        }
+      ]
+    },
+    {
       "id": "state-transfer",
       "code": "STATE//TRANSFER",
       "title": "完美态传输 · 量子行走把态送到哪里",

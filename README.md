@@ -9,6 +9,7 @@ Every page is bilingual (中文 / English, switchable in the header) and states 
 
 | id | Page | Theory |
 | --- | --- | --- |
+| `explicit-formula` | [EXPLICIT//FORMULA 显式公式 · 用 ζ 的零点重建素数](https://the-omega-institute.github.io/trureturing-visualize/viz/explicit-formula/) | Lean：D5/S3/Weil 的 ZetaBridge · Separator · ZeroInfinitude · PrimeNumberTheorem |
 | `state-transfer` | [STATE//TRANSFER 完美态传输 · 量子行走把态送到哪里](https://the-omega-institute.github.io/trureturing-visualize/viz/state-transfer/) | 问题卷宗：Song–Lin 2026 · Connelly 等 2017 · Kay 2010 |
 | `fourth-basis` | [FOURTH//BASIS 六维第四组互无偏基 · 一个开放问题](https://the-omega-institute.github.io/trureturing-visualize/viz/fourth-basis/) | 六维第四组互无偏基理论卷 §0 §23 |
 | `whole-parts` | [WHOLE//PARTS 整体大于局部 · 纠缠、局部盲区与隐形传态](https://the-omega-institute.github.io/trureturing-visualize/viz/whole-parts/) | 观察者完备反射 §118–§120 · 递归关系观察 §165 |
