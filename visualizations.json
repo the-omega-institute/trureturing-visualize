@@ -2,6 +2,69 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "state-transfer",
+      "code": "STATE//TRANSFER",
+      "title": "完美态传输 · 量子行走把态送到哪里",
+      "title_en": "Perfect state transfer · where a quantum walk carries a state",
+      "summary": "把量子态放在图的一个顶点，让它按哈密顿量演化：耦合调对了，链条两端能一点不剩地完美传输；边权全是有理数的奇数链在 t = π 永远差一点；有的顶点永远收不到任何振幅。页面展示本库推翻的三个已发表猜想：Song–Lin 的零传输奇偶猜想、Connelly 等的普适传输猜想、Kay 的传输率猜想。",
+      "summary_en": "Put a quantum state on one vertex of a graph and let it evolve under the Hamiltonian: with the right couplings a chain transfers it perfectly end to end; an odd chain whose weights are all rational always falls short at t = π; some vertices never receive any amplitude at all. The page shows three published conjectures this library has refuted: Song and Lin's parity conjecture for zero transfer, the universal-transfer conjecture of Connelly et al., and Kay's transfer-rate conjecture.",
+      "path": "viz/state-transfer/",
+      "thumbnail": "viz/state-transfer/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-09",
+      "tags": [
+        "量子行走",
+        "完美态传输",
+        "零传输",
+        "猜想反驳",
+        "谱",
+        "WebGL"
+      ],
+      "tags_en": [
+        "quantum walks",
+        "perfect state transfer",
+        "zero transfer",
+        "refuted conjectures",
+        "spectra",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "Song–Lin 零传输奇偶猜想问题卷宗",
+          "label_en": "Problem dossier: Song and Lin's zero-transfer parity conjecture",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/song-lin-2026-oriented-circulant-zero-transfer-parity-refutation.md"
+        },
+        {
+          "label": "Connelly 等性质 𝕋 普适传输问题卷宗",
+          "label_en": "Problem dossier: Connelly et al. on property 𝕋 universal transfer",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/connelly-2017-property-t-universal-state-transfer.md"
+        },
+        {
+          "label": "Kay 传输率猜想问题卷宗",
+          "label_en": "Problem dossier: Kay's transfer-rate conjecture",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/kay-2010-transfer-rate-refutation.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "OddPathRationalWeightTransfer.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Dynamics/OddPathRationalWeightTransfer.lean"
+        },
+        {
+          "label": "OrientedCirculantZeroTransfer.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Dynamics/OrientedCirculantZeroTransfer.lean"
+        },
+        {
+          "label": "PropertyTCirculantUniversalTransfer.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Dynamics/PropertyTCirculantUniversalTransfer.lean"
+        },
+        {
+          "label": "KayTransferRateRefutation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Dynamics/KayTransferRateRefutation.lean"
+        }
+      ]
+    },
+    {
       "id": "fourth-basis",
       "code": "FOURTH//BASIS",
       "title": "六维第四组互无偏基 · 一个开放问题",
