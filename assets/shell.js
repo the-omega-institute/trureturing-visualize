@@ -37,7 +37,8 @@
     try { localStorage.setItem(KEY, next); } catch (e) { /* ignore */ }
     try { const u = new URL(location.href); if (u.searchParams.has('lang')) { u.searchParams.set('lang', next); history.replaceState(null, '', u); } } catch (e) { /* ignore */ }
     applyLang();
-    document.querySelectorAll('.toast').forEach((t) => { t.style.opacity = '0'; });
+    // a toast in the old language disappears at once instead of fading out over the new interface
+    document.querySelectorAll('.toast').forEach((t) => { t.style.transition = 'none'; t.style.opacity = '0'; void t.offsetWidth; t.style.transition = ''; });
     langListeners.forEach((fn) => fn(lang));
   }
   document.addEventListener('DOMContentLoaded', () => {
