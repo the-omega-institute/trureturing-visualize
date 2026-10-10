@@ -9,6 +9,7 @@ Every page is bilingual (中文 / English, switchable in the header) and states 
 
 | id | Page | Theory |
 | --- | --- | --- |
+| `uncertainty` | [UNCERTAINTY//LEDGER 不确定性账本 · 不对易的代价记在哪里](https://the-omega-institute.github.io/trureturing-visualize/viz/uncertainty/) | Lean：D5/S3/QuantumBounds · D5/S3/Quantum/Measurements |
 | `hard-squares` | [HARD//SQUARES 硬方块格气 · 互不相邻的粒子](https://the-omega-institute.github.io/trureturing-visualize/viz/hard-squares/) | 问题卷宗：Adamaszek 2012 · Davies 等 2026 |
 | `prime-gaps` | [PRIME//GAPS 素数间隙 · 素数能挤多近、能隔多远](https://the-omega-institute.github.io/trureturing-visualize/viz/prime-gaps/) | 问题卷宗：OEIS A079063 · A089610 · A049591 |
 | `explicit-formula` | [EXPLICIT//FORMULA 显式公式 · 用 ζ 的零点重建素数](https://the-omega-institute.github.io/trureturing-visualize/viz/explicit-formula/) | Lean：D5/S3/Weil 的 ZetaBridge · Separator · ZeroInfinitude · PrimeNumberTheorem |

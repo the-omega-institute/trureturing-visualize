@@ -2,6 +2,72 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "uncertainty",
+      "code": "UNCERTAINTY//LEDGER",
+      "title": "不确定性账本 · 不对易的代价记在哪里",
+      "title_en": "The uncertainty ledger · where the price of non-commuting is booked",
+      "summary": "ΔA²·ΔB² 恰好分成三笔：协方差、对易子项、非负的 Gram 余项（本库冻结的 Robertson–Schrödinger 恒等式）。布洛赫球上，纯量子比特的余项总是 0，混合态的余项正好是 |a×b|²(1 − |r|²)；自旋 j 在单轴扭转下，账从对易子挪到协方差再挪进余项，猫态时全在余项。然后在 d + 1 组互无偏基上核对碰撞守恒 Σp² = 1 + tr ρ² 与冻结的熵不确定关系，并数值搜索最小熵和：d = 3 时恰好取到下界。",
+      "summary_en": "ΔA²·ΔB² splits exactly into three entries: the covariance, the commutator term and a non-negative Gram remainder (the Robertson–Schrödinger identity frozen in this library). On the Bloch ball the remainder of a pure qubit is always 0, and for a mixed state it is exactly |a×b|²(1 − |r|²); for spin j under one-axis twisting the balance moves from the commutator to the covariance and then into the remainder, which holds all of it for a cat state. Then the page checks collision conservation Σp² = 1 + tr ρ² and the frozen entropic uncertainty relation on d + 1 mutually unbiased bases, and searches numerically for the least entropy sum: in d = 3 it reaches the bound exactly.",
+      "path": "viz/uncertainty/",
+      "thumbnail": "viz/uncertainty/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-10",
+      "tags": [
+        "量子力学",
+        "不确定关系",
+        "互无偏基",
+        "熵",
+        "自旋压缩",
+        "WebGL"
+      ],
+      "tags_en": [
+        "quantum mechanics",
+        "uncertainty relations",
+        "mutually unbiased bases",
+        "entropy",
+        "spin squeezing",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "量子界 Lean 源目录 QuantumBounds",
+          "label_en": "Lean sources of the quantum bounds: QuantumBounds",
+          "href": "https://github.com/the-omega-institute/trureturing/tree/dev/D5/S3/QuantumBounds"
+        },
+        {
+          "label": "测量 Lean 源目录 Quantum/Measurements",
+          "label_en": "Lean sources of the measurements: Quantum/Measurements",
+          "href": "https://github.com/the-omega-institute/trureturing/tree/dev/D5/S3/Quantum/Measurements"
+        }
+      ],
+      "lean": [
+        {
+          "label": "RobertsonSchrodinger.robertson_schrodinger",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumBounds/RobertsonSchrodinger.lean"
+        },
+        {
+          "label": "MixedStateRobertson.mixed_state_robertson_uncertainty",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumBounds/Designs/MixedStateRobertson.lean"
+        },
+        {
+          "label": "CompleteContextCollisionConservation.complete_context_collision_conservation",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Measurements/CompleteContextCollisionConservation.lean"
+        },
+        {
+          "label": "CollisionConservation.collision_sum_eq_one_add_purity",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumBounds/Designs/CollisionConservation.lean"
+        },
+        {
+          "label": "CollisionEntropyUncertainty.collision_entropy_uncertainty",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumBounds/CollisionEntropyUncertainty.lean"
+        },
+        {
+          "label": "CollisionShannonComparison.collision_entropy_le_shannon_entropy",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumBounds/CollisionShannonComparison.lean"
+        }
+      ]
+    },
+    {
       "id": "hard-squares",
       "code": "HARD//SQUARES",
       "title": "硬方块格气 · 互不相邻的粒子",
