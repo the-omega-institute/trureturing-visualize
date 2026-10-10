@@ -9,6 +9,7 @@ Every page is bilingual (中文 / English, switchable in the header) and states 
 
 | id | Page | Theory |
 | --- | --- | --- |
+| `prime-gaps` | [PRIME//GAPS 素数间隙 · 素数能挤多近、能隔多远](https://the-omega-institute.github.io/trureturing-visualize/viz/prime-gaps/) | 问题卷宗：OEIS A079063 · A089610 · A049591 |
 | `explicit-formula` | [EXPLICIT//FORMULA 显式公式 · 用 ζ 的零点重建素数](https://the-omega-institute.github.io/trureturing-visualize/viz/explicit-formula/) | Lean：D5/S3/Weil 的 ZetaBridge · Separator · ZeroInfinitude · PrimeNumberTheorem |
 | `state-transfer` | [STATE//TRANSFER 完美态传输 · 量子行走把态送到哪里](https://the-omega-institute.github.io/trureturing-visualize/viz/state-transfer/) | 问题卷宗：Song–Lin 2026 · Connelly 等 2017 · Kay 2010 |
 | `fourth-basis` | [FOURTH//BASIS 六维第四组互无偏基 · 一个开放问题](https://the-omega-institute.github.io/trureturing-visualize/viz/fourth-basis/) | 六维第四组互无偏基理论卷 §0 §23 |

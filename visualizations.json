@@ -2,6 +2,81 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "prime-gaps",
+      "code": "PRIME//GAPS",
+      "title": "素数间隙 · 素数能挤多近、能隔多远",
+      "title_en": "Prime gaps · how close primes can crowd, how far apart they can drift",
+      "summary": "在两千万以内筛出全部素数，直接计数：一组偏移量什么时候可能同时都是素数（可容许元组），八个素数最窄能挤进宽 26 的窗口，有界间隙定理怎样由 DHL 与一个窄元组拼成，最大间隙的纪录怎样增长；再看本库推翻的三条 OEIS 猜想：A079063 的 √ 间隙下界、A089610 的最终递增、A049591 的因子数刻画（反例 529）。孪生素数与 Hardy–Littlewood 猜想仍是开放问题。",
+      "summary_en": "Every prime below twenty million, counted directly: when a set of offsets can all be prime at once (admissible tuples), how eight primes fit into a window of width 26 at best, how the bounded-gaps theorem is assembled from DHL and one narrow tuple, and how the record gaps grow; then three OEIS conjectures this library has refuted: the √-gap lower bound of A079063, the eventual increase of A089610 and the divisor-count characterization of A049591 (counterexample 529). The twin prime and Hardy–Littlewood conjectures remain open.",
+      "path": "viz/prime-gaps/",
+      "thumbnail": "viz/prime-gaps/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-09",
+      "tags": [
+        "素数",
+        "素数间隙",
+        "可容许元组",
+        "有界间隙",
+        "猜想反驳",
+        "WebGL"
+      ],
+      "tags_en": [
+        "primes",
+        "prime gaps",
+        "admissible tuples",
+        "bounded gaps",
+        "refuted conjectures",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "A079063 √ 间隙下界猜想问题卷宗",
+          "label_en": "Problem dossier: the A079063 √-gap lower bound",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a079063-sqrt-prime-gap-lower-bound-refutation.md"
+        },
+        {
+          "label": "A089610 平方区间素数个数问题卷宗",
+          "label_en": "Problem dossier: A089610 primes in square intervals",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a089610-square-interval-prime-count-eventual-increase-refutation.md"
+        },
+        {
+          "label": "A049591 因子数刻画问题卷宗",
+          "label_en": "Problem dossier: the A049591 divisor-count characterization",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a049591-prime-gap-divisor-characterization-refutation.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "OptimalAdmissibleEightTuple.minimalAdmissibleDiameter_eight_26",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/PrimeGaps/OptimalAdmissibleEightTuple.lean"
+        },
+        {
+          "label": "DHLAdmissibleDiameterTransfer.dhl_two_and_admissible_window_yield_bounded_gap",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/PrimeGaps/DHLAdmissibleDiameterTransfer.lean"
+        },
+        {
+          "label": "PrimeGap186TwoAxisAssembly.dhl40TwoNat_yields_gap186",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/PrimeGaps/PrimeGap186TwoAxisAssembly.lean"
+        },
+        {
+          "label": "LongGapsBetweenPrimes.long_prime_gaps",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/PrimeGaps/LongGapConclusion.lean"
+        },
+        {
+          "label": "CloitreSquareRootPrimeGapRefutation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/PrimeGaps/CloitreSquareRootPrimeGapRefutation.lean"
+        },
+        {
+          "label": "HilliardSquareIntervalPrimeCountEventualIncreaseRefutation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/PrimeGaps/HilliardSquareIntervalPrimeCountEventualIncreaseRefutation.lean"
+        },
+        {
+          "label": "CloitrePrimeGapDivisorCharacterizationRefutation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S0/Certificates/CloitrePrimeGapDivisorCharacterizationRefutation.lean"
+        }
+      ]
+    },
+    {
       "id": "explicit-formula",
       "code": "EXPLICIT//FORMULA",
       "title": "显式公式 · 用 ζ 的零点重建素数",
