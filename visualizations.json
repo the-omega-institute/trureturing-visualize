@@ -2,6 +2,60 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "hard-squares",
+      "code": "HARD//SQUARES",
+      "title": "硬方块格气 · 互不相邻的粒子",
+      "title_en": "The hard-square lattice gas · particles that refuse to touch",
+      "summary": "网格上的粒子不许相邻，活度 λ 一大就自发排成棋盘。页面用蒙特卡罗模拟 48 × 48 环面，并精确数出 8 × 8 环面的全部 213 256 442 503 个配置，核对冻结恒等式 λ·d⟨N⟩/dλ = Var(N)；演示 Adamaszek 的项链动力学（本库证明了他的猜想 7.4：n − 3k 步后回到旋转像）；以及在星形图 K₁,₂ 上被推翻的硬核占据下界（活度 15, 2, 2 时 9/8 < 259/230）。",
+      "summary_en": "Particles on a grid may not be neighbours, and at large activity λ they order into a checkerboard. The page simulates a 48 × 48 torus by Monte Carlo and counts all 213 256 442 503 configurations of the 8 × 8 torus exactly, checking the frozen identity λ·d⟨N⟩/dλ = Var(N); it animates Adamaszek's necklace dynamics (this library proved his Conjecture 7.4: a rotated copy returns after n − 3k steps); and it shows the hard-core occupancy bound refuted on the star K₁,₂ (9/8 < 259/230 at activities 15, 2, 2).",
+      "path": "viz/hard-squares/",
+      "thumbnail": "viz/hard-squares/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-10",
+      "tags": [
+        "统计力学",
+        "硬核模型",
+        "格气",
+        "项链",
+        "猜想证明",
+        "WebGL"
+      ],
+      "tags_en": [
+        "statistical mechanics",
+        "hard-core model",
+        "lattice gas",
+        "necklaces",
+        "conjecture proved",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "Adamaszek 项链猜想问题卷宗",
+          "label_en": "Problem dossier: Adamaszek's necklace conjecture",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/adamaszek-2012-necklace-cycle-length.md"
+        },
+        {
+          "label": "多变量占据下界问题卷宗",
+          "label_en": "Problem dossier: the multivariate occupancy bound",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/davies-sandhu-seo-tan-2026-multivariate-occupancy-refutation.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "GibbsOccupation.mean_occupation_fluctuation_response",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/HardCore/GibbsOccupation.lean"
+        },
+        {
+          "label": "HardSquareNecklacePeriod.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/HardCore/HardSquareNecklacePeriod.lean"
+        },
+        {
+          "label": "MultivariateOccupancyRefutation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/HardCore/MultivariateOccupancyRefutation.lean"
+        }
+      ]
+    },
+    {
       "id": "prime-gaps",
       "code": "PRIME//GAPS",
       "title": "素数间隙 · 素数能挤多近、能隔多远",
