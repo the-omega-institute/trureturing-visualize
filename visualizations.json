@@ -2,6 +2,70 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "palindrome-cuts",
+      "code": "PALINDROME//CUTS",
+      "title": "回文切分 · 前缀最少能切成几个回文",
+      "title_en": "Palindromic length · how few palindromes a prefix splits into",
+      "summary": "把无限词的前缀切成尽量少的回文，最少块数叫前缀回文长度 P(n)。页面用回文树算出倍周期词前 30 万个、斐波那契词前 10 万个前缀的 P(n)，把最优切分画成拱桥。倍周期词上，本库证明了 Frid、Laborde、Peltomäki 2021 年的猜想 17（差分不是 2-自动的，P 不是 2-正则的），以及带符号二进制下界 P(n) ≥ F(n) 和稀疏地址上的精确值；斐波那契词上，本库证明了 Frid 2018 年的猜想：长 F₆ₖ₊₃/2 的前缀恰好需要 2k + 1 个回文。",
+      "summary_en": "Cut a prefix of an infinite word into as few palindromes as possible; the least number of pieces is the prefix palindromic length P(n). The page computes P(n) with a palindromic tree for the first 300 000 prefixes of the period-doubling word and the first 100 000 of the Fibonacci word, and draws optimal cuts as arches. For the period-doubling word this library proves Conjecture 17 of Frid, Laborde and Peltomäki (2021): the differences are not 2-automatic and P is not 2-regular, together with the signed-binary lower bound P(n) ≥ F(n) and exact values at sparse addresses. For the Fibonacci word it proves Frid’s 2018 conjecture: the prefix of length F₆ₖ₊₃/2 needs exactly 2k + 1 palindromes.",
+      "path": "viz/palindrome-cuts/",
+      "thumbnail": "viz/palindrome-cuts/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-10",
+      "tags": [
+        "组合词",
+        "回文",
+        "自动序列",
+        "猜想证明",
+        "WebGL"
+      ],
+      "tags_en": [
+        "combinatorics on words",
+        "palindromes",
+        "automatic sequences",
+        "conjecture proved",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "倍周期词猜想 17 问题卷宗",
+          "label_en": "Problem dossier: period-doubling Conjecture 17",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/frid-laborde-peltomaki-2021-period-doubling-c17.md"
+        },
+        {
+          "label": "Frid 斐波那契前缀猜想问题卷宗",
+          "label_en": "Problem dossier: Frid’s Fibonacci-prefix conjecture",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/frid-2018-fibonacci-prefix-palindromic-length.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "PrefixPalindromicLengthNotAutomatic.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/Palindromes/PeriodDoubling/PrefixPalindromicLengthNotAutomatic.lean"
+        },
+        {
+          "label": "SparseKernelRank.stronger_PPL_kernel_span",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/Palindromes/PeriodDoubling/SparseKernelRank.lean"
+        },
+        {
+          "label": "SparseExactDiagonal.diagonal_exact_family",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/Palindromes/PeriodDoubling/SparseExactDiagonal.lean"
+        },
+        {
+          "label": "SparseExactOffDiagonal.offdiagonal_exact_family",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/Palindromes/PeriodDoubling/SparseExactOffDiagonal.lean"
+        },
+        {
+          "label": "SignedCutLowerBound.palindromic_suffix_signed_bound",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/Palindromes/PeriodDoubling/SignedCutLowerBound.lean"
+        },
+        {
+          "label": "FridPrefixPalindromicLength.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/Palindromes/FridPrefix/FridPrefixPalindromicLength.lean"
+        }
+      ]
+    },
+    {
       "id": "uncertainty",
       "code": "UNCERTAINTY//LEDGER",
       "title": "不确定性账本 · 不对易的代价记在哪里",
