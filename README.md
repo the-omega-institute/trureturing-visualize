@@ -9,6 +9,7 @@ Every page is bilingual (中文 / English, switchable in the header) and states 
 
 | id | Page | Theory |
 | --- | --- | --- |
+| `auric-pyramid` | [AURIC//PYRAMID FIB-ATOM 金字塔 · 平均值看见什么、看不见什么](https://the-omega-institute.github.io/trureturing-visualize/viz/auric-pyramid/) | AURIC FIB-ATOM 金字塔理论卷：基本公式 · 边界演算 · 局部填充与奇环障碍 |
 | `palindrome-cuts` | [PALINDROME//CUTS 回文切分 · 前缀最少能切成几个回文](https://the-omega-institute.github.io/trureturing-visualize/viz/palindrome-cuts/) | 问题卷宗：Frid–Laborde–Peltomäki 2021 · Frid 2018 |
 | `uncertainty` | [UNCERTAINTY//LEDGER 不确定性账本 · 不对易的代价记在哪里](https://the-omega-institute.github.io/trureturing-visualize/viz/uncertainty/) | Lean：D5/S3/QuantumBounds · D5/S3/Quantum/Measurements |
 | `hard-squares` | [HARD//SQUARES 硬方块格气 · 互不相邻的粒子](https://the-omega-institute.github.io/trureturing-visualize/viz/hard-squares/) | 问题卷宗：Adamaszek 2012 · Davies 等 2026 |

@@ -2,6 +2,67 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "auric-pyramid",
+      "code": "AURIC//PYRAMID",
+      "title": "FIB-ATOM 金字塔 · 平均值看见什么、看不见什么",
+      "title_en": "The FIB-ATOM pyramid · what averages see and what they miss",
+      "summary": "三个位置排成一排、相邻两个不能同时选，只剩五种合法组合，它们的平均占用恰好铺满一个方底金字塔（已冻结）。页面展开替换树 α → β、β → ⟨β, α⟩ 数出斐波那契数，把金字塔一层层切开并用随机撒点估体积 1/3，再固定平均点、拖动隐藏量 κ，看同一组平均值背后的一整段分布；最后把小窗口沿路径拼接（总能成功）和围成奇环（局部全对、整体失败）。",
+      "summary_en": "Three positions in a row in which neighbours cannot both be chosen leave five legal combinations, and their average occupancies fill exactly a square-based pyramid (frozen). The page unfolds the substitution tree α → β, β → ⟨β, α⟩ to count Fibonacci numbers, slices the pyramid layer by layer and estimates its volume 1/3 from random points, then fixes an average point and moves the hidden quantity κ to show a whole range of laws behind the same averages; finally it glues small windows along a path (always possible) and around an odd cycle (every local check passes, the whole fails).",
+      "path": "viz/auric-pyramid/",
+      "thumbnail": "viz/auric-pyramid/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-10",
+      "tags": [
+        "斐波那契",
+        "多面体",
+        "联合分布",
+        "局部到整体",
+        "WebGL"
+      ],
+      "tags_en": [
+        "Fibonacci",
+        "polytopes",
+        "joint distributions",
+        "local to global",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "AURIC FIB-ATOM 金字塔：基本公式与关系",
+          "label_en": "AURIC FIB-ATOM pyramid: foundational formulas and relations",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/AURIC_FIB_ATOM_PYRAMID_FOUNDATIONAL_FORMULAS_AND_RELATIONS.md"
+        },
+        {
+          "label": "AURIC FIB-ATOM 金字塔：边界演算",
+          "label_en": "AURIC FIB-ATOM pyramid: boundary calculus",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/AURIC_FIB_ATOM_PYRAMID_BOUNDARY_CALCULUS.md"
+        },
+        {
+          "label": "AURIC FIB-ATOM 金字塔：局部填充与奇环障碍",
+          "label_en": "AURIC FIB-ATOM pyramid: local fillings and odd-cycle obstructions",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/AURIC_FIB_ATOM_PYRAMID_LOCAL_FILLINGS_SOFT_TO_RIGID_AND_ODD_CYCLE_OBSTRUCTIONS.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "PathStableSetPolytope.convexHull_three_pyramid",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/AdmissibleWords/PathStableSetPolytope.lean"
+        },
+        {
+          "label": "PathStableSetPolytope.convexHull_vertices",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/AdmissibleWords/PathStableSetPolytope.lean"
+        },
+        {
+          "label": "AdmissibleCount.admissibleWord_card_eq_fib",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/AdmissibleWords/AdmissibleCount.lean"
+        },
+        {
+          "label": "FiniteEventCouplingSharpBounds.event_coupling_target_feasible_iff",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/ConceptDynamics/Causal/FiniteEventCouplingSharpBounds.lean"
+        }
+      ]
+    },
+    {
       "id": "palindrome-cuts",
       "code": "PALINDROME//CUTS",
       "title": "回文切分 · 前缀最少能切成几个回文",
