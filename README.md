@@ -9,6 +9,7 @@ Every page is bilingual (中文 / English, switchable in the header) and states 
 
 | id | Page | Theory |
 | --- | --- | --- |
+| `robin-lattice` | [ROBIN//LATTICE Robin 证书着色 · 素数指数格上的点、边、面与纤维](https://the-omega-institute.github.io/trureturing-visualize/viz/robin-lattice/) | FIB-ATOM 与 Robin 的约数尺度几何 · κ-荷与指数纤维 · Lean：D5/S3/Arith/Robin |
 | `auric-pyramid` | [AURIC//PYRAMID FIB-ATOM 金字塔 · 平均值看见什么、看不见什么](https://the-omega-institute.github.io/trureturing-visualize/viz/auric-pyramid/) | AURIC FIB-ATOM 金字塔理论卷：基本公式 · 边界演算 · 局部填充与奇环障碍 |
 | `palindrome-cuts` | [PALINDROME//CUTS 回文切分 · 前缀最少能切成几个回文](https://the-omega-institute.github.io/trureturing-visualize/viz/palindrome-cuts/) | 问题卷宗：Frid–Laborde–Peltomäki 2021 · Frid 2018 |
 | `uncertainty` | [UNCERTAINTY//LEDGER 不确定性账本 · 不对易的代价记在哪里](https://the-omega-institute.github.io/trureturing-visualize/viz/uncertainty/) | Lean：D5/S3/QuantumBounds · D5/S3/Quantum/Measurements |

@@ -1103,6 +1103,66 @@
           "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/PureState/RecordCoherenceComplementarity.lean"
         }
       ]
+    },
+    {
+      "id": "robin-lattice",
+      "code": "ROBIN//LATTICE",
+      "title": "Robin 证书着色 · 素数指数格上的点、边、面与纤维",
+      "title_en": "Robin certificate colouring · vertices, edges, faces and fibres of the prime-exponent lattice",
+      "summary": "把每个正整数放到素数指数格上：2、3、5 三个方向加一条 7 的斜向 κ 纤维，颜色是它的 Robin 证书——7-光滑与 11-光滑（已冻结）、素数替换压缩（已冻结）、5040 黄金最优界、边检验，或者只有数值。边按 log m 着长度、按 Robin 势的变化着颜色；沿素数纤维看首层边检验一次通过就管住整条纤维（已冻结），也看它在 27440·11 处失败而 Robin 仍成立；面上读混合差，连续松弛给出最优指数 p^{a+1} = T。最后数遍 (5040, 10⁶]：99.935% 有证书，剩下的前沿是至少六个不同素因子的数，最小 30030——这不是黎曼猜想的证明。",
+      "summary_en": "Every positive integer sits on the prime-exponent lattice: directions 2, 3, 5 and a diagonal κ-fibre for 7, coloured by its Robin certificate — 7-smooth and 11-smooth (frozen), prime-replacement compression (frozen), the 5040 golden optimum, the edge test, or numbers only. Edges carry the length log m and the change of Robin potential; along a prime fibre a passing first-layer edge test controls the whole fibre (frozen), and the page shows it failing at 27440·11 while Robin still holds. Faces read the mixed difference, and the continuous relaxation gives the optimal exponents p^{a+1} = T. The last view counts (5040, 10⁶]: 99.935% is certified and the frontier left is integers with at least six distinct primes, the smallest 30030 — this is not a proof of the Riemann hypothesis.",
+      "path": "viz/robin-lattice/",
+      "thumbnail": "viz/robin-lattice/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-11",
+      "tags": [
+        "Robin 判据",
+        "约数和",
+        "素数格",
+        "证书",
+        "WebGL"
+      ],
+      "tags_en": [
+        "Robin criterion",
+        "divisor sums",
+        "prime lattice",
+        "certificates",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "FIB-ATOM 与 Robin 的约数尺度几何",
+          "label_en": "FIB-ATOM and Robin: divisor-scale geometry",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/AURIC_FIB_ROBIN_DIVISOR_SCALE_GEOMETRY.md"
+        },
+        {
+          "label": "AURIC FIB-ATOM 的隐藏坐标、κ-荷与 5040 编码",
+          "label_en": "AURIC FIB-ATOM hidden coordinates, κ-charge and the 5040 encoding",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/AURIC_FIB_ATOM_KAPPA_CHARGE_EXPONENT_FIBERS_AND_GOLDEN_NORM_READOUT.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "SevenSmooth.robin_seven_smooth",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/Robin/SevenSmooth.lean"
+        },
+        {
+          "label": "ElevenSmooth.robin_eleven_smooth",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/Robin/ElevenSmooth.lean"
+        },
+        {
+          "label": "PrimeFiberPropagation.robinAt_prime_replace",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/Robin/PrimeFiberPropagation.lean"
+        },
+        {
+          "label": "PrimeFiberPropagation.robinAt_mul_prime_pow",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/Robin/PrimeFiberPropagation.lean"
+        },
+        {
+          "label": "GoldenResourceOptimalInteger.golden_resource_unique_optimum",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/GoldenResourceOptimalInteger.lean"
+        }
+      ]
     }
   ]
 }
