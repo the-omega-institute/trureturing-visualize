@@ -2,6 +2,61 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "general-position",
+      "code": "GENERAL//POSITION",
+      "title": "一般位置：机器人、多项式与外部位置",
+      "title_en": "General position: robots, polynomials and outer sets",
+      "summary": "图上的一般位置：顶点集中没有三个点落在同一条最短路上。本库结算了三个相关问题，都已冻结：Klavžar 等人猜想柱面 C₇ □ Pₛ 与 C₁₀ □ Pₛ（s ≥ 5）的移动一般位置数是 4，已证明；Rather 问一般位置多项式 ψ(G) 何时只有实根，答案是连通图恰好在完全图时；Tian、Dokyeesun 与 Klavžar 关于删去非割点的外部一般位置上界被一个 19 个顶点的图推翻（8 > 5 + 2）。页面在三维里重放四个机器人走遍柱面的 Lean 构造、五个机器人只能上下移动的可达配置，从路加边到完全图时 ψ 的根，以及反例图上的五色阻挡。",
+      "summary_en": "General position in graphs: no three vertices of a set lie on a common shortest path. This library settles three related problems, all frozen: Klavžar et al. conjectured that the cylinders C₇ □ Pₛ and C₁₀ □ Pₛ (s ≥ 5) have mobile general position number 4, now proved; Rather asked when the general position polynomial ψ(G) is real-rooted, and for connected graphs the answer is exactly the complete graphs; and the outer general position bound of Tian, Dokyeesun and Klavžar under deletion of a non-cut vertex is refuted by a 19-vertex graph (8 > 5 + 2). The page replays in 3D the Lean construction of four robots covering a cylinder, the reachable configurations of five robots that can only move up and down, the roots of ψ while edges are added from a path to the complete graph, and the five-colour obstruction on the counterexample.",
+      "path": "viz/general-position/",
+      "thumbnail": "viz/general-position/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-28",
+      "tags": [
+        "图论",
+        "一般位置",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "graph theory",
+        "general position",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：柱面上的移动一般位置",
+          "label_en": "Problem dossier: mobile general position on cylinders",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/klavzar-et-al-2025-mobile-general-position-cylinders.md"
+        },
+        {
+          "label": "问题卷宗：ψ 的实根性",
+          "label_en": "Problem dossier: real-rootedness of ψ",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/rather-2026-general-position-real-rooted-complete.md"
+        },
+        {
+          "label": "问题卷宗：外部一般位置的删点猜想",
+          "label_en": "Problem dossier: the outer deletion conjecture",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/tian-dokyeesun-klavzar-conjecture34-refutation.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "CylinderSevenTen.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Graph/GeneralPosition/CylinderSevenTen.lean"
+        },
+        {
+          "label": "RatherRealRootedComplete.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Graph/GeneralPosition/RatherRealRootedComplete.lean"
+        },
+        {
+          "label": "TianDokyeesunKlavzarOuterGeneralPositionRefutation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Graph/TianDokyeesunKlavzarOuterGeneralPositionRefutation.lean"
+        }
+      ]
+    },
+    {
       "id": "lemniscate-area",
       "code": "LEMNISCATE//AREA",
       "title": "Erdős 最小面积问题 · 单位水平集",

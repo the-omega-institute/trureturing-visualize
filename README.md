@@ -9,6 +9,7 @@ Every page is bilingual (中文 / English, switchable in the header) and states 
 
 | id | Page | Theory |
 | --- | --- | --- |
+| `general-position` | [GENERAL//POSITION 一般位置：机器人、多项式与外部位置](https://the-omega-institute.github.io/trureturing-visualize/viz/general-position/) | 问题卷宗：Klavžar 等 2025、Rather 2026、Tian–Dokyeesun–Klavžar |
 | `lemniscate-area` | [LEMNISCATE//AREA Erdős 最小面积问题](https://the-omega-institute.github.io/trureturing-visualize/viz/lemniscate-area/) | 问题卷宗：Ghosh–Ramachandran 2026（Fekete 面积、容量为一的衰减率） |
 | `imitate-cycle` | [IMITATE//CYCLE 模仿与最佳回应 · 一个永不停下的循环](https://the-omega-institute.github.io/trureturing-visualize/viz/imitate-cycle/) | 问题卷宗：Hasheminejad–Ramazi 2023 |
 | `miura-flip` | [MIURA//FLIP Miura-ori 翻转图上的高度函数](https://the-omega-institute.github.io/trureturing-visualize/viz/miura-flip/) | 问题卷宗：Gupta 2026（不等式 (4)、猜想 8.3） |
