@@ -2,6 +2,43 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "imitate-cycle",
+      "code": "IMITATE//CYCLE",
+      "title": "模仿与最佳回应 · 一个永不停下的循环",
+      "title_en": "Imitation and best response: a cycle that never settles",
+      "summary": "网络上的协调博弈：模仿者抄效用最高的邻居，最佳回应者选对自己更好的策略。Hasheminejad 与 Ramazi（2023）在几类网络上证明混合群体会到达均衡，问一般图是否也如此。本库给出已冻结的反例：K₄ 去掉一条边，一个最佳回应者、三个模仿者，从 BABB 出发按 2, 0, 3, 1 循环激活，状态每 8 步重复，永远到不了均衡 AAAA 或 BBBB。页面画出网络与效用、16 个状态组成的四维立方体和其中的 8 步环、时空图与收益表；可以切换每个人的规则（16 种分配里只有反例那一种循环），也可以改用随机激活（2000 次模拟全部很快停下）。",
+      "summary_en": "Coordination games on a network: imitators copy their best-earning neighbour, best responders pick the strategy better for themselves. Hasheminejad and Ramazi (2023) proved that mixed populations equilibrate on several network classes and asked whether general graphs do too. This library has a frozen counterexample: K₄ minus one edge, one best responder and three imitators, which from BABB under the schedule 2, 0, 3, 1 repeated cycles every 8 steps and never reaches the equilibria AAAA or BBBB. The page draws the network with its utilities, the four-dimensional cube of the 16 states with the 8-cycle inside it, a space-time chart and the payoff tables; each agent's rule can be switched (only the counterexample's assignment out of 16 cycles), and random activation can be compared (all 2000 simulated runs settle quickly).",
+      "path": "viz/imitate-cycle/",
+      "thumbnail": "viz/imitate-cycle/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-28",
+      "tags": [
+        "演化博弈",
+        "网络动力学",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "evolutionary games",
+        "network dynamics",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：混合模仿与最佳回应在一般图上不一定到达均衡",
+          "label_en": "Problem dossier: mixed imitation and best response need not equilibrate on general graphs",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/hasheminejad-ramazi-2023-mixed-imitation-best-response-nonequilibration.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "MixedImitationBestResponseCycle.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/ConceptDynamics/DecisionValue/MixedImitationBestResponseCycle.lean"
+        }
+      ]
+    },
+    {
       "id": "miura-flip",
       "code": "MIURA//FLIP",
       "title": "Miura-ori 翻转图上的高度函数",
