@@ -2,6 +2,52 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "power-cycles",
+      "code": "POWER//CYCLES",
+      "title": "每一种取向都有 64 圈",
+      "title_en": "Every orientation has a 64-cycle",
+      "summary": "Erdős 与 Gyárfás 猜想最小度至少 3 的图都有长度为 2 的幂的圈。Garcia（2026）想用仿射群 AGL(1, 29) 与 AGL(1, 31) 上的三次凯莱图，把每个顶点按选定的取向换成 15 顶点的小部件，造出没有 4、8、16、32、64 圈的图，并留下一个搜索。本库在 Lean 里证明这个搜索无解，两个结果都已冻结：不论怎样取向，总有某个 14 圈的平移至少 10 次经过端口 u，于是能在小部件里绕出长度恰为 64 的简单圈。页面随机或按规则选取向，数出每个平移经过 u 的次数，验证恒等式 2S₄ + S₆ = 28N，并在替换图里逐边画出那个 64 圈。",
+      "summary_en": "Erdős and Gyárfás conjectured that every graph of minimum degree at least 3 has a cycle whose length is a power of two. Garcia (2026) tried to build a counterexample from cubic Cayley graphs on the affine groups AGL(1, 29) and AGL(1, 31), replacing each vertex by a 15-vertex gadget according to a chosen orientation so that no cycle has length 4, 8, 16, 32 or 64, and left a search open. This library proves in Lean that the search has no solution; both results are frozen. Whatever the orientation, some translate of a 14-cycle passes through port u at least 10 times, and the gadget then routes a simple cycle of length exactly 64. The page draws orientations at random or by rule, counts how often each translate passes through u, checks the identity 2S₄ + S₆ = 28N, and draws that 64-cycle edge by edge in the replacement graph.",
+      "path": "viz/power-cycles/",
+      "thumbnail": "viz/power-cycles/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-28",
+      "tags": [
+        "图论",
+        "Erdős 问题",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "graph theory",
+        "Erdős problems",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：AGL(1, 29)",
+          "label_en": "Problem dossier: AGL(1, 29)",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/garcia-2026-erdos64-agl29-orientation.md"
+        },
+        {
+          "label": "问题卷宗：AGL(1, 31)",
+          "label_en": "Problem dossier: AGL(1, 31)",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/garcia-2026-erdos64-agl31-orientation.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "ErdosGyarfasGarciaOrientation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Graph/ErdosGyarfasGarciaOrientation.lean"
+        },
+        {
+          "label": "ErdosGyarfasGarciaOrientationThirtyOne.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Graph/ErdosGyarfasGarciaOrientationThirtyOne.lean"
+        }
+      ]
+    },
+    {
       "id": "factorial-steps",
       "code": "FACTORIAL//STEPS",
       "title": "分数阶乘之比为什么是整数",
