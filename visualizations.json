@@ -906,8 +906,8 @@
       "code": "STATE//TRANSFER",
       "title": "完美态传输 · 量子行走把态送到哪里",
       "title_en": "Perfect state transfer · where a quantum walk carries a state",
-      "summary": "把量子态放在图的一个顶点，让它按哈密顿量演化：耦合调对了，链条两端能一点不剩地完美传输；边权全是有理数的奇数链在 t = π 永远差一点；有的顶点永远收不到任何振幅。页面展示本库推翻的三个已发表猜想：Song–Lin 的零传输奇偶猜想、Connelly 等的普适传输猜想、Kay 的传输率猜想。",
-      "summary_en": "Put a quantum state on one vertex of a graph and let it evolve under the Hamiltonian: with the right couplings a chain transfers it perfectly end to end; an odd chain whose weights are all rational always falls short at t = π; some vertices never receive any amplitude at all. The page shows three published conjectures this library has refuted: Song and Lin's parity conjecture for zero transfer, the universal-transfer conjecture of Connelly et al., and Kay's transfer-rate conjecture.",
+      "summary": "把量子态放在图的一个顶点，让它按哈密顿量演化：耦合调对了，链条两端能一点不剩地完美传输；边权全是有理数的奇数链在 t = π 永远差一点；有的顶点永远收不到任何振幅。页面展示本库推翻或回答的五个已发表猜想与问题：Song–Lin 的零传输奇偶猜想、Connelly 等的普适传输猜想、Kay 的传输率猜想、Kirkland 等关于内部完美传输的逆命题（一条五点带权路径内部送达、两端永远不行），以及 Coutinho–Baptista 的树猜想（一棵 17 顶点树在归一化拉普拉斯下完美传输）。",
+      "summary_en": "Put a quantum state on one vertex of a graph and let it evolve under the Hamiltonian: with the right couplings a chain transfers it perfectly end to end; an odd chain whose weights are all rational always falls short at t = π; some vertices never receive any amplitude at all. The page shows five published conjectures and questions this library has refuted or answered: Song and Lin's parity conjecture for zero transfer, the universal-transfer conjecture of Connelly et al., Kay's transfer-rate conjecture, the converse asked by Kirkland et al. for interior transfer (a weighted five-site path transfers inside but never between its ends), and the tree conjecture of Coutinho and Baptista (a 17-vertex tree transfers perfectly under the normalized Laplacian).",
       "path": "viz/state-transfer/",
       "thumbnail": "viz/state-transfer/thumb.jpg",
       "status": "live",
@@ -943,6 +943,16 @@
           "label": "Kay 传输率猜想问题卷宗",
           "label_en": "Problem dossier: Kay's transfer-rate conjecture",
           "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/kay-2010-transfer-rate-refutation.md"
+        },
+        {
+          "label": "Kirkland 等内部完美传输逆命题问题卷宗",
+          "label_en": "Problem dossier: Kirkland et al. on the converse for interior transfer",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/kirkland-2019-interior-pst-converse-refutation.md"
+        },
+        {
+          "label": "Coutinho–Baptista 归一化拉普拉斯树猜想问题卷宗",
+          "label_en": "Problem dossier: Coutinho and Baptista's tree conjecture for the normalized Laplacian",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/coutinho-baptista-2023-normalized-laplacian-tree-state-transfer-refutation.md"
         }
       ],
       "lean": [
@@ -961,6 +971,14 @@
         {
           "label": "KayTransferRateRefutation.result",
           "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Dynamics/KayTransferRateRefutation.lean"
+        },
+        {
+          "label": "InteriorPathTransferConverseRefutation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Dynamics/InteriorPathTransferConverseRefutation.lean"
+        },
+        {
+          "label": "NormalizedLaplacianTreeStateTransfer.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Dynamics/NormalizedLaplacianTreeStateTransfer.lean"
         }
       ]
     },
