@@ -2,6 +2,52 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "ledger-growth",
+      "code": "LEDGER//GROWTH",
+      "title": "真值账本的生长",
+      "title_en": "How the truth ledger grows",
+      "summary": "trureturing 把数学真值放在 Lean 里，验证后冻结、永不解冻；理论卷被摄入成 atom，逐条消化；外部开放问题有卷宗和结算记录。页面从 dev 分支的 git 历史里每个 UTC 日取一个快照（当天最后一个 first-parent 提交），只数文件，不读证明：Lean 模块、冻结状态片、问题卷宗、理论卷、atom 与四种消化状态。四个视图：七条生长丝带、按领域的城市、消化账目的分层墙、问题卷宗的日历塔（证明 848 份、反驳 495 份）。",
+      "summary_en": "trureturing keeps mathematical truth in Lean, frozen once verified and never unfrozen; theory volumes are ingested as atoms and digested one by one; external open problems get dossiers and resolution records. The page takes one snapshot per UTC day from the git history of the dev branch (the last first-parent commit of that day) and only counts files, reading no proofs: Lean modules, frozen state files, problem dossiers, theory files, atoms and the four digestion states. Four views: seven growth ribbons, an area skyline, the layered wall of the digestion ledger, and a calendar of problem dossiers (848 proved, 495 refuted).",
+      "path": "viz/ledger-growth/",
+      "thumbnail": "viz/ledger-growth/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-28",
+      "tags": [
+        "账本",
+        "仓库统计",
+        "仪表盘",
+        "WebGL"
+      ],
+      "tags_en": [
+        "ledger",
+        "repository statistics",
+        "dashboard",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "CLAUDE.md：真值图、冻结律与生产链",
+          "label_en": "CLAUDE.md: truth graph, freezing law and production chain",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/CLAUDE.md"
+        },
+        {
+          "label": "冻结状态片 Golden/Frozen/state",
+          "label_en": "Frozen state files Golden/Frozen/state",
+          "href": "https://github.com/the-omega-institute/trureturing/tree/dev/Golden/Frozen/state"
+        },
+        {
+          "label": "消化账本 Meta/Digestion",
+          "label_en": "Digestion ledger Meta/Digestion",
+          "href": "https://github.com/the-omega-institute/trureturing/tree/dev/Meta/Digestion"
+        },
+        {
+          "label": "问题卷宗 Problems",
+          "label_en": "Problem dossiers Problems",
+          "href": "https://github.com/the-omega-institute/trureturing/tree/dev/Problems"
+        }
+      ]
+    },
+    {
       "id": "power-cycles",
       "code": "POWER//CYCLES",
       "title": "每一种取向都有 64 圈",
