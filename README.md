@@ -9,6 +9,7 @@ Every page is bilingual (中文 / English, switchable in the header) and states 
 
 | id | Page | Theory |
 | --- | --- | --- |
+| `lee-yang-tree` | [LEE-YANG//TREE 树上的单位圆 · 何时守住、何时破开](https://the-omega-institute.github.io/trureturing-visualize/viz/lee-yang-tree/) | 问题卷宗：Fiol–Martínez-Montoya–Rios Fukelman 2020 |
 | `game-grundy` | [GAME//GRUNDY 三个博弈 · 三个结算的问题](https://the-omega-institute.github.io/trureturing-visualize/viz/game-grundy/) | 问题卷宗：Tyagi 2026 · Capitelli–Somma 2024 · Krop–Mittal–Wigal 2024 |
 | `hofstadter-gap` | [HOFSTADTER//GAP π/2 磁通 Hofstadter 模型 · 质量间隙](https://the-omega-institute.github.io/trureturing-visualize/viz/hofstadter-gap/) | 问题卷宗：Fabbri–Marcelli–Giuliani 2026 |
 | `robin-lattice` | [ROBIN//LATTICE Robin 证书着色 · 素数指数格上的点、边、面与纤维](https://the-omega-institute.github.io/trureturing-visualize/viz/robin-lattice/) | FIB-ATOM 与 Robin 的约数尺度几何 · κ-荷与指数纤维 · Lean：D5/S3/Arith/Robin |

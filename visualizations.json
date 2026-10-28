@@ -2,6 +2,59 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "lee-yang-tree",
+      "code": "LEE-YANG//TREE",
+      "title": "树上的单位圆 · 何时守住、何时破开",
+      "title_en": "The unit circle on trees: when it holds, when it breaks",
+      "summary": "Lee 与 Yang 证明铁磁 Ising 模型的配分函数零点都在单位圆上。Fiol、Martínez-Montoya、Rios Fukelman（2020）猜想树上的一族同类多项式也是如此，对任意正的分法权重都成立。本库给出两个已冻结的反例：三点路径配联合权重 W₃₁，以及原文物理权重下的九点双中心树（离圆只有约 0.002）。但对“两条边总数 3、其余 2”把所有放法加起来，任何树的根都回到单位圆上，这一点也已冻结。页面在复平面上把离圆的距离放大画出：权重 M 增大时根在 M = 31 离开圆；放大倍数升到几百倍时，物理反例才显形；逐个加入放法时，根沿着圆移动；有的放法单独看会离圆，加完之后的和全部在圆上。",
+      "summary_en": "Lee and Yang proved that the partition function of a ferromagnetic Ising model has all its zeros on the unit circle. Fiol, Martínez-Montoya and Rios Fukelman (2020) conjectured the same for a family of such polynomials on trees, with any positive split weights. This library has two frozen counterexamples: the three-vertex path with joint weights W₃₁, and a nine-vertex double hub under the source’s physical weights (only about 0.002 off the circle). Yet summing all placements of “two edges with total 3, the rest 2” brings every root back to the unit circle on every tree, which is frozen as well. The page draws the complex plane with the distance from the circle magnified: as the weight M grows the roots leave the circle at M = 31; the physical counterexample appears only at a magnification of a few hundred; and as placements are added one by one the roots move along the circle; some placements leave it on their own, while the full sum lies entirely on it.",
+      "path": "viz/lee-yang-tree/",
+      "thumbnail": "viz/lee-yang-tree/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-28",
+      "tags": [
+        "Lee–Yang 零点",
+        "树",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "Lee–Yang zeros",
+        "trees",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：树上的 Lee–Yang 猜想",
+          "label_en": "Problem dossier: the Lee–Yang conjecture on trees",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/fiol-martinezmontoya-riosfukelman-2020-tree-lee-yang.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "QuiverTreeIsingRefutation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Zeros/LeeYang/QuiverTreeIsingRefutation.lean"
+        },
+        {
+          "label": "QuiverTreePhysicalE8.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Zeros/LeeYang/QuiverTreePhysicalE8.lean"
+        },
+        {
+          "label": "TreePairTheorem.complete_named_tree_pair",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Zeros/LeeYang/TreePairTheorem.lean"
+        },
+        {
+          "label": "FiolDoubleHubPhysical.physical_root_classification",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Zeros/LeeYang/FiolDoubleHubPhysical.lean"
+        },
+        {
+          "label": "FiolDoubleHubCoefficient.actual_coefficient_identity",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Zeros/LeeYang/FiolDoubleHubCoefficient.lean"
+        }
+      ]
+    },
+    {
       "id": "game-grundy",
       "code": "GAME//GRUNDY",
       "title": "三个博弈 · 三个结算的问题",
