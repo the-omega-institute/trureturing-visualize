@@ -2,6 +2,69 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "game-grundy",
+      "code": "GAME//GRUNDY",
+      "title": "三个博弈 · 三个结算的问题",
+      "title_en": "Three games, three settled questions",
+      "summary": "三个组合博弈里的三个开放问题，本库都已结算：Divisor Nim 中 Tyagi（2026）猜想 Grundy 值不超过最小堆的两倍——已证；随机减法游戏中 Capitelli 与 Somma（2024）猜想减法集全为奇数时获胜概率不收敛——已证；二染色博弈中 Krop、Mittal、Wigal（2024）猜想任何树的博弈值不超过同阶路径——被一棵十个顶点、博弈值为 3 的树反驳（路径只有 1）。页面现算 Grundy 表与必败局面的 2-adic 规则、概率序列与证明里守恒的窗口和，以及精确的极小极大博弈值，二染色博弈可以亲手落子。",
+      "summary_en": "Three open questions in three combinatorial games, all settled in this library: in Divisor Nim, Tyagi (2026) conjectured that the Grundy value is at most twice the smallest heap, now proved; in random subtraction games, Capitelli and Somma (2024) conjectured that the winning probability does not converge when every move is odd, now proved; in the cordiality game, Krop, Mittal and Wigal (2024) conjectured that no tree beats the path of the same order, refuted by a ten-vertex tree of value 3 (the path has 1). The page computes Grundy tables with the 2-adic rule for losing positions, the probability sequences with the window sum the proof conserves, and exact minimax game values; you can play the cordiality game yourself.",
+      "path": "viz/game-grundy/",
+      "thumbnail": "viz/game-grundy/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-28",
+      "tags": [
+        "组合博弈",
+        "Grundy 值",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "combinatorial games",
+        "Grundy values",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：Divisor Nim 的 2h_min 界",
+          "label_en": "Problem dossier: the 2h_min bound for Divisor Nim",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/tyagi-2026-divisor-nim-sharper-sg-bound.md"
+        },
+        {
+          "label": "问题卷宗：全奇减法集不收敛",
+          "label_en": "Problem dossier: all-odd subtraction sets do not converge",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/capitelli-somma-2024-all-odd-nonconvergence.md"
+        },
+        {
+          "label": "问题卷宗：树与路径的博弈值",
+          "label_en": "Problem dossier: game values of trees and paths",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/krop-mittal-wigal-2024-game-cordiality-tree-path.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "DivisorNimBound.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Games/DivisorNimBound.lean"
+        },
+        {
+          "label": "DivisorNimBoundOutcome.zero_iff_even_count",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Games/DivisorNimBoundOutcome.lean"
+        },
+        {
+          "label": "DivisorNimPeriodPropagation.singleton_grundy",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Games/DivisorNimPeriodPropagation.lean"
+        },
+        {
+          "label": "CapitelliSommaAllOddNonconvergence.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Games/CapitelliSommaAllOddNonconvergence.lean"
+        },
+        {
+          "label": "CordialityTreePathRefutation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Games/CordialityTreePathRefutation.lean"
+        }
+      ]
+    },
+    {
       "id": "hofstadter-gap",
       "code": "HOFSTADTER//GAP",
       "title": "π/2 磁通 Hofstadter 模型 · 质量间隙",
