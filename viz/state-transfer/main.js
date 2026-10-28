@@ -1,7 +1,8 @@
 /* STATE//TRANSFER · 完美态传输 · 量子行走把态送到哪里
    Continuous-time quantum walks U(t) = exp(−iHt) on small graphs: uniform, Krawtchouk and rational-weight chains, a mirror-symmetric
    chain rebuilt from Kay's counterexample spectrum (Lanczos with weights 1/|B′(λ)|), the cube, the oriented circulant G(Z₃₀, {5, 6, 9, 20})
-   and two unit-phase triangles. The propagator comes from a complex Hermitian Jacobi diagonalization; zero-transfer sets come from exact
+   two unit-phase triangles, a weighted five-site path with interior but no endpoint transfer, and a seventeen-vertex tree under the
+   normalized Laplacian. The propagator comes from a complex Hermitian Jacobi diagonalization; zero-transfer sets come from exact
    BigInt powers of the integer skew matrix S = −iH and the Cayley–Hamilton theorem; Kay's sums R_k are exact fractions.
    Frozen Lean anchors and literature results are named in the page text. Depends on: assets/vendor/three.r128.min.js, assets/shell.js. */
 (() => {
@@ -14,17 +15,19 @@ const COL = TRV.rgb, GREEN = [0.27, 1.0, 0.70];
 const reduceMotion = TRV.reduceMotion;
 const { fitCanvas, L: T } = TRV;
 const { ink: INK, dim: DIM, faint: FAINT, amber: AM, ok: OK, cyan: CY, magenta: MG } = TRV.palette;
-const GRAPHS = ['uniform', 'kraw', 'rational', 'kay', 'cube', 'z30', 'triT', 'triI'];
+const GRAPHS = ['uniform', 'kraw', 'rational', 'kay', 'cube', 'z30', 'triT', 'triI', 'potpath', 'tree17'];
 const SAMPLES = 700, RUN_SECONDS = 14, PST_LEVEL = 1 - 1e-10, Q_MAX = 48;   // exact transfer shows up as 1 − F at rounding level (≈ 1e-13)
-const BAR_HEIGHT = { uniform: 4, kraw: 4, rational: 4, kay: 4, cube: 3.2, z30: 6, triT: 3, triI: 3 };   // height of probability 1
+const BAR_HEIGHT = { uniform: 4, kraw: 4, rational: 4, kay: 4, cube: 3.2, z30: 6, triT: 3, triI: 3, potpath: 4, tree17: 3 };   // height of probability 1
 const KAY_LAMBDA = [0, 31, 46, 65, 88, 107, 122, 153];
 const Z30_SET = [5, 6, 9, 20];
 const ALPHA = [-4 * Math.sqrt(3) / 7, 1 / 7];              // α = (−4√3 + i)/7, |α| = 1
+const POT_W = [2 * Math.SQRT2, Math.sqrt(5), Math.sqrt(5), 2 * Math.SQRT2];   // the weighted path of the Kirkland refutation
+const TAU_INT = Math.PI / Math.SQRT2;                          // interior transfer 1 → 3 at τ = 2π/(2√2)
 
 /* =====================================================================
    2. State and presets
    ===================================================================== */
-const S = { graph: 'kraw', N: 9, q: 8, b: 8, nowFrac: 0, playing: true, dir: 1, speed: 1, hold: 0, preset: 'kraw9' };
+const S = { graph: 'kraw', N: 9, q: 8, a: 0, b: 8, nowFrac: 0, playing: true, dir: 1, speed: 1, hold: 0, preset: 'kraw9' };
 const PRESETS = {
   uniform3: { graph: 'uniform', N: 3, b: 2,
     zh: '三个格点、两条一样的边。粒子从左端出发，在 t = π/√2 ≈ 2.22 时一点不剩地出现在右端：均匀耦合的短链也能完美传输。注意 t = π 时 F 只有 0.40。',
@@ -47,6 +50,12 @@ const PRESETS = {
   zero30: { graph: 'z30', N: 30, b: 2,
     zh: '定向循环图 G(Z₃₀, {5, 6, 9, 20})：从 0 出发，振幅铺开到一半顶点，但偶数顶点 2 上的概率永远是 0。Song–Lin 猜想说这样的 v 必须是奇数——这个反例推翻了它。',
     en: 'The oriented circulant G(Z₃₀, {5, 6, 9, 20}): starting at 0 the amplitude spreads over half the vertices, but the probability on the even vertex 2 stays exactly 0 forever. Song and Lin conjectured that such a v must be odd; this counterexample refutes it.' },
+  interior5: { graph: 'potpath', N: 5, a: 1, b: 3,
+    zh: '五个格点、边权 2√2, √5, √5, 2√2 的路径：从内部顶点 1 出发，t = π/√2 ≈ 2.22 时完全到达 3。Kirkland 等人问：内部完美传输是否总能推出两端之间的完美传输？把起点改成 0、目标改成 4，F 永远到不了 1——冻结定理说不能。',
+    en: 'A path of five sites with weights 2√2, √5, √5, 2√2: starting at the interior vertex 1, the state arrives in full at 3 at t = π/√2 ≈ 2.22. Kirkland and coauthors asked whether interior perfect transfer always gives perfect transfer between the ends. Set the start to 0 and the target to 4: F never reaches 1, and the frozen theorem says it cannot.' },
+  tree17: { graph: 'tree17', N: 17, a: 0, b: 1,
+    zh: '17 个顶点的树：中心连着两片叶子 u、v 和七条两节的臂。用归一化拉普拉斯 I − D⁻½AD⁻½ 当哈密顿量，t = 3π 时 u 上的态完全到达 v。Coutinho 与 Baptista 猜想除了 2、3 个顶点的路径，没有树能做到——这棵树推翻了它。',
+    en: 'A tree on 17 vertices: a centre joined to two leaves u, v and to seven arms of two edges each. With the normalized Laplacian I − D⁻½AD⁻½ as the Hamiltonian, the state on u arrives in full at v at t = 3π. Coutinho and Baptista conjectured that no tree except the paths on 2 and 3 vertices does this; this tree refutes it.' },
   universal3: { graph: 'triT', N: 3, b: 2,
     zh: '三角形，边权都是模长 1 的复数 α = (−4√3 + i)/7。它在 t ≈ 8.46 把态送到 2、在 t ≈ 16.93 送到 1：任意两点都能完美传输。猜想说只有 K₂ 和 Circ(0, −i, i) 能做到——这是第三个。',
     en: 'A triangle whose edge weights are the unit complex number α = (−4√3 + i)/7. It carries the state to 2 at t ≈ 8.46 and to 1 at t ≈ 16.93: every pair transfers perfectly. The conjecture said only K₂ and Circ(0, −i, i) can do this; this is a third.' }
@@ -128,6 +137,18 @@ function buildGraph(kind, N, q) {
     mk(30); G.oriented = true; G.S = Array.from({ length: 30 }, () => new Array(30).fill(0));
     for (let a = 0; a < 30; a++) for (const c of Z30_SET) { const b = (a + c) % 30; G.im[a * 30 + b] = 1; G.im[b * 30 + a] = -1; G.S[a][b] = 1; G.S[b][a] = -1; G.edges.push([a, b, 1]); }
     G.pos = Array.from({ length: 30 }, (_, v) => [3.6 * Math.sin(2 * Math.PI * v / 30), 0, -3.6 * Math.cos(2 * Math.PI * v / 30)]); G.span = 12;
+  } else if (kind === 'potpath') {
+    chain(POT_W); G.span = 2 * Math.PI * Math.SQRT2; G.weights = ['2√2', '√5', '√5', '2√2']; G.mark = TAU_INT; G.markLabel = 'π/√2';
+  } else if (kind === 'tree17') {
+    // u = 0 and v = 1 hang off the centre c = 2; arm i (1 … 7) is c – x_i – y_i with x_i = 2i + 1, y_i = 2i + 2 (the Lean labelling)
+    mk(17); const adj = [[0, 2], [1, 2]]; for (let i = 1; i <= 7; i++) adj.push([2, 2 * i + 1], [2 * i + 1, 2 * i + 2]);
+    const deg = new Array(17).fill(0); for (const [x, y] of adj) { deg[x]++; deg[y]++; }
+    for (let x = 0; x < 17; x++) G.re[x * 17 + x] = 1;   // normalized Laplacian I − D^{−1/2} A D^{−1/2}
+    for (const [x, y] of adj) { const w = -1 / Math.sqrt(deg[x] * deg[y]); G.re[x * 17 + y] = w; G.re[y * 17 + x] = w; G.edges.push([x, y, 1]); }
+    const ang = (k) => -Math.PI * 0.62 + Math.PI * 1.24 * k / 6, at = (r, a) => [r * Math.sin(a), 0, -r * Math.cos(a)];
+    G.pos = new Array(17); G.pos[2] = [0, 0, 0]; G.pos[0] = at(1.5, Math.PI * 0.86); G.pos[1] = at(1.5, Math.PI * 1.14);
+    for (let i = 1; i <= 7; i++) { G.pos[2 * i + 1] = at(2.3, ang(i - 1)); G.pos[2 * i + 2] = at(3.9, ang(i - 1)); }
+    G.deg = deg; G.span = 6 * Math.PI; G.mark = 3 * Math.PI;
   } else {
     mk(3); G.oriented = true; const a1 = kind === 'triT' ? ALPHA : [0, -1];
     for (let j = 0; j < 3; j++) { const k1 = (j + 1) % 3, k2 = (j + 2) % 3; G.re[j * 3 + k1] = a1[0]; G.im[j * 3 + k1] = a1[1]; G.re[j * 3 + k2] = a1[0]; G.im[j * 3 + k2] = -a1[1]; G.edges.push([j, k1, 1]); }
@@ -142,19 +163,22 @@ function buildGraph(kind, N, q) {
    ===================================================================== */
 let MODEL = null, dirty = true;
 function build() {
-  const G = buildGraph(S.graph, S.N, S.q), n = G.n; S.b = Math.min(Math.max(0, S.b), n - 1);
-  const E = hermJacobi(n, G.re, G.im), M = { G, n, E, b: S.b };
+  const G = buildGraph(S.graph, S.N, S.q), n = G.n; S.b = Math.min(Math.max(0, S.b), n - 1); S.a = Math.min(Math.max(0, S.a), n - 1);
+  const E = hermJacobi(n, G.re, G.im), M = { G, n, E, a: S.a, b: S.b };
   M.ts = Float64Array.from({ length: SAMPLES + 1 }, (_, i) => G.span * i / SAMPLES);
   M.curve = new Float64Array(SAMPLES + 1); M.reach = new Float64Array(n);
-  for (let i = 0; i <= SAMPLES; i++) { const p = psiAt(E, n, 0, M.ts[i]); for (let v = 0; v < n; v++) { const pr = p.re[v] ** 2 + p.im[v] ** 2; if (pr > M.reach[v]) M.reach[v] = pr; } M.curve[i] = p.re[S.b] ** 2 + p.im[S.b] ** 2; }
+  for (let i = 0; i <= SAMPLES; i++) { const p = psiAt(E, n, S.a, M.ts[i]); for (let v = 0; v < n; v++) { const pr = p.re[v] ** 2 + p.im[v] ** 2; if (pr > M.reach[v]) M.reach[v] = pr; } M.curve[i] = p.re[S.b] ** 2 + p.im[S.b] ** 2; }
   // the maximum of F over the window, refined around the best sample
   let top = 0; for (let i = 0; i <= SAMPLES; i++) top = Math.max(top, M.curve[i]);
-  let k = 0; while (k < SAMPLES && M.curve[k] < top - 1e-3) k++;     // the first sample near the maximum, then refine around it
+  let k = 0; while (k < SAMPLES && M.curve[k] < top - 1e-3) k++;     // the first sample near the maximum,
+  while (k < SAMPLES && M.curve[k + 1] >= M.curve[k]) k++;            // climbed to the top of its peak (a broad peak is wider than the refinement reaches), then refined
   let tBest = M.ts[k], fBest = M.curve[k], h = G.span / SAMPLES;
-  for (let it = 0; it < 40; it++) { for (const dt of [-h, h]) { const t = Math.min(G.span, Math.max(0, tBest + dt)), f = ampAt(E, n, S.b, 0, t); if (f > fBest) { fBest = f; tBest = t; } } h /= 1.6; }
-  M.maxF = fBest; M.tMax = tBest; M.fPi = ampAt(E, n, S.b, 0, Math.PI);
+  for (let it = 0; it < 40; it++) { for (const dt of [-h, h]) { const t = Math.min(G.span, Math.max(0, tBest + dt)), f = ampAt(E, n, S.b, S.a, t); if (f > fBest) { fBest = f; tBest = t; } } h /= 1.6; }
+  M.maxF = fBest; M.tMax = tBest; M.fPi = ampAt(E, n, S.b, S.a, Math.PI); M.fMark = G.mark !== undefined ? ampAt(E, n, S.b, S.a, G.mark) : null;
+  // the endpoint pair 0 → 4 of the weighted path over one period π√2 of its spectrum 0, ±2√2, ±3√2
+  if (S.graph === 'potpath') { let mx = 0; for (let k = 0; k <= 20000; k++) { const f = ampAt(E, n, 4, 0, Math.PI * Math.SQRT2 * k / 20000); if (f > mx) mx = f; } M.endMax = mx; }
   M.lam = E.lam.slice().sort((x, y) => x - y);
-  if (S.graph === 'uniform') { let mx = 0; for (let t = 0; t <= 200; t += 0.01) { const f = ampAt(E, n, S.b, 0, t); if (f > mx) mx = f; } M.longMax = mx; }
+  if (S.graph === 'uniform') { let mx = 0; for (let t = 0; t <= 200; t += 0.01) { const f = ampAt(E, n, S.b, S.a, t); if (f > mx) mx = f; } M.longMax = mx; }
   if (S.graph === 'rational') M.qCurve = Array.from({ length: Q_MAX }, (_, i) => { const H = buildGraph('rational', S.N, i + 1), e = hermJacobi(H.n, H.re, H.im); return 1 - ampAt(e, H.n, H.n - 1, 0, Math.PI); });
   if (G.S) M.zeroSet = zeroTransferSet(n, G.S);
   // first perfect transfer to 1 and to 2: scan for local maxima above 0.999, refine each by golden section, keep the first that reaches PST_LEVEL
@@ -175,7 +199,7 @@ function build() {
   MODEL = M;
 }
 const tNow = () => S.nowFrac * MODEL.G.span;
-const piFamily = () => ['uniform', 'kraw', 'rational', 'kay', 'cube', 'triT', 'triI'].includes(MODEL.G.kind);
+const piFamily = () => ['uniform', 'kraw', 'rational', 'kay', 'cube', 'triT', 'triI', 'tree17'].includes(MODEL.G.kind);
 
 /* =====================================================================
    6. DOM helpers
@@ -185,7 +209,7 @@ const stage = $('stage'), glCanvas = $('gl'), tagsBox = $('tags'), cv1 = $('c1')
 const f6 = (v) => (v === null || v === undefined || !isFinite(v) ? '—' : v.toFixed(6));
 const fNear = (v) => (v === null || !isFinite(v) ? '—' : 1 - v > 1e-11 && 1 - v < 1e-5 ? `1 − ${(1 - v).toExponential(2)}` : f6(v));   // values just below 1 keep their gap visible
 const sci = (v) => (v === null || !isFinite(v) ? '—' : v === 0 ? '0' : v < 1e-4 ? v.toExponential(2) : v.toFixed(6));
-const graphName = (g) => ({ uniform: T('均匀链', 'uniform chain'), kraw: T('Krawtchouk 链', 'Krawtchouk chain'), rational: T('有理权链', 'rational chain'), kay: T('Kay 反例链', 'Kay chain'), cube: T('立方体', 'cube'), z30: 'G(Z₃₀, {5, 6, 9, 20})', triT: 'Circ(0, α, ᾱ)', triI: 'Circ(0, −i, i)' })[g];
+const graphName = (g) => ({ uniform: T('均匀链', 'uniform chain'), kraw: T('Krawtchouk 链', 'Krawtchouk chain'), rational: T('有理权链', 'rational chain'), kay: T('Kay 反例链', 'Kay chain'), cube: T('立方体', 'cube'), z30: 'G(Z₃₀, {5, 6, 9, 20})', triT: 'Circ(0, α, ᾱ)', triI: 'Circ(0, −i, i)', potpath: T('带权五点路径', 'weighted 5-path'), tree17: T('17 顶点树', '17-vertex tree') })[g];
 function phaseRGB(re, im) {
   const a = Math.atan2(im, re), c = Math.cos(a), s = Math.sin(a);
   const w = [Math.max(0, c), Math.max(0, s), Math.max(0, -c), Math.max(0, -s)], cols = [COL.cyan, COL.amber, COL.magenta, GREEN];
@@ -243,7 +267,7 @@ function initGL() {
   pts.frustumCulled = false; scene3.add(pts);
 }
 function updateGL() {
-  const M = MODEL, G = M.G, n = M.n, ps = psiAt(M.E, n, 0, tNow()), BAR_H = BAR_HEIGHT[G.kind];
+  const M = MODEL, G = M.G, n = M.n, ps = psiAt(M.E, n, M.a, tNow()), BAR_H = BAR_HEIGHT[G.kind];
   const L = lines.geometry.attributes, Pp = L.position.array, Cc = L.color.array; let v = 0;
   const seg = (a, b, col, k) => { if (v + 2 > LINES_MAX) return; Pp.set(a, 3 * v); Cc.set([col[0] * k, col[1] * k, col[2] * k], 3 * v); v++; Pp.set(b, 3 * v); Cc.set([col[0] * k, col[1] * k, col[2] * k], 3 * v); v++; };
   const PT = pts.geometry.attributes; let np = 0;
@@ -262,7 +286,7 @@ function updateGL() {
     const P = G.pos[u], pr = ps.re[u] ** 2 + ps.im[u] ** 2, col = phaseRGB(ps.re[u], ps.im[u]), top = [P[0], P[1] + BAR_H * pr, P[2]];
     const hw = G.kind === 'z30' ? 0.07 : 0.1, k = 0.3 + 0.7 * Math.min(1, pr * 3), corners = [[-hw, -hw], [hw, -hw], [hw, hw], [-hw, hw]];
     if (pr > 1e-6) { corners.forEach(([dx, dz], c) => { const [ex, ez] = corners[(c + 1) % 4]; seg([P[0] + dx, P[1], P[2] + dz], [P[0] + dx, top[1], P[2] + dz], col, k * 0.7); seg([P[0] + dx, top[1], P[2] + dz], [P[0] + ex, top[1], P[2] + ez], col, k); }); }
-    const isT = u === M.b, isS = u === 0;
+    const isT = u === M.b, isS = u === M.a;
     dot(P, isT ? COL.amber : isS ? COL.sigma : zero.has(u) ? COL.magenta : COL.gray, isT || isS ? 0.95 : 0.6, isT || isS ? 2.2 : 1.2);
     if (pr > 1e-4) dot(top, col, 0.9, 1.0 + 1.2 * Math.sqrt(pr));
   }
@@ -328,7 +352,7 @@ function updateTags() {
   const M = MODEL, G = M.G; let k = 0;
   const put = (text, p, cls) => { const el = tagAt(k++, cls); el.textContent = text; placeTag(el, p); };
   const below = (u) => [G.pos[u][0], G.pos[u][1] - 0.5, G.pos[u][2] - (G.kind === 'z30' || G.kind.startsWith('tri') ? 0 : 0.6)];
-  put(T('起点 0', 'START 0'), below(0), 'cy');
+  put(T(`起点 ${M.a}`, `START ${M.a}`), below(M.a), 'cy');
   put(T(`目标 ${M.b}`, `TARGET ${M.b}`), [G.pos[M.b][0], G.pos[M.b][1] + BAR_HEIGHT[G.kind] + 0.4, G.pos[M.b][2]], 'hot');
   if (G.weights && G.n <= 9) G.edges.forEach(([a, b], i) => put(G.weights[i], [(G.pos[a][0] + G.pos[b][0]) / 2, -0.3, 0.75], ''));
   if (G.kind === 'z30') for (const u of M.zeroSet) if (u % 2 === 0 && u !== M.b) put(String(u), [G.pos[u][0] * 1.12, -0.2, G.pos[u][2] * 1.12], 'mg');
@@ -351,11 +375,13 @@ function drawCurve() {
   ctx.strokeStyle = FAINT; ctx.globalAlpha = 0.6; ctx.beginPath(); for (const g of [0, 0.5, 1]) { ctx.moveTo(pl, Y(g)); ctx.lineTo(pl + iw, Y(g)); } ctx.stroke(); ctx.globalAlpha = 1;
   ctx.fillStyle = DIM; ctx.textAlign = 'right'; ctx.textBaseline = 'middle'; for (const g of [0, 0.5, 1]) ctx.fillText(g.toFixed(1), pl - 4 * dpr, Y(g));
   ctx.textAlign = 'center'; ctx.textBaseline = 'top'; for (const t of railTicks()) ctx.fillText(piFamily() ? piLabel(t) : String(Math.round(t)), X(t), pt + ih + 3 * dpr);
-  if (piFamily() && Math.PI <= span) { ctx.strokeStyle = AM; ctx.setLineDash([4 * dpr, 3 * dpr]); ctx.beginPath(); ctx.moveTo(X(Math.PI), pt); ctx.lineTo(X(Math.PI), pt + ih); ctx.stroke(); ctx.setLineDash([]); }
+  const mark = M.G.mark !== undefined ? M.G.mark : piFamily() && Math.PI <= span ? Math.PI : null;
+  if (mark !== null) { ctx.strokeStyle = AM; ctx.setLineDash([4 * dpr, 3 * dpr]); ctx.beginPath(); ctx.moveTo(X(mark), pt); ctx.lineTo(X(mark), pt + ih); ctx.stroke(); ctx.setLineDash([]); }
   ctx.strokeStyle = CY; ctx.lineWidth = 1.8 * dpr; ctx.beginPath(); M.curve.forEach((f, i) => { if (i) ctx.lineTo(X(M.ts[i]), Y(f)); else ctx.moveTo(X(M.ts[i]), Y(f)); }); ctx.stroke(); ctx.lineWidth = 1;
-  const t = tNow(), f = ampAt(M.E, M.n, M.b, 0, t); ctx.fillStyle = AM; ctx.beginPath(); ctx.arc(X(t), Y(f), 4 * dpr, 0, 2 * Math.PI); ctx.fill();
+  const t = tNow(), f = ampAt(M.E, M.n, M.b, M.a, t); ctx.fillStyle = AM; ctx.beginPath(); ctx.arc(X(t), Y(f), 4 * dpr, 0, 2 * Math.PI); ctx.fill();
   if (M.maxF > PST_LEVEL) { ctx.fillStyle = OK; ctx.beginPath(); ctx.arc(X(M.tMax), Y(1), 3 * dpr, 0, 2 * Math.PI); ctx.fill(); }
-  $('c1Meta').textContent = T(`目标 ${M.b} · 琥珀虚线 = t = π`, `target ${M.b} · amber dashes = t = π`);
+  const markLabel = M.G.markLabel || (mark !== null ? piLabel(mark) : '');
+  $('c1Meta').textContent = mark !== null ? T(`${M.a} → ${M.b} · 琥珀虚线 = t = ${markLabel}`, `${M.a} → ${M.b} · amber dashes = t = ${markLabel}`) : `${M.a} → ${M.b}`;
 }
 function drawSide() {
   const F = frame2d(cv2, 36); if (F.iw < 60 || F.ih < 40) return;
@@ -375,7 +401,7 @@ function drawSide() {
     $('c2Title').textContent = T('四个和 R_k（M = 4）', 'THE FOUR SUMS R_k (M = 4)');
     $('c2Meta').textContent = T('精确分数，全部相等', 'exact fractions, all equal');
   } else {
-    const n = M.n, bw = iw / n, ps = psiAt(M.E, n, 0, tNow()), zero = new Set(M.zeroSet || []);
+    const n = M.n, bw = iw / n, ps = psiAt(M.E, n, M.a, tNow()), zero = new Set(M.zeroSet || []);
     ctx.fillStyle = DIM; ctx.textAlign = 'right'; ctx.textBaseline = 'middle'; for (const g of [0, 0.5, 1]) ctx.fillText(g.toFixed(1), pl - 4 * dpr, pt + ih - g * ih);
     for (let u = 0; u < n; u++) {
       const x = pl + u * bw, r = M.reach[u], p = ps.re[u] ** 2 + ps.im[u] ** 2;
@@ -385,7 +411,7 @@ function drawSide() {
       if (n <= 12 || u % 5 === 0 || u === M.b) { ctx.fillStyle = u === M.b ? AM : DIM; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText(String(u), x + bw / 2, pt + ih + 3 * dpr); }
     }
     $('c2Title').textContent = T('每个顶点：最高到过多少（框）与此刻（实）', 'EACH VERTEX: HIGHEST SO FAR (BOX) AND NOW (FILL)');
-    $('c2Meta').textContent = M.zeroSet ? T('品红 = 精确零传输', 'magenta = exact zero transfer') : T(`时间窗 0 … ${piFamily() ? piLabel(G.span) : G.span}`, `window 0 … ${piFamily() ? piLabel(G.span) : G.span}`);
+    $('c2Meta').textContent = M.zeroSet ? T('品红 = 精确零传输', 'magenta = exact zero transfer') : T(`时间窗 0 … ${piFamily() ? piLabel(G.span) : +G.span.toFixed(2)}`, `window 0 … ${piFamily() ? piLabel(G.span) : +G.span.toFixed(2)}`);
   }
 }
 
@@ -397,13 +423,14 @@ const toast = (html) => TRV.toast($('toast'), html);
 function railTicks() { const G = MODEL.G, span = G.span; if (!piFamily()) return Array.from({ length: Math.floor(span / 2) + 1 }, (_, i) => 2 * i); const step = span <= 2.01 * Math.PI ? Math.PI / 2 : span <= 4.01 * Math.PI ? Math.PI : 3 * Math.PI; return Array.from({ length: Math.floor(span / step + 1e-9) + 1 }, (_, i) => i * step); }
 function syncOutputs() {
   if (dirty) { build(); dirty = false; toasted = false; }
-  const M = MODEL, G = M.G, t = tNow(), ps = psiAt(M.E, M.n, 0, t), F = ps.re[M.b] ** 2 + ps.im[M.b] ** 2; syncedFrac = S.nowFrac;
+  const M = MODEL, G = M.G, t = tNow(), ps = psiAt(M.E, M.n, M.a, t), F = ps.re[M.b] ** 2 + ps.im[M.b] ** 2; syncedFrac = S.nowFrac;
   const chain = ['uniform', 'kraw', 'rational'].includes(S.graph);
   document.querySelectorAll('#graphChips .chip').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.graph === S.graph)));
   $('nField').hidden = !chain; $('qField').hidden = S.graph !== 'rational';
   $('nN').min = S.graph === 'rational' ? '3' : '2'; $('nN').step = S.graph === 'rational' ? '2' : '1'; $('nN').value = S.N; $('oN').textContent = String(S.N);
   $('qq').value = S.q; $('oQ').textContent = String(S.q);
   $('target').max = String(M.n - 1); $('target').value = M.b; $('oB').textContent = String(M.b);
+  $('source').max = String(M.n - 1); $('source').value = M.a; $('oA').textContent = String(M.a);
   $('presetNote').textContent = S.preset ? T(PRESETS[S.preset].zh, PRESETS[S.preset].en) : T('自定义参数。', 'Custom settings.');
   $('graphNote').innerHTML = ({
     uniform: T(`${S.N} 个格点，每条边耦合都是 1。`, `${S.N} sites, every coupling equal to 1.`),
@@ -413,7 +440,9 @@ function syncOutputs() {
     cube: T('立方体的 8 个顶点，12 条边耦合都是 1。', 'The 8 vertices of the cube, all 12 couplings equal to 1.'),
     z30: T('顶点 0 … 29，a → a + c 的弧（c ∈ {5, 6, 9, 20}）在 H 里是 i，反向是 −i。', 'Vertices 0 … 29; an arc a → a + c (c ∈ {5, 6, 9, 20}) is i in H and −i in reverse.'),
     triT: T('H<sub>jk</sub> = a<sub>k−j</sub>，a<sub>1</sub> = α = (−4√3 + i)/7，a<sub>2</sub> = ᾱ，|α| = 1。', 'H<sub>jk</sub> = a<sub>k−j</sub> with a<sub>1</sub> = α = (−4√3 + i)/7, a<sub>2</sub> = ᾱ, |α| = 1.'),
-    triI: T('Circ(0, −i, i)：已知的普适完美传输例子。', 'Circ(0, −i, i): the known example with universal perfect transfer.')
+    triI: T('Circ(0, −i, i)：已知的普适完美传输例子。', 'Circ(0, −i, i): the known example with universal perfect transfer.'),
+    potpath: T('顶点 0 … 4，边权 2√2, √5, √5, 2√2，势能为 0；谱是 0、±2√2、±3√2，所以每过 π√2 ≈ 4.44 一切回到原样。', 'Vertices 0 … 4, edge weights 2√2, √5, √5, 2√2, zero potentials; the spectrum is 0, ±2√2, ±3√2, so everything returns every π√2 ≈ 4.44.'),
+    tree17: T('u = 0、v = 1 挂在中心 c = 2 上；第 i 条臂是 c – x<sub>i</sub> – y<sub>i</sub>，x<sub>i</sub> = 2i + 1，y<sub>i</sub> = 2i + 2。H 是归一化拉普拉斯，度数：中心 9、臂中点 2、叶 1。', 'u = 0 and v = 1 hang off the centre c = 2; arm i is c – x<sub>i</sub> – y<sub>i</sub> with x<sub>i</sub> = 2i + 1, y<sub>i</sub> = 2i + 2. H is the normalized Laplacian; degrees: 9 at the centre, 2 in the middle of each arm, 1 at the leaves.')
   })[S.graph];
   // readouts
   let norm = 0; for (let u = 0; u < M.n; u++) norm += ps.re[u] ** 2 + ps.im[u] ** 2;
@@ -430,7 +459,9 @@ function syncOutputs() {
     cube: () => [T('完美传输的时刻', 'Time of perfect transfer'), M.maxF > PST_LEVEL ? `t = ${M.tMax.toFixed(6)} ≈ π/2` : '—'],
     z30: () => [T('从 0 出发的零传输顶点（精确）', 'Vertices with zero transfer from 0 (exact)'), M.zeroSet ? M.zeroSet.join(', ') : '—'],
     triT: () => [T('首次完美传输：0 → 1、0 → 2', 'First perfect transfer: 0 → 1, 0 → 2'), M.firstPST.map((x) => (x === null ? '—' : `t ≈ ${x.toFixed(4)}`)).join(' · ')],
-    triI: () => [T('首次完美传输：0 → 1、0 → 2', 'First perfect transfer: 0 → 1, 0 → 2'), M.firstPST.map((x) => (x === null ? '—' : `t ≈ ${x.toFixed(4)}`)).join(' · ')]
+    triI: () => [T('首次完美传输：0 → 1、0 → 2', 'First perfect transfer: 0 → 1, 0 → 2'), M.firstPST.map((x) => (x === null ? '—' : `t ≈ ${x.toFixed(4)}`)).join(' · ')],
+    potpath: () => [T(`t = π/√2 时 ${M.a} → ${M.b} 的 F · 端点 0 → 4 在一个周期里的最大 F`, `F for ${M.a} → ${M.b} at t = π/√2 · largest F for the ends 0 → 4 over one period`), `${fNear(M.fMark)} · ${f6(M.endMax)}`],
+    tree17: () => [T(`t = 3π 时 ${M.a} → ${M.b} 的 F`, `F for ${M.a} → ${M.b} at t = 3π`), fNear(M.fMark)]
   })[S.graph]();
   $('ro6L').textContent = ro6[0]; $('ro6').textContent = ro6[1];
   const zeroB = M.zeroSet && M.zeroSet.includes(M.b);
@@ -439,7 +470,7 @@ function syncOutputs() {
       ? T(`t = ${M.tMax.toFixed(4)}（不是 π）时 F 与 1 的差小于 10⁻¹⁰。冻结定理只说 t = π 时到不了 1，对别的时刻不作断言。`, `At t = ${M.tMax.toFixed(4)} (not π) F is within 10⁻¹⁰ of 1. The frozen theorem only rules out t = π and says nothing about other times.`)
       : T(`完美传输：t = ${M.tMax.toFixed(4)} 时 F = ${f6(M.maxF)}。`, `Perfect transfer: F = ${f6(M.maxF)} at t = ${M.tMax.toFixed(4)}.`))
       : T(`这个时间窗里目标最多到 ${fNear(M.maxF)}，没有到 1。`, `In this window the target reaches at most ${fNear(M.maxF)}, short of 1.`);
-  $('litNote').innerHTML = S.graph === 'rational' ? T(`当前 q = ${S.q}：1 − F(π) = ${sci(1 - M.fPi)}。冻结定理保证对每个 q 都大于 0。`, `Now q = ${S.q}: 1 − F(π) = ${sci(1 - M.fPi)}. The frozen theorem guarantees it is positive for every q.`) : T('均匀耦合、Krawtchouk 耦合与立方体的完美传输是文献结果；页面直接计算核对。', 'Perfect transfer with uniform couplings, Krawtchouk couplings and on the cube are literature results; the page checks them by direct computation.');
+  $('litNote').innerHTML = S.graph === 'potpath' ? T('页面在一个周期里逐点算出端点 0 → 4 的 F：它的最大值小于 1；“任何时刻都不是 1”来自冻结定理的奇偶论证，不是采样。', 'The page samples F for the ends 0 → 4 over one period: its maximum stays below 1; “never 1 at any time” comes from the parity argument of the frozen theorem, not from the sampling.') : S.graph === 'tree17' ? T('页面用 Jacobi 对角化算出 t = 3π 时 F = 1（到舍入误差）；冻结定理给出精确的本征分解。', 'The page finds F = 1 at t = 3π (up to rounding) by Jacobi diagonalization; the frozen theorem gives the exact eigen-decomposition.') : S.graph === 'rational' ? T(`当前 q = ${S.q}：1 − F(π) = ${sci(1 - M.fPi)}。冻结定理保证对每个 q 都大于 0。`, `Now q = ${S.q}: 1 − F(π) = ${sci(1 - M.fPi)}. The frozen theorem guarantees it is positive for every q.`) : T('均匀耦合、Krawtchouk 耦合与立方体的完美传输是文献结果；页面直接计算核对。', 'Perfect transfer with uniform couplings, Krawtchouk couplings and on the cube are literature results; the page checks them by direct computation.');
   // pills, HUD, clock
   $('pillT').innerHTML = `t <strong>${t.toFixed(2)}</strong>`;
   $('pillF').innerHTML = `F <strong>${F.toFixed(4)}</strong>`;
@@ -459,19 +490,21 @@ function syncRail() {
 }
 function markPreset() { document.querySelectorAll('.preset').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.preset === S.preset))); }
 function custom() { S.preset = null; markPreset(); dirty = true; }
-const DEFAULT_N = { uniform: 6, kraw: 9, rational: 5, kay: 8, cube: 8, z30: 30, triT: 3, triI: 3 };
+const DEFAULT_N = { uniform: 6, kraw: 9, rational: 5, kay: 8, cube: 8, z30: 30, triT: 3, triI: 3, potpath: 5, tree17: 17 };
 document.querySelectorAll('#graphChips .chip').forEach((b) => b.addEventListener('click', () => {
   const g = GRAPHS.includes(b.dataset.graph) ? b.dataset.graph : 'kraw'; if (S.graph === g) return;
   S.graph = g; if (!['uniform', 'kraw', 'rational'].includes(g) || (g === 'rational' && S.N % 2 === 0)) S.N = DEFAULT_N[g];
-  S.b = g === 'z30' ? 2 : g === 'cube' ? 7 : (['uniform', 'kraw', 'rational'].includes(g) ? S.N : DEFAULT_N[g]) - 1; S.nowFrac = 0; custom();
+  S.a = g === 'potpath' ? 1 : 0; S.b = g === 'z30' ? 2 : g === 'cube' ? 7 : g === 'potpath' ? 3 : g === 'tree17' ? 1 : (['uniform', 'kraw', 'rational'].includes(g) ? S.N : DEFAULT_N[g]) - 1; S.nowFrac = 0; custom();
 }));
 $('nN').addEventListener('input', () => { let N = parseInt($('nN').value, 10); if (S.graph === 'rational' && N % 2 === 0) N += 1; S.N = Math.min(12, Math.max(2, N)); S.b = S.N - 1; custom(); });
 $('qq').addEventListener('input', () => { S.q = Math.min(Q_MAX, Math.max(1, parseInt($('qq').value, 10))); custom(); });
 $('target').addEventListener('input', () => { S.b = parseInt($('target').value, 10); custom(); });
+$('source').addEventListener('input', () => { S.a = parseInt($('source').value, 10); custom(); });
 document.querySelectorAll('#camChips .chip').forEach((b) => b.addEventListener('click', (ev) => { ev.stopPropagation(); setCamPreset(b.dataset.cam); }));
 function applyPreset(name) {
   const p = PRESETS[name]; if (!p) return;
   for (const k of ['graph', 'N', 'b', 'q']) if (p[k] !== undefined) S[k] = p[k];
+  S.a = p.a !== undefined ? p.a : 0;
   S.preset = name; markPreset(); dirty = true; setCamPreset('iso');
   if (!reduceMotion) { S.nowFrac = 0; S.dir = 1; S.playing = true; setPlayUI(); }
   TRV.glitch($('app'));
@@ -539,12 +572,12 @@ window.ST_DEBUG = {
   frames: () => frameCount,
   state: () => JSON.parse(JSON.stringify(S)),
   info: () => {
-    const M = MODEL, G = M.G, t = tNow(), ps = psiAt(M.E, M.n, 0, t);
-    return { graph: G.kind, n: M.n, b: M.b, H: { re: Array.from(G.re), im: Array.from(G.im) }, lam: M.lam.slice(), t, span: G.span, F: ps.re[M.b] ** 2 + ps.im[M.b] ** 2, psi: { re: Array.from(ps.re), im: Array.from(ps.im) },
+    const M = MODEL, G = M.G, t = tNow(), ps = psiAt(M.E, M.n, M.a, t);
+    return { graph: G.kind, n: M.n, a: M.a, b: M.b, fMark: M.fMark, endMax: M.endMax ?? null, mark: G.mark ?? null, H: { re: Array.from(G.re), im: Array.from(G.im) }, lam: M.lam.slice(), t, span: G.span, F: ps.re[M.b] ** 2 + ps.im[M.b] ** 2, psi: { re: Array.from(ps.re), im: Array.from(ps.im) },
       maxF: M.maxF, tMax: M.tMax, fPi: M.fPi, curve: Array.from(M.curve), ts: Array.from(M.ts), reach: Array.from(M.reach), weights: G.weights || null, zeroSet: M.zeroSet || null, kayR: KAY.R.slice(),
       qCurve: M.qCurve ? M.qCurve.slice() : null, firstPST: M.firstPST ? M.firstPST.slice() : null, longMax: M.longMax ?? null };
   },
-  amp: (v, t) => ampAt(MODEL.E, MODEL.n, v, 0, t),
+  amp: (v, t) => ampAt(MODEL.E, MODEL.n, v, MODEL.a, t),
   setFrac: (f) => { S.nowFrac = Math.min(1, Math.max(0, f)); $('now').value = S.nowFrac; }
 };
 

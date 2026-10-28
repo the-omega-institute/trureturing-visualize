@@ -3,8 +3,9 @@
 //   node tests/state-transfer.test.mjs
 // Reads page state through the read-only window.ST_DEBUG probe and checks it against an independent implementation: Hamiltonians
 // rebuilt from their definitions, the propagator by a scaling-and-squaring Taylor series (no diagonalization), closed-form
-// eigenvectors of the uniform chain, sin⁴(t/√2) for the 3-site chain, exact BigInt powers for zero transfer, and Kay's sums R_k
-// recomputed exactly from the spectrum.
+// eigenvectors of the uniform chain, sin⁴(t/√2) for the 3-site chain, exact BigInt powers for zero transfer, Kay's sums R_k
+// recomputed exactly from the spectrum, the characteristic polynomial of the weighted 5-path by its three-term recurrence, and the
+// eigenvectors of the 17-vertex tree given in its problem dossier.
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { createServer, BASE } from '../scripts/serve.mjs';
@@ -153,8 +154,42 @@ await click('#graphChips [data-graph="triI"]'); i = await info();
 const TI = zeros(3); for (let j = 0; j < 3; j++) { TI.im[j * 3 + (j + 1) % 3] = -1; TI.im[j * 3 + (j + 2) % 3] = 1; }
 check('oriented triangle Circ(0, −i, i): transfer to 2 at its first time, confirmed independently', sameH(i.H, TI) && i.firstPST[1] !== null && prob(expmI(TI, i.firstPST[1]), 2, 0) > 1 - 1e-10 && i.zeroSet.length === 0);
 
+// --- the weighted 5-path: interior transfer without endpoint transfer
+const slide = async (id, v) => { await D(([id, v]) => { const el = document.getElementById(id); el.value = v; el.dispatchEvent(new Event('input')); }, [id, v]); await settle(); };
+await preset('interior5'); i = await info();
+const W5 = [2 * Math.SQRT2, Math.sqrt(5), Math.sqrt(5), 2 * Math.SQRT2], P5 = chainH(W5), TAU5 = Math.PI / Math.SQRT2, PER5 = Math.PI * Math.SQRT2;
+check('weighted 5-path: H has weights 2√2, √5, √5, 2√2 and zero potentials, and the preset goes from 1 to 3', i.graph === 'potpath' && i.n === 5 && i.a === 1 && i.b === 3 && sameH(i.H, P5));
+const charP5 = (x) => { let p0 = 1, p1 = x; for (let k = 1; k < 5; k++) [p0, p1] = [p1, x * p1 - W5[k - 1] ** 2 * p0]; return p1; };
+const SPEC5 = [-3 * Math.SQRT2, -2 * Math.SQRT2, 0, 2 * Math.SQRT2, 3 * Math.SQRT2];
+check('…its spectrum is 0, ±2√2, ±3√2: roots of the characteristic polynomial by its three-term recurrence, equal to the page eigenvalues', SPEC5.every((x) => Math.abs(charP5(x)) < 1e-9) && i.lam.every((x, k) => Math.abs(x - SPEC5[k]) < 1e-9));
+check('…the independent propagator gives F = 1 for 1 → 3 at t = π/√2, where the page finds its maximum', prob(expmI(P5, TAU5), 3, 1) > 1 - 1e-12 && Math.abs(i.tMax - TAU5) < 1e-6 && i.maxF > 1 - 1e-10 && Math.abs(i.fMark - 1) < 1e-10);
+let curve5 = true; for (let k = 0; k <= 700; k += 35) if (Math.abs(i.curve[k] - prob(expmI(P5, i.ts[k]), 3, 1)) > 1e-9) curve5 = false;
+check('…the page’s F(t) curve for 1 → 3 matches the independent propagator at sampled times', curve5);
+check('…the 3D labels mark the start 1 and the target 3', await D(() => { const t = [...document.querySelectorAll('#tags .tag')].filter((x) => x.style.display !== 'none').map((x) => x.textContent); return t.includes('起点 1') && t.includes('目标 3'); }));
+check('…all eigenvalues are multiples of √2, so U(π√2) = I by the independent propagator', [0, 1, 2, 3, 4].every((v) => prob(expmI(P5, PER5), v, v) > 1 - 1e-12));
+await slide('source', 0); await slide('target', 4); i = await info();
+let end5 = 0; for (let k = 0; k <= 4000; k++) end5 = Math.max(end5, prob(expmI(P5, PER5 * k / 4000), 4, 0));
+check('…from 0 to the far end 4 over a whole period the independent maximum of F is 0.7535 < 1, matching the page', i.a === 0 && i.b === 4 && Math.abs(i.endMax - end5) < 1e-4 && end5 < 0.754 && end5 > 0.753 && Math.abs(i.maxF - end5) < 1e-4 && (await state()).preset === null, `${end5.toFixed(6)} · page ${i.endMax.toFixed(6)}`);
+check('…the readout shows both numbers and the curve marks t = π/√2', (await text('ro6')).includes('0.753520') && /π\/√2/.test(await text('c1Meta')) && (await text('c1Meta')).startsWith('0 → 4'));
+
+// --- the 17-vertex tree under the normalized Laplacian
+await preset('tree17'); i = await info();
+const adjT = [[0, 2], [1, 2]]; for (let k = 1; k <= 7; k++) adjT.push([2, 2 * k + 1], [2 * k + 1, 2 * k + 2]);
+const degT = new Array(17).fill(0); adjT.forEach(([x, y]) => { degT[x]++; degT[y]++; });
+const LT = zeros(17); for (let x = 0; x < 17; x++) LT.re[x * 17 + x] = 1; adjT.forEach(([x, y]) => { LT.re[x * 17 + y] = LT.re[y * 17 + x] = -1 / Math.sqrt(degT[x] * degT[y]); });
+const seenT = new Set([2]), qT = [2]; while (qT.length) { const x = qT.shift(); for (const [p0, p1] of adjT) for (const [s0, s1] of [[p0, p1], [p1, p0]]) if (s0 === x && !seenT.has(s1)) { seenT.add(s1); qT.push(s1); } }
+check('17-vertex tree: 16 edges, connected, degrees 9 at the centre, 2 on the arms, 1 at the leaves; the page H is its normalized Laplacian', i.graph === 'tree17' && i.a === 0 && i.b === 1 && adjT.length === 16 && seenT.size === 17 && degT[2] === 9 && degT.filter((d) => d === 2).length === 7 && degT.filter((d) => d === 1).length === 9 && sameH(i.H, LT));
+check('…the independent propagator gives F = 1 from u to v at t = 3π, where the page finds its maximum', prob(expmI(LT, 3 * Math.PI), 1, 0) > 1 - 1e-12 && Math.abs(i.tMax - 3 * Math.PI) < 1e-6 && i.maxF > 1 - 1e-10);
+const vecT = (u, c, x, y) => { const v = new Array(17).fill(0); v[0] = v[1] = u; v[2] = c; for (let k = 1; k <= 7; k++) { v[2 * k + 1] = x; v[2 * k + 2] = y; } return v; };
+const WT = [[0, vecT(1, 3, Math.SQRT2, 1), 1 / 16], [2, vecT(1, -3, Math.SQRT2, -1), 1 / 16], [2 / 3, vecT(1, 1, -Math.SQRT2 / 7, -3 / 7), 7 / 16], [4 / 3, vecT(1, -1, -Math.SQRT2 / 7, 3 / 7), 7 / 16]];
+const LvT = (v) => v.map((_, r) => v.reduce((s, x, c) => s + LT.re[r * 17 + c] * x, 0));
+const antiT = new Array(17).fill(0); antiT[0] = 1; antiT[1] = -1;
+const sumT = WT.reduce((acc, [, v, c]) => acc.map((x, r) => x + c * v[r]), new Array(17).fill(0));
+check('…the dossier’s eigenvectors: four symmetric ones for 0, 2, 2/3, 4/3, e_u − e_v for 1, and e_u + e_v = w₀/16 + w₂/16 + 7w₂/₃/16 + 7w₄/₃/16', WT.every(([l, v]) => LvT(v).every((x, r) => Math.abs(x - l * v[r]) < 1e-12)) && LvT(antiT).every((x, r) => Math.abs(x - antiT[r]) < 1e-12) && sumT.every((x, r) => Math.abs(x - (r < 2 ? 1 : 0)) < 1e-12));
+check('…at t = 3π the symmetric phases e^{−iλt} are all 1 and the antisymmetric one is −1, so U(3π)e_u = e_v', WT.every(([l]) => Math.abs(Math.cos(l * 3 * Math.PI) - 1) < 1e-12 && Math.abs(Math.sin(l * 3 * Math.PI)) < 1e-12) && Math.abs(Math.cos(3 * Math.PI) + 1) < 1e-12 && Math.abs(i.fMark - 1) < 1e-10 && /3π/.test(await text('c1Meta')));
+
 // --- controls, keys, presets
-for (const name of ['uniform3', 'uniform6', 'kraw9', 'rational5', 'kay8', 'cube', 'zero30', 'universal3']) { await preset(name); const pressed = await D((n) => document.querySelector(`[data-preset="${n}"]`).getAttribute('aria-pressed'), name); check(`preset ${name} applies and explains itself`, pressed === 'true' && (await text('presetNote')).length > 40); }
+for (const name of ['uniform3', 'uniform6', 'kraw9', 'rational5', 'kay8', 'cube', 'zero30', 'universal3', 'interior5', 'tree17']) { await preset(name); const pressed = await D((n) => document.querySelector(`[data-preset="${n}"]`).getAttribute('aria-pressed'), name); check(`preset ${name} applies and explains itself`, pressed === 'true' && (await text('presetNote')).length > 40); }
 await preset('kraw9');
 await page.keyboard.press('p'); await settle();
 check('P jumps to t = π', Math.abs((await info()).t - Math.PI) < 1e-9 && (await state()).playing === false);
@@ -203,6 +238,7 @@ check('3D labels are English', !/[一-鿿]/.test(tags) && /TARGET/.test(tags), t
 check('English title', (await D(() => document.title)).startsWith('STATE//TRANSFER · Perfect state transfer'));
 await page.click('#infoBtn'); await page.waitForTimeout(200);
 check('drawer opens', (await D(() => document.getElementById('drawer').hidden)) === false);
+check('drawer links the two new dossiers and Lean files and the two new sources', (await D(() => { const h = [...document.querySelectorAll('#drawer .en a')].map((a) => a.href).join(' '); return ['kirkland-2019-interior-pst-converse-refutation.md', 'InteriorPathTransferConverseRefutation.lean', 'coutinho-baptista-2023-normalized-laplacian-tree-state-transfer-refutation.md', 'NormalizedLaplacianTreeStateTransfer.lean', '10.1080/03081087.2018.1442810', 'arxiv.org/abs/1708.03283', '10.1080/03081087.2023.2236282', 'arxiv.org/abs/2209.04668'].every((s) => h.includes(s)); })));
 await page.keyboard.press('Escape'); await page.waitForTimeout(150);
 check('Esc closes the drawer', (await D(() => document.getElementById('drawer').hidden)) === true);
 check('focus returns to the drawer button', (await D(() => document.activeElement?.id)) === 'infoBtn');
