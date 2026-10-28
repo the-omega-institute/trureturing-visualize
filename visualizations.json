@@ -2,6 +2,87 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "factorial-steps",
+      "code": "FACTORIAL//STEPS",
+      "title": "分数阶乘之比为什么是整数",
+      "title_en": "Integer ratios of fractional factorials",
+      "summary": "Peter Bala 在 OEIS 上猜想 A347854–A347858 这五个含分数阶乘（x! = Γ(1 + x)）的比值，以及 A347855 的两个辅助序列，对每个自然数 n 都是整数。本库在 Lean 里证明了全部七个，均已冻结；Blanco Gómez（Zenodo，2026）此前已发表证明，本库的是独立的形式化。页面用精确有理数算出每一项（半整数阶乘的 √π 在比值里相消），把素数分解画成三维天际线，并把 Legendre 公式背后的周期阶梯函数画出来：四个半整数序列的阶梯只取 0 和 1，所以每个素数幂贡献 0 或 1。",
+      "summary_en": "Peter Bala conjectured on the OEIS that the five ratios A347854–A347858, which involve fractional factorials (x! = Γ(1 + x)), and the two auxiliary sequences of A347855 are integers for every natural n. This library proves all seven in Lean, all frozen; Blanco Gómez (Zenodo, 2026) had published a proof before, and these Lean proofs are an independent formalization. The page computes every term as an exact rational (the √π of half-integer factorials cancels in each ratio), draws the prime factorization as a 3D skyline, and draws the periodic step functions behind Legendre's formula: for the four half-index sequences they take only the values 0 and 1, so each prime power contributes 0 or 1.",
+      "path": "viz/factorial-steps/",
+      "thumbnail": "viz/factorial-steps/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-28",
+      "tags": [
+        "数论",
+        "阶乘",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "number theory",
+        "factorials",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：A347854",
+          "label_en": "Problem dossier: A347854",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a347854-bala-half-index-integrality.md"
+        },
+        {
+          "label": "问题卷宗：A347855",
+          "label_en": "Problem dossier: A347855",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a347855-bala-third-index-integrality.md"
+        },
+        {
+          "label": "问题卷宗：A347856",
+          "label_en": "Problem dossier: A347856",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a347856-bala-half-index-integrality.md"
+        },
+        {
+          "label": "问题卷宗：A347857",
+          "label_en": "Problem dossier: A347857",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a347857-bala-half-index-integrality.md"
+        },
+        {
+          "label": "问题卷宗：A347858",
+          "label_en": "Problem dossier: A347858",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a347858-bala-half-index-integrality.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "OeisA347854BalaHalfIndexIntegral.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/FactorialRatio/OeisA347854BalaHalfIndexIntegral.lean"
+        },
+        {
+          "label": "OeisA347855BalaThirdIndexIntegral.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/FactorialRatio/OeisA347855BalaThirdIndexIntegral.lean"
+        },
+        {
+          "label": "OeisA347855BalaAuxBIntegral.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/FactorialRatio/OeisA347855BalaAuxBIntegral.lean"
+        },
+        {
+          "label": "OeisA347855BalaAuxCIntegral.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/FactorialRatio/OeisA347855BalaAuxCIntegral.lean"
+        },
+        {
+          "label": "OeisA347856BalaHalfIndexIntegral.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/FactorialRatio/OeisA347856BalaHalfIndexIntegral.lean"
+        },
+        {
+          "label": "OeisA347857BalaHalfIndexIntegral.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/FactorialRatio/OeisA347857BalaHalfIndexIntegral.lean"
+        },
+        {
+          "label": "OeisA347858BalaHalfIndexIntegral.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/FactorialRatio/OeisA347858BalaHalfIndexIntegral.lean"
+        }
+      ]
+    },
+    {
       "id": "general-position",
       "code": "GENERAL//POSITION",
       "title": "一般位置：机器人、多项式与外部位置",
