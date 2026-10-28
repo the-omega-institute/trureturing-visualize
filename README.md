@@ -9,6 +9,7 @@ Every page is bilingual (中文 / English, switchable in the header) and states 
 
 | id | Page | Theory |
 | --- | --- | --- |
+| `game-grundy` | [GAME//GRUNDY 三个博弈 · 三个结算的问题](https://the-omega-institute.github.io/trureturing-visualize/viz/game-grundy/) | 问题卷宗：Tyagi 2026 · Capitelli–Somma 2024 · Krop–Mittal–Wigal 2024 |
 | `hofstadter-gap` | [HOFSTADTER//GAP π/2 磁通 Hofstadter 模型 · 质量间隙](https://the-omega-institute.github.io/trureturing-visualize/viz/hofstadter-gap/) | 问题卷宗：Fabbri–Marcelli–Giuliani 2026 |
 | `robin-lattice` | [ROBIN//LATTICE Robin 证书着色 · 素数指数格上的点、边、面与纤维](https://the-omega-institute.github.io/trureturing-visualize/viz/robin-lattice/) | FIB-ATOM 与 Robin 的约数尺度几何 · κ-荷与指数纤维 · Lean：D5/S3/Arith/Robin |
 | `auric-pyramid` | [AURIC//PYRAMID FIB-ATOM 金字塔 · 平均值看见什么、看不见什么](https://the-omega-institute.github.io/trureturing-visualize/viz/auric-pyramid/) | AURIC FIB-ATOM 金字塔理论卷：基本公式 · 边界演算 · 局部填充与奇环障碍 |
