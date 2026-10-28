@@ -120,7 +120,7 @@ await preset('even12'); await setFrac(1); i = await info();
 const w12 = probsInd([1, 2], 120);
 check('S = {1, 2}: the sequence matches and converges to ½, with the verdict citing the literature', i.a.every((x, n) => near(x, w12[n], 1e-12)) && near(w12[120], 0.5, 1e-9) && near(w12[119], 0.5, 1e-9) && i.verdict === 'lit' && i.Jnow < 1e-6);
 await click('#setChips [data-s="2"]'); await click('#setChips [data-s="3"]'); i = await info();
-check('the set chips: removing 2 and adding 3 gives S = {1, 3}, all odd, and the settings become custom', JSON.stringify(i.S) === '[1,3]' && i.allOdd && i.verdict === 'frozen' && (await state()).preset === null);
+check('the set chips: removing 2 and adding 3 gives S = {1, 3}, all odd, the sequence matches and the settings become custom', JSON.stringify(i.S) === '[1,3]' && i.allOdd && i.verdict === 'frozen' && i.a.every((x, n) => near(x, probsInd([1, 3], 120)[n], 1e-12)) && (await state()).preset === null);
 await click('#setChips [data-s="1"]'); i = await info();
 check('…S = {3} has gcd 3: the verdict cites the frozen proof’s gcd-free lemma, and a_n still alternates', JSON.stringify(i.S) === '[3]' && i.gcd === 3 && i.verdict === 'proof' && i.a.every((x, n) => near(x, probsInd([3], 120)[n], 1e-12)));
 await click('#setChips [data-s="6"]'); i = await info();
