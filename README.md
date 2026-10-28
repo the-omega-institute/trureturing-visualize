@@ -9,6 +9,7 @@ Every page is bilingual (中文 / English, switchable in the header) and states 
 
 | id | Page | Theory |
 | --- | --- | --- |
+| `lemniscate-area` | [LEMNISCATE//AREA Erdős 最小面积问题](https://the-omega-institute.github.io/trureturing-visualize/viz/lemniscate-area/) | 问题卷宗：Ghosh–Ramachandran 2026（Fekete 面积、容量为一的衰减率） |
 | `imitate-cycle` | [IMITATE//CYCLE 模仿与最佳回应 · 一个永不停下的循环](https://the-omega-institute.github.io/trureturing-visualize/viz/imitate-cycle/) | 问题卷宗：Hasheminejad–Ramazi 2023 |
 | `miura-flip` | [MIURA//FLIP Miura-ori 翻转图上的高度函数](https://the-omega-institute.github.io/trureturing-visualize/viz/miura-flip/) | 问题卷宗：Gupta 2026（不等式 (4)、猜想 8.3） |
 | `lee-yang-tree` | [LEE-YANG//TREE 树上的单位圆 · 何时守住、何时破开](https://the-omega-institute.github.io/trureturing-visualize/viz/lee-yang-tree/) | 问题卷宗：Fiol–Martínez-Montoya–Rios Fukelman 2020 |

@@ -2,6 +2,52 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "lemniscate-area",
+      "code": "LEMNISCATE//AREA",
+      "title": "Erdős 最小面积问题 · 单位水平集",
+      "title_en": "Erdős’s minimal area problem",
+      "summary": "首一多项式的单位水平集 {|p| < 1} 面积能有多小？Ghosh 与 Ramachandran（2026）问了两件事，本库都给出否定回答并冻结：区间 K = [−20, 20] 上四次 Fekete 多项式 (z² − 400)(z² − 80) 的面积比 (z² − 400)(z² − 100) 大，两边都用有理半径的圆盘证书夹住；K = 闭单位圆盘 ∪ {4} 时，(zᴺ − 1)(z − 4)ᵏ 取 N = k² + 1 让面积不超过 20π·2⁻ᵏ，最小面积既不是 Θ(1/n) 也不是 Θ(1/log n)。页面把 log|p| 画成曲面，扫描竞争者的内根，放大每个根附近的小圆盘与 Lean 的证书圆，并把单位圆附近的花瓣展开在环带 1 ± 2⁻ᵏ 里。",
+      "summary_en": "How small can the unit sublevel set {|p| < 1} of a monic polynomial be? Ghosh and Ramachandran (2026) asked two questions, and this library answers both in the negative, frozen: on K = [−20, 20] the quartic Fekete polynomial (z² − 400)(z² − 80) has larger area than (z² − 400)(z² − 100), with both sides squeezed by certificate discs of rational radius; on K = the closed unit disc ∪ {4}, (zᴺ − 1)(z − 4)ᵏ with N = k² + 1 has area at most 20π·2⁻ᵏ, so the minimal area is neither Θ(1/n) nor Θ(1/log n). The page draws log|p| as a surface, sweeps the competitor's inner root, magnifies the tiny discs near each root with the Lean certificate circles, and unrolls the petals near the unit circle inside the annulus 1 ± 2⁻ᵏ.",
+      "path": "viz/lemniscate-area/",
+      "thumbnail": "viz/lemniscate-area/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-28",
+      "tags": [
+        "位势论",
+        "多项式",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "potential theory",
+        "polynomials",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：Fekete 多项式与水平集面积",
+          "label_en": "Problem dossier: Fekete polynomials and lemniscate area",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/ghosh-ramachandran-2026-fekete-lemniscate-area.md"
+        },
+        {
+          "label": "问题卷宗：容量为一时的衰减率",
+          "label_en": "Problem dossier: the decay rate on capacity one",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/ghosh-ramachandran-2026-capacity-one-decay-rate.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "FeketeLemniscateAreaRefutation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Analytic/Lemniscates/FeketeLemniscateAreaRefutation.lean"
+        },
+        {
+          "label": "CapacityOneAreaDecayRate.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Analytic/Lemniscates/CapacityOneAreaDecayRate.lean"
+        }
+      ]
+    },
+    {
       "id": "imitate-cycle",
       "code": "IMITATE//CYCLE",
       "title": "模仿与最佳回应 · 一个永不停下的循环",
