@@ -4,7 +4,9 @@
 // Reads page state through the read-only window.MUB_DEBUG probe and checks it against an independent implementation:
 // the known bases rebuilt from their definitions (Pauli bases, Fourier and quadratic-phase bases as nested complex arrays,
 // qubit ⊗ qutrit products), overlap probabilities recomputed from the page's own candidates, unitarity of the candidates,
-// the commutator identity Σ‖[P, Q]‖² = 2(cols − Σp²) checked on explicit projectors, and the honesty of the status labels.
+// the commutator identity Σ‖[P, Q]‖² = 2(cols − Σp²) checked on explicit projectors, the honesty of the status labels, and the
+// Schmidt-number witness: the joint table rebuilt from Φ⁺ as a d²-vector and explicit product vectors, positive semidefiniteness
+// by an LDLᵀ factorization (so the trace norm is the trace), the bounds, and the thresholds found by bisection.
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { createServer, BASE } from '../scripts/serve.mjs';
@@ -127,6 +129,47 @@ check('d = 5, one vector: found, and unbiased to all three bases by direct check
 await preset('known'); i = await info();
 check('known three in d = 6: every pairwise overlap is 1/6, no search is run', i.view === 'known' && i.P.every((P) => P.every((p) => Math.abs(p - 1 / 6) < 1e-12)) && !(await visible('targetChips')) && (await text('roHits')) === '—');
 
+// --- the Schmidt-number witness with the known bases
+const phiPlus = (d) => Array.from({ length: d * d }, (_, q) => (Math.floor(q / d) === q % d ? [1 / Math.sqrt(d), 0] : [0, 0]));
+function witnessQ(d, m, v) {            // ⟨x ⊗ y|ρ|x ⊗ y⟩ for ρ = v|Φ⁺⟩⟨Φ⁺| + (1 − v)I/d², x from Alice's basis, y the conjugate of Bob's
+  const Bs = known(d).slice(0, m), F = phiPlus(d), n = m * d, Q = [];
+  for (let l = 0; l < m; l++) for (let a = 0; a < d; a++) { const row = []; for (let k = 0; k < m; k++) for (let b = 0; b < d; b++) {
+    const x = Bs[l][a], y = Bs[k][b].map(([re, im]) => [re, -im]), xy = x.flatMap((xj) => y.map((yk) => cmul(xj, yk))), amp = inner(xy, F);
+    row.push(v * abs2(amp) + (1 - v) / (d * d)); } Q.push(row); }
+  return Q;
+}
+function ldlPsd(Q) {                    // LDLᵀ without pivoting; positive semidefinite when every pivot is ≥ −1e−12 (zero pivots skip their column)
+  const n = Q.length, A = Q.map((r) => r.slice()); let ok = true;
+  for (let k = 0; k < n; k++) { const p = A[k][k]; if (p < -1e-12) ok = false; if (Math.abs(p) < 1e-12) continue; for (let i = k + 1; i < n; i++) { const f = A[i][k] / p; for (let j = k + 1; j < n; j++) A[i][j] -= f * A[k][j]; } }
+  return ok;
+}
+const traceOf = (Q) => Q.reduce((s, r, k) => s + r[k], 0);
+const certifiedOf = (tn, m, d) => { let r = 0; for (let k = 1; k <= d; k++) if (tn > 1 + (m - 1) * k / d + 1e-12) r = k; return r + 1; };
+await preset('witness6'); await setFrac(0.6); i = await info();
+const Qw = witnessQ(6, 3, 0.6);
+check('witness: the preset uses d = 6, m = 3, an 18 × 18 table, and every entry equals the table rebuilt from Φ⁺ and explicit product vectors', i.view === 'witness' && i.d === 6 && i.m === 3 && i.n === 18 && Qw.every((r, a) => r.every((x, b) => Math.abs(x - i.Q[a * 18 + b]) < 1e-12)));
+let psdOK = true, tnOK = true;
+for (const v of [0, 0.2, 0.6, 1]) { const Qv = witnessQ(6, 3, v); await setFrac(v); const j = await info(); if (!ldlPsd(Qv)) psdOK = false; if (Math.abs(j.tn - traceOf(Qv)) > 1e-9 || Math.abs(traceOf(Qv) - (3 * v + 0.5 * (1 - v))) > 1e-12) tnOK = false; }
+check('…the table is positive semidefinite (LDLᵀ), so its trace norm is its trace 3v + (1 − v)/2, and the page’s trace norm agrees at four visibilities', psdOK && tnOK);
+check('…the bounds are 1 + 2r/6 for r = 1 … 6', i.bounds.length === 6 && i.bounds.every((b, k) => Math.abs(b - (1 + 2 * (k + 1) / 6)) < 1e-12));
+let certOK = true, certDetail = '';
+for (const v of [0.3, 0.34, 0.5, 0.75, 1]) { await setFrac(v); const j = await info(), want = certifiedOf(traceOf(witnessQ(6, 3, v)), 3, 6); if (j.certified !== want) { certOK = false; certDetail += `v=${v}: ${j.certified}≠${want} `; } }
+check('…the certified Schmidt number matches the independent rule at v = 0.3, 0.34, 0.5, 0.75, 1 (1, 2, 3, 5, 6)', certOK && certifiedOf(traceOf(witnessQ(6, 3, 0.34)), 3, 6) === 2 && certifiedOf(traceOf(witnessQ(6, 3, 1)), 3, 6) === 6, certDetail);
+const bisect = (m, d, r) => { let lo = 0, hi = 1; for (let it = 0; it < 60; it++) { const mid = (lo + hi) / 2; if (traceOf(witnessQ(d, m, mid)) > 1 + (m - 1) * r / d) hi = mid; else lo = mid; } return hi; };
+check('…the thresholds on the page match bisection on the independent trace norm: entanglement for v > 1/3, Schmidt number 6 only at v = 1', i.thresholds.slice(0, 5).every((t, k) => Math.abs(t - bisect(3, 6, k + 1)) < 1e-9) && Math.abs(i.thresholds[0] - 1 / 3) < 1e-12 && i.thresholds[5] === 1);
+await setFrac(0.5);
+check('…the readouts show the trace norm 1.75 and Schmidt number ≥ 3, and the rail marks v = 0, 1/3, v = 1', (await text('roWq')) === '1.750000' && /≥ 3/.test(await text('roWr')) && (await D(() => [...document.querySelectorAll('#marks i')].map(m => m.textContent).join(' '))) === 'v=0 1/3 v=1');
+check('…the witness view shows the m chips and its readouts, and hides the target chips and the search readouts', (await visible('mChips')) && (await visible('roWit')) && !(await visible('targetChips')) && !(await visible('roSearch')));
+await click('#mChips [data-m="1"]'); await setFrac(1); i = await info();
+check('…with one basis the bound is 1 and the trace norm reaches at most 1: nothing is certified', i.m === 1 && Math.abs(i.tn - 1) < 1e-9 && i.bounds.every((b) => Math.abs(b - 1) < 1e-12) && i.certified === 1 && (await state()).preset === null);
+await click('#mChips [data-m="2"]'); i = await info();
+check('…with two bases the entanglement threshold is 1/2', i.m === 2 && Math.abs(i.thresholds[0] - 0.5) < 1e-12 && Math.abs(i.thresholds[0] - bisect(2, 6, 1)) < 1e-9);
+await click('#dimChips [data-dim="2"]'); i = await info();
+check('…in d = 2 the theorem needs m ≤ d: the m = 3 chip is disabled and m stays 2', i.d === 2 && i.m === 2 && (await D(() => document.querySelector('#mChips [data-m="3"]').disabled)) && i.n === 4);
+await preset('witness6'); await setFrac(0.995); await click('#play');
+check('the toast at v = 1 reports Schmidt number ≥ 6', await waitToast(/Schmidt 数 ≥ 6/));
+await pause();
+
 // --- rail, keys, controls
 await preset('six');
 check('the rail marks the 8 starts', (await D(() => [...document.querySelectorAll('#marks i')].map(m => m.textContent).join(' '))) === '0 1 2 3 4 5 6 7 8');
@@ -143,7 +186,7 @@ check('changing the target marks the settings custom and resets the search', (aw
 await click('#viewChips [data-view="known"]');
 check('the known-three view hides the target chips and blanks the rail', !(await visible('targetChips')) && (await D(() => document.getElementById('marks').children.length)) === 0);
 await click('#viewChips [data-view="search"]');
-const PRE = ['six', 'five', 'three', 'seven', 'two', 'sixvec', 'fivevec', 'known'];
+const PRE = ['six', 'five', 'three', 'seven', 'two', 'sixvec', 'fivevec', 'known', 'witness6'];
 for (const name of PRE) { await preset(name); const pressed = await D((n) => document.querySelector(`[data-preset="${n}"]`).getAttribute('aria-pressed'), name); check(`preset ${name} applies and explains itself`, pressed === 'true' && (await text('presetNote')).length > 40); }
 
 // --- play and toasts
@@ -168,17 +211,22 @@ await pause();
 await click('#dimChips [data-dim="7"]');
 await page.click('[data-lang-set="en"]'); await page.waitForTimeout(900); await waitFrames(3);
 check('custom-settings note switches to English', /Custom/.test(await text('presetNote')));
-const leftovers = await D(() => {
+const leftoverText = () => D(() => {
   const bad = []; const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT); let n;
   while ((n = w.nextNode())) { const t = n.textContent.trim(); if (!/[一-鿿]/.test(t)) continue; const el = n.parentElement; if (!el || el.closest('[hidden]') || el.closest('.langs')) continue; let hiddenByOpacity = false; for (let a = el; a; a = a.parentElement) if (getComputedStyle(a).opacity === '0') { hiddenByOpacity = true; break; } const st = getComputedStyle(el); if (st.display === 'none' || hiddenByOpacity || el.offsetParent === null) continue; bad.push(t.slice(0, 40)); }
   return bad;
 });
+const leftovers = await leftoverText();
 check('no visible Chinese left in English mode', leftovers.length === 0, leftovers.join(' | '));
 const tags = await D(() => [...document.querySelectorAll('#tags .tag')].filter(t => t.style.display !== 'none').map(t => t.textContent).join(' | '));
 check('3D labels are English', !/[一-鿿]/.test(tags) && /vs Fourier/.test(tags), tags);
 check('English title', (await D(() => document.title)).startsWith('FOURTH//BASIS · A fourth mutually unbiased basis'));
+await preset('witness6'); await setFrac(0.6);
+const leftoversW = await leftoverText();
+check('no visible Chinese left in English mode (witness view), 3D labels included', leftoversW.length === 0 && !/[一-鿿]/.test(await D(() => [...document.querySelectorAll('#tags .tag')].filter(t => t.style.display !== 'none').map(t => t.textContent).join(' '))), leftoversW.join(' | '));
 await page.click('#infoBtn'); await page.waitForTimeout(200);
 check('drawer opens', (await D(() => document.getElementById('drawer').hidden)) === false);
+check('drawer cites Tavakoli and Morelli (DOI and arXiv) and names the frozen theorem', await D(() => { const en = document.querySelector('#drawer div.en'), h = [...en.querySelectorAll('a')].map((a) => a.href).join(' '); return h.includes('10.1103/PhysRevA.110.062417') && h.includes('arxiv.org/abs/2402.09972') && en.textContent.includes('TavakoliMorelliIncompleteMUB.result'); }));
 await page.keyboard.press('Escape'); await page.waitForTimeout(150);
 check('Esc closes the drawer', (await D(() => document.getElementById('drawer').hidden)) === true);
 check('focus returns to the drawer button', (await D(() => document.activeElement?.id)) === 'infoBtn');

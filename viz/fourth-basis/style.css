@@ -69,3 +69,7 @@ dl.ro dd small { font-size: 11px; color: var(--dim); }
   .presets { grid-template-columns: 1fr; }
 }
 .note { overflow-wrap: anywhere; }
+.lean.num { border-color: rgba(70, 255, 178, 0.35); }
+.lean.num .ok { color: var(--ok); }
+#mChips { margin-top: 8px; }
+#mChips .chip { text-transform: none; }
