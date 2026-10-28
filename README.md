@@ -9,6 +9,7 @@ Every page is bilingual (中文 / English, switchable in the header) and states 
 
 | id | Page | Theory |
 | --- | --- | --- |
+| `miura-flip` | [MIURA//FLIP Miura-ori 翻转图上的高度函数](https://the-omega-institute.github.io/trureturing-visualize/viz/miura-flip/) | 问题卷宗：Gupta 2026（不等式 (4)、猜想 8.3） |
 | `lee-yang-tree` | [LEE-YANG//TREE 树上的单位圆 · 何时守住、何时破开](https://the-omega-institute.github.io/trureturing-visualize/viz/lee-yang-tree/) | 问题卷宗：Fiol–Martínez-Montoya–Rios Fukelman 2020 |
 | `game-grundy` | [GAME//GRUNDY 三个博弈 · 三个结算的问题](https://the-omega-institute.github.io/trureturing-visualize/viz/game-grundy/) | 问题卷宗：Tyagi 2026 · Capitelli–Somma 2024 · Krop–Mittal–Wigal 2024 |
 | `hofstadter-gap` | [HOFSTADTER//GAP π/2 磁通 Hofstadter 模型 · 质量间隙](https://the-omega-institute.github.io/trureturing-visualize/viz/hofstadter-gap/) | 问题卷宗：Fabbri–Marcelli–Giuliani 2026 |
