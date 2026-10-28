@@ -2,6 +2,52 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "miura-flip",
+      "code": "MIURA//FLIP",
+      "title": "Miura-ori 翻转图上的高度函数",
+      "title_en": "Height functions on the Miura-ori flip graph",
+      "summary": "Gupta（2026）把 m × n Miura-ori 的折法写成网格上的高度函数：相邻格高度恰差 1，翻转一个严格局部极值就是翻转图的一条边。他的两个问题本库都已证明：任何整数 1-Lipschitz 函数的离散度不超过斜坡 i + j 的离散度 D(m, n)（不等式 (4)，由此翻转图直径为 D(m, n)），以及极值个数固定、极小值不全在同一边上的高度函数个数是总次数至多 d − 3 的多项式（猜想 8.3）。页面画出高度地形、一条从 −A 到 A 恰好 D(m, n) 步的翻转路（小网格上用广度优先搜索核对直径）、离散度与最优中心，以及证明里先排行再排列的重排。",
+      "summary_en": "Gupta (2026) writes the foldings of the m × n Miura-ori as height functions on the grid: neighbouring heights differ by exactly 1, and flipping a strict local extremum is one edge of the flip graph. This library proves two of his questions: every integer 1-Lipschitz function has dispersion at most D(m, n), that of the ramp i + j (inequality (4), which makes the flip-graph diameter D(m, n)), and with the number of extrema fixed, the height functions whose minima are not all on one side are counted by a polynomial of total degree at most d − 3 (Conjecture 8.3). The page draws the height terrain, a flip path of exactly D(m, n) steps from −A to A (with the diameter checked by breadth-first search on small grids), the dispersion with its best centre, and the proof's rearrangement that sorts rows and then columns.",
+      "path": "viz/miura-flip/",
+      "thumbnail": "viz/miura-flip/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-28",
+      "tags": [
+        "折纸",
+        "高度函数",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "origami",
+        "height functions",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：Miura 网格的离散度不等式 (4)",
+          "label_en": "Problem dossier: the Miura grid dispersion inequality (4)",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/gupta-2026-miura-grid-dispersion-inequality-4.md"
+        },
+        {
+          "label": "问题卷宗：剩余项次数猜想 8.3",
+          "label_en": "Problem dossier: the residual degree conjecture 8.3",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/gupta-2026-miura-residual-degree-conjecture-83.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "GuptaMiuraGridDispersion.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Geometry/GuptaMiuraGridDispersion.lean"
+        },
+        {
+          "label": "MiuraResolution.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Geometry/MiuraResolution.lean"
+        }
+      ]
+    },
+    {
       "id": "lee-yang-tree",
       "code": "LEE-YANG//TREE",
       "title": "树上的单位圆 · 何时守住、何时破开",
