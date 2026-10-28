@@ -987,8 +987,8 @@
       "code": "FOURTH//BASIS",
       "title": "六维第四组互无偏基 · 一个开放问题",
       "title_en": "A fourth mutually unbiased basis in dimension six · an open problem",
-      "summary": "两组基互无偏，是说一组里的任何态拿去按另一组测，每个结果的概率都是 1/d。素数维有 d + 1 组；六维只构造出 3 组，第四组存不存在至今没有证明。页面用同一个梯度下降在 3、5、7 维里找到第四组，在六维里停住，连一个与已知三组都无偏的向量也找不到。这只是数值线索；本库已冻结的是归约和若干分支的排除。",
-      "summary_en": "Two bases are mutually unbiased when every state of one, measured in the other, gives each outcome with probability 1/d. Prime dimensions have d + 1 of them; in dimension six only 3 have been constructed, and whether a fourth exists is still unproved. One gradient descent finds a fourth basis in dimensions 3, 5 and 7 and stalls in six, where it cannot find even one vector unbiased to the known three. That is only a numerical lead; what the library has frozen is a reduction and the exclusion of some branches.",
+      "summary": "两组基互无偏，是说一组里的任何态拿去按另一组测，每个结果的概率都是 1/d。素数维有 d + 1 组；六维只构造出 3 组，第四组存不存在至今没有证明。页面用同一个梯度下降在 3、5、7 维里找到第四组，在六维里停住，连一个与已知三组都无偏的向量也找不到。这只是数值线索；本库已冻结的是归约和若干分支的排除。新增的判据视图把已知三组基当作纠缠判据：本库证明了 Tavakoli–Morelli 的不完全互无偏基 Schmidt 数界，用三组基能在可见度 v > 1/3 时证出纠缠，若有第四组门槛可降到 1/4。",
+      "summary_en": "Two bases are mutually unbiased when every state of one, measured in the other, gives each outcome with probability 1/d. Prime dimensions have d + 1 of them; in dimension six only 3 have been constructed, and whether a fourth exists is still unproved. One gradient descent finds a fourth basis in dimensions 3, 5 and 7 and stalls in six, where it cannot find even one vector unbiased to the known three. That is only a numerical lead; what the library has frozen is a reduction and the exclusion of some branches. A witness view uses the known three bases as an entanglement witness: this library proved the Schmidt-number bound of Tavakoli and Morelli for incomplete sets of mutually unbiased bases, and three bases certify entanglement for visibility v > 1/3, where a fourth basis would lower the threshold to 1/4.",
       "path": "viz/fourth-basis/",
       "thumbnail": "viz/fourth-basis/thumb.jpg",
       "status": "live",
@@ -1014,6 +1014,11 @@
           "label": "六维第四组互无偏基理论卷 · §0 开放目标 · §23 关键开放命题",
           "label_en": "The six-dimensional fourth-basis volume · §0 open target · §23 key open propositions",
           "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/MUB_SIX_FOURTH_BASIS_THEORY.md"
+        },
+        {
+          "label": "Tavakoli–Morelli 不完全互无偏基 Schmidt 数界问题卷宗",
+          "label_en": "Problem dossier: the Schmidt-number bound of Tavakoli and Morelli for incomplete sets of mutually unbiased bases",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/tavakoli-morelli-2024-conjecture-3-incomplete-mub-schmidt-bound.md"
         }
       ],
       "lean": [
@@ -1032,6 +1037,10 @@
         {
           "label": "zaunerCanonicalCompletion_crossGram_not_nonzero_flat",
           "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Tomography/MUB/ZaunerCompletionFibre.lean"
+        },
+        {
+          "label": "TavakoliMorelliIncompleteMUB.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Entanglement/TavakoliMorelliIncompleteMUB.lean"
         }
       ]
     },

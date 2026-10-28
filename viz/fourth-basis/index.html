@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>FOURTH//BASIS 六维第四组互无偏基 · 一个开放问题</title>
-<meta name="description" content="两组基互无偏，是说任取一组里的一个态去测另一组，每个结果的概率都是 1/d。素数维有 d + 1 组；六维只找到 3 组，第四组存不存在至今没人知道。页面让同一个数值搜索在 3、5、7 维里找到第四组，在六维里停住。Two bases are mutually unbiased when every state of one gives probability 1/d for every outcome of the other. Prime dimensions have d + 1 of them; in dimension six only 3 are known, and nobody knows whether a fourth exists. The page lets one numerical search find a fourth basis in dimensions 3, 5 and 7 and stall in dimension six.">
+<meta name="description" content="两组基互无偏，是说任取一组里的一个态去测另一组，每个结果的概率都是 1/d。素数维有 d + 1 组；六维只找到 3 组，第四组存不存在至今没人知道。页面让同一个数值搜索在 3、5、7 维里找到第四组，在六维里停住；另一个视图把已知三组基当作纠缠判据，用本库证明的 Schmidt 数界。Two bases are mutually unbiased when every state of one gives probability 1/d for every outcome of the other. Prime dimensions have d + 1 of them; in dimension six only 3 are known, and nobody knows whether a fourth exists. The page lets one numerical search find a fourth basis in dimensions 3, 5 and 7 and stall in dimension six; another view uses the known three bases as an entanglement witness, with a Schmidt-number bound this library proved.">
 <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -46,6 +46,7 @@
         <button class="preset" data-preset="sixvec" aria-pressed="false"><span class="code">d = 6 · 1 VEC</span><span class="cn zh">连一个向量都找不到</span><span class="cn en">Not even one vector</span></button>
         <button class="preset" data-preset="fivevec" aria-pressed="false"><span class="code">d = 5 · 1 VEC</span><span class="cn zh">对照：一下就找到</span><span class="cn en">Control: found at once</span></button>
         <button class="preset" data-preset="known" aria-pressed="false"><span class="code">KNOWN 3</span><span class="cn zh">已知的三组两两无偏</span><span class="cn en">The known three, pairwise</span></button>
+        <button class="preset" data-preset="witness6" aria-pressed="false"><span class="code">‖Q₃‖ · v &gt; 1/3</span><span class="cn zh">三组基当纠缠判据</span><span class="cn en">Three bases as a witness</span></button>
       </div>
       <p class="note" id="presetNote"></p>
     </section>
@@ -63,10 +64,14 @@
       <div class="chips" id="viewChips" role="group" aria-label="视图" data-aria-en="View">
         <button class="chip" data-view="search" aria-pressed="true"><span class="zh">搜索第四组</span><span class="en">Search for a fourth</span></button>
         <button class="chip" data-view="known" aria-pressed="false"><span class="zh">已知三组两两比较</span><span class="en">Compare the known three</span></button>
+        <button class="chip" data-view="witness" aria-pressed="false"><span class="zh">Schmidt 数判据</span><span class="en">Schmidt-number witness</span></button>
       </div>
       <div class="chips" id="targetChips" role="group" aria-label="目标" data-aria-en="Target">
         <button class="chip" data-target="basis" aria-pressed="true"><span class="zh">一整组基（d 个向量）</span><span class="en">A whole basis (d vectors)</span></button>
         <button class="chip" data-target="vector" aria-pressed="false"><span class="zh">只要一个向量</span><span class="en">Just one vector</span></button>
+      </div>
+      <div class="chips" id="mChips" role="group" aria-label="用几组基" data-aria-en="How many bases" hidden>
+        <button class="chip" data-m="1">m = 1</button><button class="chip" data-m="2">m = 2</button><button class="chip" data-m="3">m = 3</button>
       </div>
       <p class="note" id="targetNote"></p>
     </section>
@@ -89,12 +94,12 @@
     </div>
     <div class="strip">
       <section class="panel">
-        <div class="head"><h2><span class="zh">缺陷随迭代下降</span><span class="en">THE DEFECT AGAINST ITERATIONS</span></h2><span id="c1Meta"></span></div>
-        <canvas id="c1" aria-label="每个随机起点的缺陷 D 随迭代步数的变化，对数坐标" data-aria-en="The defect D of every random start against the iteration count, on a log scale"></canvas>
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="每个随机起点的缺陷 D 随迭代步数的变化（对数坐标），或判据 ‖Q_m‖ 随可见度的变化" data-aria-en="The defect D of every random start against the iteration count (log scale), or the witness ‖Q_m‖ against the visibility"></canvas>
       </section>
       <section class="panel">
-        <div class="head"><h2><span class="zh">各维数已知几组</span><span class="en">HOW MANY ARE KNOWN</span></h2><span id="c2Meta"></span></div>
-        <canvas id="c2" aria-label="d = 2 到 7 已知的互无偏基组数与上界 d + 1" data-aria-en="The known number of mutually unbiased bases for d = 2 to 7 against the bound d + 1"></canvas>
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="d = 2 到 7 已知的互无偏基组数与上界 d + 1，或用 m 组基证出纠缠的门槛" data-aria-en="The known number of mutually unbiased bases for d = 2 to 7 against the bound d + 1, or the threshold for certifying entanglement with m bases"></canvas>
       </section>
     </div>
   </main>
@@ -103,7 +108,15 @@
   <aside class="col side" aria-label="读数" data-aria-en="Readouts">
     <section class="panel sec">
       <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">|⟨u|v⟩|² = 1/d</span></h2>
-      <dl class="ro">
+      <dl class="ro" id="roWit" hidden>
+        <div class="c"><dt><span class="zh">用的基组数 m · 表的大小</span><span class="en">Bases used m · table size</span></dt><dd id="roWm">—</dd></div>
+        <div class="m"><dt><span class="zh">可见度 v</span><span class="en">Visibility v</span></dt><dd id="roWv">—</dd></div>
+        <div class="a"><dt><span class="zh">迹范数 ‖Q<sub>m</sub>‖<sub>tr</sub></span><span class="en">Trace norm ‖Q<sub>m</sub>‖<sub>tr</sub></span></dt><dd id="roWq">—</dd></div>
+        <div><dt><span class="zh">证出的 Schmidt 数</span><span class="en">Certified Schmidt number</span></dt><dd id="roWr">—</dd></div>
+        <div class="w"><dt><span class="zh">界 1 + (m − 1)r/d，r = 1 … d</span><span class="en">Bounds 1 + (m − 1)r/d, r = 1 … d</span></dt><dd id="roWb">—</dd></div>
+        <div class="w"><dt><span class="zh">证出 Schmidt 数 &gt; r 所需的 v，r = 1 … d − 1</span><span class="en">The v needed to certify Schmidt number &gt; r, r = 1 … d − 1</span></dt><dd id="roWt">—</dd></div>
+      </dl>
+      <dl class="ro" id="roSearch">
         <div class="c"><dt><span class="zh">已知组数 / 上界 d + 1</span><span class="en">Known sets / bound d + 1</span></dt><dd id="roKnown">—</dd></div>
         <div><dt><span class="zh">已知三组两两的最大偏差</span><span class="en">Largest deviation within the known three</span></dt><dd id="roPair">—</dd></div>
         <div class="m"><dt><span class="zh">此刻的缺陷 D</span><span class="en">Defect D now</span></dt><dd id="roCur">—</dd></div>
@@ -121,6 +134,8 @@
       <h2><span class="zh">本库做到哪一步</span><span class="en">How far this library has got</span><span class="aside">OPEN</span></h2>
       <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">归约：只要排除一份 6 阶复 Hadamard 矩阵图册里所有“提升三元组”，就排除了四组互无偏基，已冻结：</span><span class="en">A reduction: excluding every lifted triple of an exact order-six complex Hadamard atlas excludes four mutually unbiased bases; frozen:</span> <code>no_fourMUBHadamardWitness_of_no_lifted_atlas</code></span></div>
       <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">排除一个分支：两个标准 Zauner 补全永远不互无偏（它们的交叉 Gram 矩阵有结构性零元），已冻结：</span><span class="en">One branch excluded: two canonical Zauner completions are never mutually unbiased (their cross Gram matrix has structural zeros); frozen:</span> <code>zaunerCanonicalCompletion_crossGram_not_nonzero_flat</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">Tavakoli 与 Morelli（2024）猜想 3 已证：对 1 ≤ m ≤ d、两边各自任取的 m 组互无偏基、以及 Schmidt 数至多 r 的任何态，联合概率表的迹范数 ‖Q<sub>m</sub>‖<sub>tr</sub> ≤ 1 + (m − 1)r/d。六维只知道三组，这正是“不完全”的情形。已冻结：</span><span class="en">Conjecture 3 of Tavakoli and Morelli (2024) is proved: for 1 ≤ m ≤ d, any two families of m mutually unbiased bases chosen independently, and every state of Schmidt number at most r, the joint probability table satisfies ‖Q<sub>m</sub>‖<sub>tr</sub> ≤ 1 + (m − 1)r/d. Dimension six has only three known bases, exactly this incomplete case. Frozen:</span> <code>TavakoliMorelliIncompleteMUB.result</code></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">判据视图里的数是页面算的，不是定理：Q<sub>m</sub> 由页面构造的已知基算出，迹范数取 Jacobi 本征值的绝对值之和；门槛 v &gt; 1/m 是对这个态的代数推导。</span><span class="en">The numbers in the witness view are computed on the page, not theorems: Q<sub>m</sub> comes from the known bases the page constructs, the trace norm is the sum of the absolute Jacobi eigenvalues, and the threshold v &gt; 1/m is an algebraic derivation for this state.</span></span></div>
       <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">六维里第四组互无偏基存不存在，仍是开放问题。上面这些是归约和局部分支的排除，不是答案；理论卷自己规定局部证书不得当作解决。</span><span class="en">Whether a fourth mutually unbiased basis exists in dimension six is still an open problem. The results above are a reduction and the exclusion of local branches, not an answer; the theory volume itself forbids presenting local certificates as a solution.</span></span></div>
       <p class="note" id="openNote"></p>
     </section>
@@ -139,7 +154,7 @@
     </div>
     <div class="clock">
       <span class="tau" id="clock">0</span>
-      <input type="range" id="now" min="0" max="1" step="0.0005" value="0" aria-label="搜索进度" data-aria-en="Search progress">
+      <input type="range" id="now" min="0" max="1" step="0.0005" value="0" aria-label="进度：搜索的步数，或判据视图里的可见度 v" data-aria-en="Progress: the search steps, or the visibility v in the witness view">
       <div class="marks" id="marks"></div>
     </div>
     <div class="keys">
@@ -161,6 +176,7 @@
         <li><b>数值证据（不是证明）。</b>Brierley 与 Weigert 广泛搜索后只找到 35 种“互无偏星座”中的 18 种，是“六维没有七组”的最强数值证据（<a href="https://doi.org/10.1103/PhysRevA.78.042312" target="_blank" rel="noopener">Phys. Rev. A 78, 042312 (2008)</a>）。Prat Colomer 等用三种数值方法都指向“六维没有四组”（<a href="https://arxiv.org/abs/2203.09429" target="_blank" rel="noopener">arXiv:2203.09429</a>）。Grassl 证明了六维里有几组三元组是极大的，不能再扩充（<a href="https://arxiv.org/abs/quant-ph/0406175" target="_blank" rel="noopener">arXiv:quant-ph/0406175</a>）。本页的搜索也是数值实验：在这组三元组上，8 个起点的缺陷都停在正值，连一个与三组都无偏的向量也没找到。这只是线索。</li>
         <li><b>本库的形式化（已冻结的部分）。</b>互无偏 ⟺ 中心化平面正交 ⟺ 两次不读的测量抹平迹零部分（<code>mutually_unbiased_diagonal_planes</code>）：右侧“最大 |p − 1/d|”就是这些平面内积的读数。六维若有四组，任意两组的对易子平方和恰为 10（<code>fourMUBContexts_have_commutator_sum_ten</code>）；由柯西–施瓦茨不等式，这个和最大就是 2(d − 1)，取等当且仅当互无偏——这一步是本页的推导。四组的存在可以归约成 Hadamard 图册上的“提升三元组”问题（<code>no_fourMUBHadamardWitness_of_no_lifted_atlas</code>）；两个标准 Zauner 补全永远不互无偏（<code>zaunerCanonicalCompletion_crossGram_not_nonzero_flat</code>）。</li>
         <li><b>还没证出来的。</b>理论卷（MUB_SIX_FOURTH_BASIS_THEORY）列出的关键开放命题包括：严格 X 补全在 context 层面的亲和度下界 α ≥ 1（卷内写明“仍未证明”）、四元组的立方定向一致性、完整 6 阶图册上特征核的零点集、非标准补全的排除，以及各分支的整体汇总。卷内明确规定：局部分支证书不得当作解决这个问题。</li>
+        <li><b>已知的三组能做什么：Schmidt 数判据（已冻结）。</b>Alice 用 m 组互无偏基、Bob 用另 m 组测量，把 md × md 个联合概率排成表 Q<sub>m</sub>。Tavakoli 与 Morelli 猜想：对 Schmidt 数至多 r 的态，‖Q<sub>m</sub>‖<sub>tr</sub> ≤ 1 + (m − 1)r/d（<a href="https://doi.org/10.1103/PhysRevA.110.062417" target="_blank" rel="noopener">Phys. Rev. A 110, 062417 (2024)</a>，<a href="https://arxiv.org/abs/2402.09972" target="_blank" rel="noopener">arXiv:2402.09972</a>，猜想 3）。本库证明了它（<code>TavakoliMorelliIncompleteMUB.result</code>）。页面取态 v·Φ⁺ + (1 − v)·I/d²，Bob 测 Alice 那几组基的复共轭；这时 Q<sub>m</sub> 半正定，迹范数等于迹 v·m + (1 − v)·m/d，于是 v &gt; 1/m 时证出纠缠。六维用三组时门槛是 1/3；若有第四组，门槛会降到 1/4——这只是假设下的算术，第四组存不存在仍是开放问题。</li>
         <li><b>模型边界。</b>搜索用斯蒂弗尔流形上的黎曼梯度下降，每个起点 400 步，QR 收回、回溯步长；缺陷降到 10<sup>−20</sup> 以下记为“找到”。没找到不能说明不存在：梯度下降会停在局部极小，五维、七维里也有起点停住；七维里第四组明明存在，换一批起点却可能整批 8 个都停住。</li>
       </ol>
       <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/MUB_SIX_FOURTH_BASIS_THEORY.md" target="_blank" rel="noopener">六维第四组互无偏基理论卷</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Tomography/MutuallyUnbiasedDiagonalPlanes.lean" target="_blank" rel="noopener">MutuallyUnbiasedDiagonalPlanes.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Tomography/MUB/MUBHadamardCompatibility.lean" target="_blank" rel="noopener">MUBHadamardCompatibility.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Tomography/MUB/ZaunerCompletionFibre.lean" target="_blank" rel="noopener">ZaunerCompletionFibre.lean</a></p>
@@ -173,6 +189,7 @@
         <li><b>Numerical evidence (not proof).</b> After extensive searches Brierley and Weigert found only 18 of the 35 “mutually unbiased constellations”, the strongest numerical evidence that six has no seven bases (<a href="https://doi.org/10.1103/PhysRevA.78.042312" target="_blank" rel="noopener">Phys. Rev. A 78, 042312 (2008)</a>). Prat Colomer et al. used three numerical methods, all suggesting that six has no four (<a href="https://arxiv.org/abs/2203.09429" target="_blank" rel="noopener">arXiv:2203.09429</a>). Grassl proved that several triples in dimension six are maximal and cannot be extended (<a href="https://arxiv.org/abs/quant-ph/0406175" target="_blank" rel="noopener">arXiv:quant-ph/0406175</a>). The page’s search is a numerical experiment too: on this triple, all 8 starts stall at a positive defect, and not even one vector unbiased to all three is found. That is only a lead.</li>
         <li><b>This library’s formal work (frozen parts).</b> Unbiased ⟺ the centred planes are orthogonal ⟺ two unread measurements wipe out the traceless part (<code>mutually_unbiased_diagonal_planes</code>): the readout “largest |p − 1/d|” reads those plane inner products. If six had four bases, any two would have squared commutator sum exactly 10 (<code>fourMUBContexts_have_commutator_sum_ten</code>); by the Cauchy–Schwarz inequality that sum is at most 2(d − 1), with equality exactly when the bases are unbiased; that step is the page’s own derivation. The existence of four reduces to a lifted-triple problem on a Hadamard atlas (<code>no_fourMUBHadamardWitness_of_no_lifted_atlas</code>); two canonical Zauner completions are never mutually unbiased (<code>zaunerCanonicalCompletion_crossGram_not_nonzero_flat</code>).</li>
         <li><b>What is not proved yet.</b> The key open propositions listed in the theory volume (MUB_SIX_FOURTH_BASIS_THEORY) include the context-level strict-X completion affinity lower bound α ≥ 1 (which the volume says is still unproved), the cubic orientation coherence of a quartet, the zero locus of the feature kernel over the full order-six atlas, the exclusion of noncanonical completions, and the global aggregation of branches. The volume states explicitly that local branch certificates must not be presented as solving the problem.</li>
+        <li><b>What the known three can do: a Schmidt-number witness (frozen).</b> Alice measures in m mutually unbiased bases and Bob in another m, and the md × md joint probabilities form a table Q<sub>m</sub>. Tavakoli and Morelli conjectured that every state of Schmidt number at most r has ‖Q<sub>m</sub>‖<sub>tr</sub> ≤ 1 + (m − 1)r/d (<a href="https://doi.org/10.1103/PhysRevA.110.062417" target="_blank" rel="noopener">Phys. Rev. A 110, 062417 (2024)</a>, <a href="https://arxiv.org/abs/2402.09972" target="_blank" rel="noopener">arXiv:2402.09972</a>, Conjecture 3). This library proves it (<code>TavakoliMorelliIncompleteMUB.result</code>). The page takes the state v·Φ⁺ + (1 − v)·I/d², with Bob measuring the complex conjugates of Alice’s bases; then Q<sub>m</sub> is positive semidefinite, its trace norm is its trace v·m + (1 − v)·m/d, and entanglement is certified for v &gt; 1/m. With the three bases of dimension six the threshold is 1/3; a fourth basis would lower it to 1/4, which is arithmetic under an assumption, and whether a fourth exists is still the open problem.</li>
         <li><b>Model limits.</b> The search is Riemannian gradient descent on the Stiefel manifold, 400 steps per start, with a QR retraction and backtracking steps; a defect below 10<sup>−20</sup> counts as found. Not finding is not proof of absence: gradient descent can stop in a local minimum, and some starts stall in dimensions five and seven as well; in dimension seven a fourth basis certainly exists, yet a whole batch of 8 starts can stall.</li>
       </ol>
       <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/MUB_SIX_FOURTH_BASIS_THEORY.md" target="_blank" rel="noopener">The six-dimensional fourth-basis theory volume</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Tomography/MutuallyUnbiasedDiagonalPlanes.lean" target="_blank" rel="noopener">MutuallyUnbiasedDiagonalPlanes.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Tomography/MUB/MUBHadamardCompatibility.lean" target="_blank" rel="noopener">MUBHadamardCompatibility.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Tomography/MUB/ZaunerCompletionFibre.lean" target="_blank" rel="noopener">ZaunerCompletionFibre.lean</a></p>
