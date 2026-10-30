@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="ERROR//DISTURB · An intermediate measurement beats both endpoints">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ERROR//DISTURB 中间的测量比两个端点都好</title>
+<meta name="description" content="Zhou、Wu 与 Chau（2016）的猜想 3 的第二个不等式说：用 A′ 近似测量 A、再测 B，误差加扰动的最坏值 Δ(A, A′, B) 不会低于两个端点代价中较小的那个 f(A, B) = min{ε_rel(A, B), η(A, B)}。本库在 Lean 里证明这不成立并已冻结：在三维里取 A = I 与两个有理正交矩阵 U、V，Δ(I, U, V) ≤ 71/250 &lt; 57/200 &lt; f(I, V)。页面把三组测量基画成三组箭头，让 A′ 沿一条经过 U 的路径从 A 走到 B，并画出 Δ 掉到 f 以下的那一段。The second inequality of Zhou, Wu and Chau’s Conjecture 3 (2016) says that approximating a measurement of A by A′ and then measuring B costs a worst-case error plus disturbance Δ(A, A′, B) no smaller than the cheaper endpoint f(A, B) = min{ε_rel(A, B), η(A, B)}. This library proves in Lean that this fails, frozen: in dimension three with A = I and two rational orthogonal matrices U and V, Δ(I, U, V) ≤ 71/250 &lt; 57/200 &lt; f(I, V). The page draws the three measurement bases as three triads of arrows, moves A′ from A to B along a path through U, and plots the stretch where Δ drops below f.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="error-disturbance">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="ERROR//DISTURB">ERROR<b>//</b>DISTURB</h1>
+      <div class="tagline">
+        <span class="zh">误差与扰动的权衡 · <em>中间的测量比两个端点都便宜（已冻结的反驳）</em></span>
+        <span class="en">Error and disturbance · <em>a measurement between the endpoints is cheaper (frozen refutation)</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="lean" aria-pressed="true"><span class="code">A′ = U</span><span class="cn zh">Lean 里的反例</span><span class="cn en">The counterexample in Lean</span></button>
+        <button class="preset" data-preset="sweep" aria-pressed="false"><span class="code">A → U → B</span><span class="cn zh">经过 U 走一遍</span><span class="cn en">Walk through U</span></button>
+        <button class="preset" data-preset="endA" aria-pressed="false"><span class="code">A′ = A</span><span class="cn zh">端点：不出错</span><span class="cn en">Endpoint: no error</span></button>
+        <button class="preset" data-preset="endB" aria-pressed="false"><span class="code">A′ = B</span><span class="cn zh">端点：不扰动</span><span class="cn en">Endpoint: no disturbance</span></button>
+        <button class="preset" data-preset="direct" aria-pressed="false"><span class="code">A → B</span><span class="cn zh">直接的测地线</span><span class="cn en">The direct geodesic</span></button>
+        <button class="preset" data-preset="witness" aria-pressed="false"><span class="code">x = (−5, 11, −10)</span><span class="cn zh">扰动的见证态</span><span class="cn en">The disturbance witness</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">A′ 的路径</span><span class="en">The path of A′</span><span class="aside">SO(3)</span></h2>
+      <div class="chips" id="pathChips" role="group" aria-label="路径" data-aria-en="Path">
+        <button class="chip" data-path="viaU" aria-pressed="true"><span class="zh">经过 U</span><span class="en">Through U</span></button>
+        <button class="chip" data-path="direct" aria-pressed="false"><span class="zh">直接 A → B</span><span class="en">Direct A → B</span></button>
+      </div>
+      <p class="note" id="pathNote"></p>
+    </section>
+  </aside>
+
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：三组测量基与最坏的态；拖动旋转，滚轮缩放" data-aria-en="3D view: three measurement bases and the worst state; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="沿路径的 Δ 与 f" data-aria-en="Δ and f along the path"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="半正定证书的最小特征值" data-aria-en="Smallest eigenvalues of the semidefinite certificate"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">Fine</span></h2>
+      <dl class="ro">
+        <div class="c w"><dt id="ro1L"></dt><dd id="ro1">—</dd></div>
+        <div class="m w"><dt id="ro2L"></dt><dd id="ro2">—</dd></div>
+        <div class="a w"><dt id="ro3L"></dt><dd id="ro3">—</dd></div>
+        <div class="w"><dt id="ro4L"></dt><dd id="ro4">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">测量基由酉矩阵的列给出，Pᵢ 是第 i 列的投影（measurementProjector）。在态 ρ 上，A′ 测 A 的误差是 maxᵢ |tr ρ(P_i^A − P_i^{A′})|（errorAt），A′ 对 B 的扰动是 maxⱼ |tr ρ(R_j − Σ_k Q_k R_j Q_k)|（disturbanceAt）；Δ(A, A′, B) 是同一个 ρ 上两者之和的上确界（overallError），ε、η 分别取各自的上确界（error、disturbance），ε_rel 再对 B 的结果重新编号取下确界（relabel、relaxedError）。猜想 claim：对所有 d ≥ 2 与所有酉矩阵 A、A′、B，min{ε_rel(A, B), η(A, B)} ≤ Δ(A, A′, B)。本库证明 ¬claim。已冻结：</span><span class="en">A measurement basis is given by the columns of a unitary, and Pᵢ projects onto column i (measurementProjector). In a state ρ, the error of A′ measuring A is maxᵢ |tr ρ(P_i^A − P_i^{A′})| (errorAt) and the disturbance of B by A′ is maxⱼ |tr ρ(R_j − Σ_k Q_k R_j Q_k)| (disturbanceAt); Δ(A, A′, B) is the supremum of their sum over one common ρ (overallError), ε and η take their own suprema (error, disturbance), and ε_rel also minimizes over relabelings of B’s outcomes (relabel, relaxedError). The conjecture, claim: for every d ≥ 2 and all unitaries A, A′, B, min{ε_rel(A, B), η(A, B)} ≤ Δ(A, A′, B). This library proves ¬claim. Frozen: </span><code>ErrorDisturbanceEndpointRefutation.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">证明的步骤（同一模块里一起冻结）：d = 3、A = I、A′ = U = (1/313)[[312, −25, 0], [25, 312, 0], [0, 0, 313]]、B = V（分母 33205）都是酉的（u_unitary、v_unitary）；Eᵢ = Pᵢ − Qᵢ 与 Dⱼ = Rⱼ − Σ_k Q_k R_j Q_k 有精确的有理表（e_table、f_table）；对所有符号，(71/250)I − (±Eᵢ ± Dⱼ) 由 LDL 分解证明半正定（psd_of_ldl、first_signed_certificate、signed_certificate），于是 Δ ≤ 71/250（signed_expectation、state_overall_bound、overall_bound）；纯态 x = (−5, 11, −10)/√246 与 (−5, −16, −11)/√402 证明 η(I, V) 与 ε_rel(I, V) 都超过 57/200（pure_isDensity、disturbance_witness、error_witness、disturbance_lower、relaxed_lower）。冻结：</span><span class="en">The steps of the proof (frozen in the same module): d = 3, A = I, A′ = U = (1/313)[[312, −25, 0], [25, 312, 0], [0, 0, 313]] and B = V (denominator 33205) are unitary (u_unitary, v_unitary); Eᵢ = Pᵢ − Qᵢ and Dⱼ = Rⱼ − Σ_k Q_k R_j Q_k have exact rational tables (e_table, f_table); for every choice of signs, (71/250)I − (±Eᵢ ± Dⱼ) is positive semidefinite by an LDL factorization (psd_of_ldl, first_signed_certificate, signed_certificate), so Δ ≤ 71/250 (signed_expectation, state_overall_bound, overall_bound); the pure states x = (−5, 11, −10)/√246 and (−5, −16, −11)/√402 show that η(I, V) and ε_rel(I, V) both exceed 57/200 (pure_isDensity, disturbance_witness, error_witness, disturbance_lower, relaxed_lower). Frozen: </span><code>u_unitary · v_unitary · e_table · f_table · psd_of_ldl · signed_certificate · overall_bound · sum_projectors · disturbance_witness · error_witness · disturbance_lower · relaxed_lower</code></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：页面用卷宗里的谱公式 Δ = max_{i,j} max{‖Eᵢ + Dⱼ‖, ‖Eᵢ − Dⱼ‖}、ε = maxᵢ ‖Eᵢ‖、η = maxⱼ ‖Dⱼ‖（算子范数，Jacobi 求特征值）计算沿路径的每个 A′。路径是 SO(3) 上的分段测地线 A → U → B（或直接的 A → B）。在 U 处 Δ ≈ 0.283676，比 f ≈ 0.285229 低约 0.00155。沿 A → U → B，Δ 一离开 A 就低于 f，最低约 0.283674 在 t ≈ 0.48（U 稍前），t ≈ 0.54 之后回到 f 以上；直接的测地线上 Δ 处处不低于 f。</span><span class="en">Numbers computed on the page, not theorems: the page evaluates every A′ along the path with the dossier’s spectral formulas Δ = max_{i,j} max{‖Eᵢ + Dⱼ‖, ‖Eᵢ − Dⱼ‖}, ε = maxᵢ ‖Eᵢ‖, η = maxⱼ ‖Dⱼ‖ (operator norms, eigenvalues by Jacobi). The path is the piecewise geodesic A → U → B on SO(3) (or the direct A → B). At U, Δ ≈ 0.283676, about 0.00155 below f ≈ 0.285229. Along A → U → B, Δ drops below f as soon as A′ leaves A, is lowest, about 0.283674, at t ≈ 0.48 (just before U), and is back above f after t ≈ 0.54; along the direct geodesic Δ never drops below f.</span></span></div>
+      <div class="lean theory"><span class="ok">ARGUED</span><span><span class="zh">卷宗中的论证（未形式化）：上面的谱公式；A′ = A 时误差为零，Δ = η(A, B)，A′ = B 时扰动为零，Δ = ε(A, B)，所以猜想说的是“中间的测量不会比端点便宜”；这个间隙在 U(3)³ 的一个邻域内保持；用单位块填充可以把例子嵌到任意 d ≥ 3。原文 d = 2 的定理 1 与互不偏基的定理 2 不受影响；猜想的第一个不等式在这个例子里成立。</span><span class="en">Arguments in the dossier (not formalized): the spectral formulas above; at A′ = A the error vanishes and Δ = η(A, B), at A′ = B the disturbance vanishes and Δ = ε(A, B), so the conjecture says that no intermediate measurement is cheaper than an endpoint; the gap persists on a neighbourhood in U(3)³; padding with an identity block embeds the example in every d ≥ 3. The source’s Theorem 1 (d = 2) and Theorem 2 (mutually unbiased bases) are not affected; the conjecture’s first inequality holds in this example.</span></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">定理之外：猜想的第一个不等式 ε(A, A′) + η(A′, B) ≥ f(A, B) 一般是否成立；最优的替代下界；间隙稳定的定量半径。</span><span class="en">Outside the theorem: whether the conjecture’s first inequality ε(A, A′) + η(A′, B) ≥ f(A, B) holds in general; an optimal replacement bound; a quantitative radius for the stability of the gap.</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">S. S. Zhou、S. Wu 与 H. F. Chau，State-independent error-disturbance trade-off for measurement operators，Phys. Lett. A 380, 1918–1924（2016），doi:10.1016/j.physleta.2016.03.046，arXiv:1509.03812：猜想 3。</span><span class="en">S. S. Zhou, S. Wu and H. F. Chau, State-independent error-disturbance trade-off for measurement operators, Phys. Lett. A 380, 1918–1924 (2016), doi:10.1016/j.physleta.2016.03.046, arXiv:1509.03812: Conjecture 3.</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0001" value="0.5" aria-label="A′ 在路径上的位置 t" data-aria-en="Position t of A′ along the path">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> t ± 0.05 · <kbd>E</kbd> 跳到末尾</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> t ± 0.05 · <kbd>E</kbd> jump to the end</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">想先测量 A、再测量 B，但只能用另一个测量 A′ 代替 A：A′ 的结果与 A 的差别是误差，A′ 对随后 B 的统计的改变是扰动。两个极端很简单——A′ = A 不出错，但扰动 B 的代价是 η(A, B)；A′ = B 不扰动，但测 A 的误差是 ε(A, B)。Zhou、Wu 与 Chau 猜想：在同一个态上同时计入误差与扰动，最坏情形 Δ(A, A′, B) 永远不比两个端点中便宜的那个更低。</p>
+      <ol>
+        <li><b>反例。</b>三维里取 A = I，A′ = U 是绕第三根轴转一个小角度的有理正交矩阵，B = V 是另一个有理正交矩阵。Lean 用半正定证书证明 Δ(I, U, V) ≤ 0.284，又用两个具体的纯态证明两个端点代价都超过 0.285。中间的测量严格更便宜。</li>
+        <li><b>三维视图。</b>灰色三条箭头是 A 的基（坐标轴），青色是 A′，琥珀是 B；品红是让误差加扰动最大的那个态（一条射线）。时间轴让 A′ 沿 A → U → B 走，左下图画 Δ 与那条平线 f。</li>
+        <li><b>证书。</b>按谱公式，Δ ≤ s 等价于 36 个矩阵 sI − (±Eᵢ ± Dⱼ) 都半正定。右下图画出它们在 s = 71/250 时的最小特征值——在 U 处全都 ≥ 0，这正是 Lean 用 LDL 分解核对的东西。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/zhou-wu-chau-2016-error-disturbance-endpoint-refutation.md" target="_blank" rel="noopener">问题卷宗</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Measurement/ErrorDisturbanceEndpointRefutation.lean" target="_blank" rel="noopener">ErrorDisturbanceEndpointRefutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Quantum/Measurement/ErrorDisturbanceEndpointRefutation.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/Estimation/zhouwuchau2016errordisturbance.md" target="_blank" rel="noopener">文献笔记</a> · Zhou、Wu、Chau，<a href="https://doi.org/10.1016/j.physleta.2016.03.046" target="_blank" rel="noopener">doi:10.1016/j.physleta.2016.03.046</a> · <a href="https://arxiv.org/abs/1509.03812" target="_blank" rel="noopener">arXiv:1509.03812</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">We want to measure A and then B, but can only use another measurement A′ in place of A: how far A′’s outcomes are from A’s is the error, and how much A′ changes the statistics of the later B is the disturbance. The two extremes are simple — A′ = A makes no error but disturbs B at cost η(A, B); A′ = B does not disturb but measures A with error ε(A, B). Zhou, Wu and Chau conjectured that counting error and disturbance on one common state, the worst case Δ(A, A′, B) is never lower than the cheaper of the two endpoints.</p>
+      <ol>
+        <li><b>The counterexample.</b> In dimension three take A = I, A′ = U, a rational orthogonal matrix that turns by a small angle about the third axis, and B = V, another rational orthogonal matrix. Lean proves Δ(I, U, V) ≤ 0.284 with positive semidefinite certificates, and shows with two explicit pure states that both endpoint costs exceed 0.285. The intermediate measurement is strictly cheaper.</li>
+        <li><b>3D view.</b> The three grey arrows are A’s basis (the coordinate axes), cyan is A′ and amber is B; magenta is the state that maximizes error plus disturbance (a ray). The rail moves A′ along A → U → B, and the lower left chart draws Δ against the flat line f.</li>
+        <li><b>The certificate.</b> By the spectral formula, Δ ≤ s is equivalent to all 36 matrices sI − (±Eᵢ ± Dⱼ) being positive semidefinite. The lower right chart shows their smallest eigenvalues at s = 71/250 — at U all are ≥ 0, which is what Lean checks with LDL factorizations.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/zhou-wu-chau-2016-error-disturbance-endpoint-refutation.md" target="_blank" rel="noopener">Problem dossier</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Measurement/ErrorDisturbanceEndpointRefutation.lean" target="_blank" rel="noopener">ErrorDisturbanceEndpointRefutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Quantum/Measurement/ErrorDisturbanceEndpointRefutation.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/Estimation/zhouwuchau2016errordisturbance.md" target="_blank" rel="noopener">literature note</a> · Zhou, Wu, Chau, <a href="https://doi.org/10.1016/j.physleta.2016.03.046" target="_blank" rel="noopener">doi:10.1016/j.physleta.2016.03.046</a> · <a href="https://arxiv.org/abs/1509.03812" target="_blank" rel="noopener">arXiv:1509.03812</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
