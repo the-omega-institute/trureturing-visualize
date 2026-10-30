@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="BOOK//ROOTS · The book-graph domination root conjecture fails at the square">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BOOK//ROOTS 书图支配多项式根的猜想在正方形上不成立</title>
+<meta name="description" content="Rather（2026，猜想 5.4）猜想：书图 B_n（n 个四边形共用一条边）的支配多项式恰有四个实根（计重数）：n 偶时是二重根 0、(−∞, −2) 里一个、(−1/2, 0) 里一个；n 奇时是二重根 0 与 (−1/2, 0) 里两个。本库在 Lean 里证明对全部 n ≥ 1 这不成立并已冻结：B₁ 就是四边形 C₄，D(C₄, x) = 6x² + 4x³ + x⁴ = x²((x + 2)² + 2)，除 0 以外没有实根。页面画出书图、它的复根云，以及 n = 1 … 20 的实根位置。Rather (2026, Conjecture 5.4) conjectured that the domination polynomial of the book graph B_n (n four-cycles sharing one edge) has exactly four real roots counting multiplicity: for even n a double root at 0, one root in (−∞, −2) and one in (−1/2, 0); for odd n a double root at 0 and two roots in (−1/2, 0). This library proves in Lean that this fails for the full range n ≥ 1, frozen: B₁ is the four-cycle C₄, and D(C₄, x) = 6x² + 4x³ + x⁴ = x²((x + 2)² + 2) has no real root other than 0. The page draws the book, the cloud of its complex roots, and the real roots for n = 1 … 20.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="book-roots">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="BOOK//ROOTS">BOOK<b>//</b>ROOTS</h1>
+      <div class="tagline">
+        <span class="zh">书图的支配多项式 · <em>n = 1 时没有猜想要的那两个根（已冻结的反驳）</em></span>
+        <span class="en">Domination polynomials of book graphs · <em>at n = 1 the two promised roots do not exist (frozen refutation)</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="lean" aria-pressed="true"><span class="code">n = 1 · C₄</span><span class="cn zh">Lean 里的反例</span><span class="cn en">The counterexample in Lean</span></button>
+        <button class="preset" data-preset="sweep" aria-pressed="false"><span class="code">n = 1 → 20</span><span class="cn zh">翻过整本书</span><span class="cn en">Leaf through the book</span></button>
+        <button class="preset" data-preset="two" aria-pressed="false"><span class="code">n = 2</span><span class="cn zh">偶数：一个在 −2 左边</span><span class="cn en">Even: one left of −2</span></button>
+        <button class="preset" data-preset="three" aria-pressed="false"><span class="code">n = 3</span><span class="cn zh">奇数：两个在 (−½, 0)</span><span class="cn en">Odd: two in (−½, 0)</span></button>
+        <button class="preset" data-preset="edge" aria-pressed="false"><span class="code">n = 16</span><span class="cn zh">贴近 −½</span><span class="cn en">Hugging −½</span></button>
+        <button class="preset" data-preset="sets" aria-pressed="false"><span class="code">n = 4 · D(1) = 497</span><span class="cn zh">逐个看支配集</span><span class="cn en">Dominating sets one by one</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">书图 B_n</span><span class="en">The book B_n</span><span class="aside">2n + 2</span></h2>
+      <div class="slider-row"><label for="nIn"><span class="zh">页数 n</span><span class="en">Pages n</span></label><input type="range" id="nIn" min="1" max="20" step="1" value="1"><b id="nOut">1</b></div>
+      <p class="note" id="polyNote"></p>
+    </section>
+  </aside>
+
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：书图 B_n 与它支配多项式的复根；拖动旋转，滚轮缩放" data-aria-en="3D view: the book graph B_n and the complex roots of its domination polynomial; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="实轴上的 D(B_n, x)/x²" data-aria-en="D(B_n, x)/x² on the real axis"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="n = 1 … 20 的非零实根" data-aria-en="Nonzero real roots for n = 1 … 20"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">Fine</span></h2>
+      <dl class="ro">
+        <div class="c w"><dt id="ro1L"></dt><dd id="ro1">—</dd></div>
+        <div class="m w"><dt id="ro2L"></dt><dd id="ro2">—</dd></div>
+        <div class="a w"><dt id="ro3L"></dt><dd id="ro3">—</dd></div>
+        <div class="w"><dt id="ro4L"></dt><dd id="ro4">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">书图 B_n 的顶点是 Fin (2n + 2)：公共边是 0–1，第 i 页是 0–1–(2i + 2)–(2i + 3)–0（bookGraph）。支配多项式 D(G, X) = Σ X^{|S|}，对所有支配集 S 求和（dominationPolynomial）。FourRealRoots p a b：0 是二重根，a、b 是不同的单根，且没有别的实根。猜想 claim：对每个 n ≥ 1，n 偶时有 a &lt; −2、−1/2 &lt; b &lt; 0 使 FourRealRoots 成立；n 奇时有两个都在 (−1/2, 0) 里的 a、b。本库证明 ¬claim。已冻结：</span><span class="en">The book B_n has vertices Fin (2n + 2): the shared edge is 0–1 and page i is 0–1–(2i + 2)–(2i + 3)–0 (bookGraph). The domination polynomial D(G, X) = Σ X^{|S|} sums over all dominating sets S (dominationPolynomial). FourRealRoots p a b: 0 is a double root, a and b are distinct simple roots, and there is no other real root. The conjecture, claim: for every n ≥ 1, for even n there are a &lt; −2 and −1/2 &lt; b &lt; 0 with FourRealRoots, and for odd n two such a, b both in (−1/2, 0). This library proves ¬claim. Frozen: </span><code>RatherBookRootRefutation.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">证明的步骤（同一模块里一起冻结的私有定理）：B₁ 就是四边形 C₄（book_one_eq_cycle）；C₄ 的支配集是 6 个两点集、4 个三点集与全集（cycle_domSets），所以 D(B₁) = 6X² + 4X³ + X⁴（book_one_polynomial）；在 a ≠ 0 处它等于 a²((a + 2)² + 2) &gt; 0，于是奇数分支要的非零根不存在。冻结：</span><span class="en">The steps of the proof (private theorems frozen in the same module): B₁ is the four-cycle C₄ (book_one_eq_cycle); the dominating sets of C₄ are its 6 pairs, 4 triples and the whole vertex set (cycle_domSets), so D(B₁) = 6X² + 4X³ + X⁴ (book_one_polynomial); at a ≠ 0 it equals a²((a + 2)² + 2) &gt; 0, so the nonzero roots the odd branch asks for do not exist. Frozen: </span><code>book_one_eq_cycle · cycle_domSets · book_one_polynomial</code></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：n ≤ 8 时页面逐个枚举 2^{2n+2} 个子集，数出支配集；实根由闭式在 [−10, 0) 上细网格找变号再二分得到，复根由 Durand–Kerner 迭代得到。n = 2 … 20 时找到的实根都符合猜想的模式；偶数 n 在 (−1/2, 0) 里的那个根随 n 增大贴近 −1/2（n = 16 约 −0.4985）。</span><span class="en">Numbers computed on the page, not theorems: for n ≤ 8 the page enumerates all 2^{2n+2} subsets and counts the dominating ones; real roots come from sign changes of the closed form on a fine grid of [−10, 0), refined by bisection, and complex roots from Durand–Kerner iteration. For n = 2 … 20 the real roots found follow the conjectured pattern; for even n the root in (−1/2, 0) moves towards −1/2 as n grows (about −0.4985 at n = 16).</span></span></div>
+      <div class="lean page"><span class="ok">ARGUED</span><span><span class="zh">本页的论证（未形式化、未经评审）：按 0、1 是否在支配集里分四种情形——都在：每页任取，x²(1 + x)²ⁿ；恰一个在：每页非空，各 x(x² + 2x)ⁿ；都不在：每页非空，且至少一页含 2i + 2、至少一页含 2i + 3，(x² + 2x)ⁿ − 2xⁿ。合起来 D(B_n, x) = x²(1 + x)²ⁿ + (2x + 1)(x² + 2x)ⁿ − 2xⁿ。页面用它算 n &gt; 8，并在 n ≤ 8 与枚举逐项核对。文献里已有书图的支配多项式公式，页面没有逐字比对。</span><span class="en">The page’s argument (not formalized, not reviewed): split on whether 0 and 1 are in the dominating set — both: each page is free, x²(1 + x)²ⁿ; exactly one: each page nonempty, x(x² + 2x)ⁿ each; neither: each page nonempty, with some page containing 2i + 2 and some containing 2i + 3, (x² + 2x)ⁿ − 2xⁿ. Together D(B_n, x) = x²(1 + x)²ⁿ + (2x + 1)(x² + 2x)ⁿ − 2xⁿ. The page uses it for n &gt; 8 and checks it term by term against enumeration for n ≤ 8. The literature has a formula for book graphs; the page did not compare the two symbol by symbol.</span></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">定理之外：把猜想改成 n ≥ 2 之后是否成立；更紧的区间；所有有限 n 的完整根分类。页面对 n ≤ 20 看到的模式是数值，不是证明。原文的书图公式与命题 5.3（带 n ≥ 2 的条件）不受影响。</span><span class="en">Outside the theorem: whether the conjecture holds once restricted to n ≥ 2; sharper intervals; a full root classification for every finite n. The pattern the page sees for n ≤ 20 is numerical, not a proof. The source’s book formula and its Proposition 5.3 (which assumes n ≥ 2) are not affected.</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">B. A. Rather，On roots of domination polynomials for friendship and book graphs，arXiv:2604.08998（v1 题为 Root geometry of domination polynomials for friendship and book graphs，2026），doi:10.48550/arXiv.2604.08998：猜想 5.4。书图支配多项式的公式：S. Alikhani、J. I. Brown、S. Jahari，arXiv:1401.2092，定理 8；S. Jahari、S. Alikhani，arXiv:1501.05856，定理 5。</span><span class="en">B. A. Rather, On roots of domination polynomials for friendship and book graphs, arXiv:2604.08998 (v1 titled Root geometry of domination polynomials for friendship and book graphs, 2026), doi:10.48550/arXiv.2604.08998: Conjecture 5.4. Formulas for the domination polynomial of book graphs: S. Alikhani, J. I. Brown, S. Jahari, arXiv:1401.2092, Theorem 8; S. Jahari, S. Alikhani, arXiv:1501.05856, Theorem 5.</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0001" value="0" aria-label="页数 n" data-aria-en="Number of pages n">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> n ± 1 · <kbd>E</kbd> 跳到末尾</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> n ± 1 · <kbd>E</kbd> jump to the end</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">图的一个支配集是一组顶点，使每个顶点要么在组里、要么与组里某个点相邻。支配多项式 D(G, x) 的 x^k 系数就是大小为 k 的支配集个数。书图 B_n 把 n 个四边形沿同一条边粘起来，像一本书的 n 页。Rather 猜想 D(B_n, x) 的实根总是很少：偶数 n 是二重根 0、一个比 −2 小、一个在 (−1/2, 0)；奇数 n 是二重根 0 和两个在 (−1/2, 0)。猜想对 n ≥ 1 陈述，而 B₁ 就是四边形。</p>
+      <ol>
+        <li><b>反例。</b>四边形 C₄ 的支配集是全部 6 个两点集、4 个三点集与全集，所以 D(C₄, x) = 6x² + 4x³ + x⁴ = x²((x + 2)² + 2)。括号里永远为正，除了 0 没有实根——奇数分支要的两个根不存在。</li>
+        <li><b>三维视图。</b>左边是书：公共边是书脊，每页是一个四边形；高亮的是一个支配集。右边是复平面：D(B_n, x)/x² 的全部根，实轴上两段区间 (−∞, −2) 与 (−1/2, 0) 是猜想放根的地方。</li>
+        <li><b>n ≥ 2 呢？</b>页面对 n = 2 … 20 都看到了猜想的模式，但这只是数值；卷宗把改成 n ≥ 2 的版本列为未决。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/rather-2026-book-domination-root-conjecture.md" target="_blank" rel="noopener">问题卷宗</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Graph/Domination/RatherBookRootRefutation.lean" target="_blank" rel="noopener">RatherBookRootRefutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Combinatorics/Graph/Domination/RatherBookRootRefutation.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/Geometry/rather2026bookroots.md" target="_blank" rel="noopener">文献笔记</a> · <a href="https://doi.org/10.48550/arXiv.2604.08998" target="_blank" rel="noopener">doi:10.48550/arXiv.2604.08998</a> · <a href="https://arxiv.org/abs/2604.08998" target="_blank" rel="noopener">arXiv:2604.08998</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">A dominating set of a graph is a set of vertices such that every vertex is in it or adjacent to one of its members. The coefficient of x^k in the domination polynomial D(G, x) counts dominating sets of size k. The book B_n glues n four-cycles along one shared edge, like the n pages of a book. Rather conjectured that D(B_n, x) always has few real roots: for even n a double root at 0, one root below −2 and one in (−1/2, 0); for odd n a double root at 0 and two roots in (−1/2, 0). The conjecture is stated for n ≥ 1, and B₁ is the four-cycle.</p>
+      <ol>
+        <li><b>The counterexample.</b> The dominating sets of the four-cycle C₄ are its 6 pairs, 4 triples and the whole vertex set, so D(C₄, x) = 6x² + 4x³ + x⁴ = x²((x + 2)² + 2). The bracket is always positive, so there is no real root other than 0 — the two roots the odd branch promises do not exist.</li>
+        <li><b>3D view.</b> On the left is the book: the shared edge is the spine and every page is a four-cycle; the highlighted vertices form a dominating set. On the right is the complex plane with all roots of D(B_n, x)/x²; the two stretches (−∞, −2) and (−1/2, 0) of the real axis are where the conjecture puts its roots.</li>
+        <li><b>And n ≥ 2?</b> The page sees the conjectured pattern for n = 2 … 20, but only numerically; the dossier lists the version restricted to n ≥ 2 as open.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/rather-2026-book-domination-root-conjecture.md" target="_blank" rel="noopener">Problem dossier</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Graph/Domination/RatherBookRootRefutation.lean" target="_blank" rel="noopener">RatherBookRootRefutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Combinatorics/Graph/Domination/RatherBookRootRefutation.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/Geometry/rather2026bookroots.md" target="_blank" rel="noopener">literature note</a> · <a href="https://doi.org/10.48550/arXiv.2604.08998" target="_blank" rel="noopener">doi:10.48550/arXiv.2604.08998</a> · <a href="https://arxiv.org/abs/2604.08998" target="_blank" rel="noopener">arXiv:2604.08998</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

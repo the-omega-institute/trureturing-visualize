@@ -2,6 +2,55 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "book-roots",
+      "code": "BOOK//ROOTS",
+      "path": "viz/book-roots/",
+      "thumbnail": "viz/book-roots/thumb.jpg",
+      "title": "书图支配多项式根的猜想在正方形上不成立",
+      "title_en": "The book-graph domination root conjecture fails at the square",
+      "summary": "Rather（2026，猜想 5.4）猜想：书图 B_n（n 个四边形共用一条边）的支配多项式恰有四个实根——n 偶时二重根 0、一个小于 −2、一个在 (−1/2, 0)；n 奇时二重根 0 与两个在 (−1/2, 0)。本库在 Lean 里证明对全部 n ≥ 1 这不成立并已冻结：B₁ 就是四边形，D(C₄, x) = 6x² + 4x³ + x⁴ = x²((x + 2)² + 2) 除 0 外没有实根。页面画出书图与一个支配集、D/x² 的复根云，并对 n = 1 … 20 找出全部实根：n ≥ 2 时都符合猜想的模式（页面数值）。",
+      "summary_en": "Rather (2026, Conjecture 5.4) conjectured that the domination polynomial of the book B_n (n four-cycles sharing an edge) has exactly four real roots — 0 twice, one below −2 and one in (−1/2, 0) for even n, 0 twice and two in (−1/2, 0) for odd n. This library proves in Lean that this fails for the full range n ≥ 1, frozen: B₁ is the four-cycle and D(C₄, x) = 6x² + 4x³ + x⁴ = x²((x + 2)² + 2) has no real root besides 0. The page draws the book with a dominating set and the cloud of complex roots of D/x², and finds every real root for n = 1 … 20: from n = 2 on they follow the conjectured pattern (page numbers).",
+      "status": "live",
+      "added": "2026-10-30",
+      "tags": [
+        "图论",
+        "支配多项式",
+        "多项式的根",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "graph theory",
+        "domination polynomials",
+        "polynomial roots",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：书图支配多项式根的猜想",
+          "label_en": "Problem dossier: the book domination root conjecture",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/rather-2026-book-domination-root-conjecture.md"
+        },
+        {
+          "label": "Blueprint：书图根猜想的反驳",
+          "label_en": "Blueprint: refuting the book root conjecture",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Combinatorics/Graph/Domination/RatherBookRootRefutation.md"
+        },
+        {
+          "label": "文献笔记：Rather 2026",
+          "label_en": "Literature note: Rather 2026",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Library/Geometry/rather2026bookroots.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "RatherBookRootRefutation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Graph/Domination/RatherBookRootRefutation.lean"
+        }
+      ]
+    },
+    {
       "id": "caterpillar-pairs",
       "code": "CATER//PAIRS",
       "path": "viz/caterpillar-pairs/",
