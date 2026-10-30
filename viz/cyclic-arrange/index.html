@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="CYCLIC//ARRANGE · Javaheri’s cyclic arrangement conjecture fails at (6, 1)">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CYCLIC//ARRANGE Javaheri 的循环排列猜想在 (6, 1) 不成立</title>
+<meta name="description" content="对 a, b ≥ 0 与 c = (a + b + 1)/2，循环不等式 (Σ xᵢ)(Σ xᵢᵃ xᵢ₊₁ᵇ) ≤ (Σ xᵢᶜ)² 是否对全部非负 n 元组成立。Javaheri 的猜想 1.3 说成立的最大维数等于 N*(a, b) = max{n : n = 1 或 (a + b − 1)² ≤ 8ab sin²(π/n)}。本库在 Lean 里证明它在 (a, b) = (6, 1) 不成立：N* = 3，可三元组 (6, 5, 5) 让左边比右边大 364，已冻结。页面画出三元组三角形上两边之比、N* 背后的门槛，以及每个维数的数值搜索。For a, b ≥ 0 and c = (a + b + 1)/2, does the cyclic inequality (Σ xᵢ)(Σ xᵢᵃ xᵢ₊₁ᵇ) ≤ (Σ xᵢᶜ)² hold for every nonnegative n-tuple? Javaheri’s Conjecture 1.3 says the largest such dimension equals N*(a, b) = max{n : n = 1 or (a + b − 1)² ≤ 8ab sin²(π/n)}. This library proves in Lean that it fails at (a, b) = (6, 1): N* = 3, but the triple (6, 5, 5) makes the left side exceed the right by 364, frozen. The page draws the ratio of the two sides over the triangle of triples, the threshold behind N*, and a numerical search in every dimension.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="cyclic-arrange">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="CYCLIC//ARRANGE">CYCLIC<b>//</b>ARRANGE</h1>
+      <div class="tagline">
+        <span class="zh">循环排列不等式 · <em>门槛说 N(6, 1) = 3，可 (6, 5, 5) 让 n = 3 失败（已冻结的反驳）</em></span>
+        <span class="en">A cyclic arrangement inequality · <em>the threshold says N(6, 1) = 3, but (6, 5, 5) breaks n = 3 (frozen refutation)</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="lean" aria-pressed="true"><span class="code">(6, 5, 5) · 364</span><span class="cn zh">冻结的反例</span><span class="cn en">The frozen counterexample</span></button>
+        <button class="preset" data-preset="small" aria-pressed="false"><span class="code">(2, 4, 3) · 1409</span><span class="cn zh">更小的整数反例</span><span class="cn en">A smaller integer one</span></button>
+        <button class="preset" data-preset="max" aria-pressed="false"><span class="code">1.0177</span><span class="cn zh">最坏的三元组</span><span class="cn en">The worst triple</span></button>
+        <button class="preset" data-preset="four" aria-pressed="false"><span class="code">(4, 1) · n = 4</span><span class="cn zh">另一处等号情形</span><span class="cn en">Another equality case</span></button>
+        <button class="preset" data-preset="holds" aria-pressed="false"><span class="code">(3, ½) · N* = 3</span><span class="cn zh">猜想与数值一致</span><span class="cn en">Where the numbers agree</span></button>
+        <button class="preset" data-preset="one" aria-pressed="false"><span class="code">(1, 1) · N* = 8</span><span class="cn zh">原文的等号情形</span><span class="cn en">The source’s equality case</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">参数</span><span class="en">Parameters</span><span class="aside">a, b ≥ 0</span></h2>
+      <label class="slider-row"><span>a</span><input type="range" id="aSlider" min="0" max="8" step="0.5" value="6" aria-label="指数 a" data-aria-en="Exponent a"><b id="aVal">6</b></label>
+      <label class="slider-row"><span>b</span><input type="range" id="bSlider" min="0" max="4" step="0.5" value="1" aria-label="指数 b" data-aria-en="Exponent b"><b id="bVal">1</b></label>
+      <p class="note" id="formula"></p>
+      <p class="note" id="paramNote"></p>
+    </section>
+  </aside>
+
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：三元组三角形上两边之比；拖动旋转，滚轮缩放" data-aria-en="3D view: the ratio of the two sides over the triangle of triples; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="猜想的门槛" data-aria-en="The conjecture’s threshold"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="每个维数的数值搜索" data-aria-en="The numerical search in each dimension"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">N(a, b) vs N*(a, b)</span></h2>
+      <dl class="ro">
+        <div class="c"><dt id="ro1L"></dt><dd id="ro1">—</dd></div>
+        <div class="m"><dt id="ro2L"></dt><dd id="ro2">—</dd></div>
+        <div class="a w"><dt id="ro3L"></dt><dd id="ro3">—</dd></div>
+        <div class="w"><dt id="ro4L"></dt><dd id="ro4">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">c = (a + b + 1)/2；维数 n ≥ 1 有效，指对所有非负 x : Fin n → ℝ 都有 (Σ xᵢ)(Σ xᵢᵃ x_{i+1}ᵇ) ≤ (Σ xᵢᶜ)²（下标循环，幂用 Real.rpow）；N 是有效维数在 ℕ∞ 里的最小上界，N* 是门槛集合 {n ≥ 1 : n = 1 或 (a + b − 1)² ≤ 8ab sin²(π/n)} 的最大元。猜想 claim：对所有 a, b ≥ 0、a + b ≠ 1，N 与 N* 存在且 N = N*。本库证明 ¬claim：在 (6, 1) 处 N* = 3，而三元组 (6, 5, 5) 使 3 不是有效维数。已冻结：</span><span class="en">c = (a + b + 1)/2; a dimension n ≥ 1 is valid if (Σ xᵢ)(Σ xᵢᵃ x_{i+1}ᵇ) ≤ (Σ xᵢᶜ)² for every nonnegative x : Fin n → ℝ (cyclic indices, powers by Real.rpow); N is the least upper bound of the valid dimensions in ℕ∞, and N* is the greatest element of the threshold set {n ≥ 1 : n = 1 or (a + b − 1)² ≤ 8ab sin²(π/n)}. The conjecture, claim: for all a, b ≥ 0 with a + b ≠ 1, N and N* exist and N = N*. This library proves ¬claim: at (6, 1), N* = 3, while the triple (6, 5, 5) makes 3 an invalid dimension. Frozen: </span><code>JavaheriArrangementDimensionRefutation.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">证明的两步（同一模块里一起冻结的私有引理）：(6, 5, 5) 违反 n = 3 的不等式，左边减右边恰为 16·(6⁶·5 + 5⁶·5 + 5⁶·6) − (6⁴ + 2·5⁴)² = 364；门槛在 n = 3 取等号 36 = 48·(3/4)，n ≥ 4 时 sin²(π/n) ≤ 1/2 给出 24 &lt; 36，所以 N* = 3。冻结：</span><span class="en">The two steps of the proof (private lemmas frozen in the same module): (6, 5, 5) violates the inequality at n = 3, with left minus right exactly 16·(6⁶·5 + 5⁶·5 + 5⁶·6) − (6⁴ + 2·5⁴)² = 364; the threshold holds with equality at n = 3, 36 = 48·(3/4), and for n ≥ 4, sin²(π/n) ≤ 1/2 gives 24 &lt; 36, so N* = 3. Frozen: </span><code>triple · triple_refutes · not_valid_three · isNStar_three</code></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：三维曲面是三元组三角形上 48 等分网格的比值；数值搜索在每个维数 n ≤ 7 用 12 个固定种子的起点做 Nelder–Mead，只能说“找到的最大值”，不证明不等式成立；整数反例由穷举加 BigInt 精确算出。页面观察到：(6, 1) 时 n = 3 的最大比值约 1.0177，最大分量最小的整数反例是 (2, 4, 3)，差 1409；(4, 1) 时 N* = 4（门槛取等号），可四元组 (7, 7, 10, 9) 让 n = 4 失败，差 327；(3, ½) 与 (1, 1) 在 n ≤ 7 内数值与猜想一致。这些都不在 Lean 里。</span><span class="en">Numbers computed on the page, not theorems: the 3D surface is the ratio on a grid of 48 steps over the triangle of triples; the numerical search runs Nelder–Mead from 12 seeded starts in each dimension n ≤ 7 and can only report “the largest value found”, which does not prove that the inequality holds; integer counterexamples come from exhaustive search with exact BigInt arithmetic. The page observes that at (6, 1) the largest ratio at n = 3 is about 1.0177 and that the integer counterexample with the smallest largest entry is (2, 4, 3), with difference 1409; that at (4, 1), N* = 4 (the threshold holds with equality), yet the quadruple (7, 7, 10, 9) breaks n = 4 with difference 327; and that (3, ½) and (1, 1) agree with the conjecture for n ≤ 7. None of this is in Lean.</span></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">定理之外：原文定理 1.2 的较弱上界 N ≤ N*；原文第 8 节的等号情形（(1, 1)、坐标轴、N* = 4 的三角形区域）与据猜想作出的四维区域预测；严格门槛或附加限制能否挽救猜想；修正后的公式；N(6, 1) 的真实值。</span><span class="en">Outside the theorem: the weaker bound N ≤ N* (the source’s Theorem 1.2); the equality cases of the source’s Section 8 ((1, 1), the coordinate axes, the triangle region with N* = 4) and its dimension-four prediction based on the conjecture; whether a strict threshold or a further restriction rescues the conjecture; a corrected formula; the true value of N(6, 1).</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">Mohammad Javaheri，A new arrangement inequality (revised and extended version)，arXiv:2610.33653v1（2026），doi:10.48550/arXiv.2610.33653：第 1 节猜想 1.3 断言 N(a, b) = N*(a, b)；定理 1.2 论证了 N ≤ N*。</span><span class="en">Mohammad Javaheri, A new arrangement inequality (revised and extended version), arXiv:2610.33653v1 (2026), doi:10.48550/arXiv.2610.33653: Conjecture 1.3 in Section 1 asserts N(a, b) = N*(a, b); Theorem 1.2 argues N ≤ N*.</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0001" value="0" aria-label="绕三角形的视角" data-aria-en="Viewing angle around the triangle">
+      <div class="marks" id="marks"><i class="first" style="left:0%">0°</i><i style="left:50%">180°</i><i class="last" style="left:100%">360°</i></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 转 15° · <kbd>E</kbd> 跳到末尾</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> turn 15° · <kbd>E</kbd> jump to the end</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">把 n 个非负数排成一圈，比较 (Σ xᵢ)(Σ xᵢᵃ xᵢ₊₁ᵇ) 与 (Σ xᵢᶜ)²，c = (a + b + 1)/2。两边次数相同；全相等时恰好相等。维数小时不等式往往成立，维数大了就会失败。Javaheri 猜想成立的最大维数由一个二阶变分的门槛精确给出：N*(a, b) = max{n : (a + b − 1)² ≤ 8ab sin²(π/n)}。本库在 Lean 里证明这个公式在 (6, 1) 不对。</p>
+      <ol>
+        <li><b>门槛（左下图）。</b>品红虚线是 (a + b − 1)²，青点是 8ab sin²(π/n)；点在线上方的 n 满足门槛，最大的就是 N*。(6, 1) 时 n = 3 恰好在线上：36 = 48·(3/4)。</li>
+        <li><b>三元组（三维视图）。</b>把三元组按和归一，就是一个三角形；高度是两边之比减 1 的带符号平方根。顶点处左边为 0，比值最小；中心全相等，比值为 1。品红网格高出零平面的地方，不等式失败。</li>
+        <li><b>冻结的反例。</b>(6, 5, 5) 在中心附近，比值 1.000056：左边 6482480，右边 6482116，差 364。因为 N* = 3 而 3 维已经失败，猜想不成立。</li>
+        <li><b>数值搜索（右下图，页面数值）。</b>每个维数各做一次 Nelder–Mead 搜索，柱高是找到的最大比值。(6, 1) 时从 n = 3 起全部失败；最坏的三元组比值约 1.0177。</li>
+        <li><b>别的参数（页面数值）。</b>(4, 1) 时门槛同样在 N* = 4 取等号，而四元组 (7, 7, 10, 9) 让 n = 4 失败；(3, ½) 与 (1, 1) 在 n ≤ 7 内数值与猜想一致。拖动 a、b 可以自己找。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/javaheri-2026-cyclic-arrangement-conjecture-refutation.md" target="_blank" rel="noopener">问题卷宗</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S0/Certificates/Polynomials/JavaheriArrangementDimensionRefutation.lean" target="_blank" rel="noopener">JavaheriArrangementDimensionRefutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S0/Certificates/Polynomials/JavaheriArrangementDimensionRefutation.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/Certificates/javaheri2026arrangement.md" target="_blank" rel="noopener">文献笔记</a> · Javaheri，<a href="https://arxiv.org/abs/2610.33653v1" target="_blank" rel="noopener">arXiv:2610.33653v1</a> · <a href="https://doi.org/10.48550/arXiv.2610.33653" target="_blank" rel="noopener">doi:10.48550/arXiv.2610.33653</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">Put n nonnegative numbers on a circle and compare (Σ xᵢ)(Σ xᵢᵃ xᵢ₊₁ᵇ) with (Σ xᵢᶜ)², c = (a + b + 1)/2. Both sides have the same degree, and equal entries give equality. In small dimensions the inequality tends to hold, in large ones it fails. Javaheri conjectured that the largest valid dimension is given exactly by a second-variation threshold: N*(a, b) = max{n : (a + b − 1)² ≤ 8ab sin²(π/n)}. This library proves in Lean that the formula is wrong at (6, 1).</p>
+      <ol>
+        <li><b>The threshold (lower left chart).</b> The magenta dashed line is (a + b − 1)², the cyan points are 8ab sin²(π/n); the n whose point lies on or above the line satisfy the threshold, and the largest one is N*. At (6, 1), n = 3 sits exactly on the line: 36 = 48·(3/4).</li>
+        <li><b>Triples (3D view).</b> Scaling a triple to sum 1 gives a triangle; the height is the signed square root of the ratio of the two sides minus 1. At the vertices the left side is 0 and the ratio is smallest; at the centre all entries are equal and the ratio is 1. Where the magenta mesh rises above the zero plane, the inequality fails.</li>
+        <li><b>The frozen counterexample.</b> (6, 5, 5) lies near the centre with ratio 1.000056: left 6482480, right 6482116, difference 364. Since N* = 3 while dimension 3 already fails, the conjecture is false.</li>
+        <li><b>The numerical search (lower right chart, page numbers).</b> A Nelder–Mead search runs in every dimension, and each bar is the largest ratio found. At (6, 1) every dimension from 3 on fails; the worst triple has ratio about 1.0177.</li>
+        <li><b>Other parameters (page numbers).</b> At (4, 1) the threshold also holds with equality, at N* = 4, yet the quadruple (7, 7, 10, 9) breaks n = 4; (3, ½) and (1, 1) agree with the conjecture for n ≤ 7. Drag a and b to explore.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/javaheri-2026-cyclic-arrangement-conjecture-refutation.md" target="_blank" rel="noopener">Problem dossier</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S0/Certificates/Polynomials/JavaheriArrangementDimensionRefutation.lean" target="_blank" rel="noopener">JavaheriArrangementDimensionRefutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S0/Certificates/Polynomials/JavaheriArrangementDimensionRefutation.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/Certificates/javaheri2026arrangement.md" target="_blank" rel="noopener">literature note</a> · Javaheri, <a href="https://arxiv.org/abs/2610.33653v1" target="_blank" rel="noopener">arXiv:2610.33653v1</a> · <a href="https://doi.org/10.48550/arXiv.2610.33653" target="_blank" rel="noopener">doi:10.48550/arXiv.2610.33653</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
