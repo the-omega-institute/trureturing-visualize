@@ -9,6 +9,7 @@ Every page is bilingual (中文 / English, switchable in the header) and states 
 
 | id | Page | Theory |
 | --- | --- | --- |
+| `gronwall-edge` | [GRONWALL//EDGE 除数和能多接近 e^γ n log log n](https://the-omega-institute.github.io/trureturing-visualize/viz/gronwall-edge/) | Lean：D5/S3/Weil 的 GronwallLowerEnvelope · PrimeValuationGap · Mertens/CriticalThetaTailPeak |
 | `ledger-growth` | [LEDGER//GROWTH 真值账本的生长](https://the-omega-institute.github.io/trureturing-visualize/viz/ledger-growth/) | trureturing dev 分支的每日快照：Lean 模块、冻结、消化账目与问题卷宗 |
 | `power-cycles` | [POWER//CYCLES 每一种取向都有 64 圈](https://the-omega-institute.github.io/trureturing-visualize/viz/power-cycles/) | 问题卷宗：Garcia 的 Erdős 问题 64 取向构造 |
 | `factorial-steps` | [FACTORIAL//STEPS 分数阶乘之比为什么是整数](https://the-omega-institute.github.io/trureturing-visualize/viz/factorial-steps/) | 问题卷宗：Bala 的 OEIS A347854–A347858 |

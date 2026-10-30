@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="GRONWALL//EDGE · How close σ(n) comes to e^γ n log log n">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GRONWALL//EDGE 除数和能多接近 e^γ n log log n</title>
+<meta name="description" content="Robin 比值 R(n) = σ(n)/(e^γ n log log n) 的上极限恰好是 1（Gronwall，已在 Lean 里冻结），证人是素数阶乘的幂；固定素数的指数有界时上限降到 1 − p^(−(A+1))（已冻结）；ζ 若有实部大于 1/2 的零点，θ 的加权尾项会在任意晚的地方出现峰值（已冻结）。页面把 σ(n) 筛到 10⁶，画出 n ≤ 5040 的 26 个 Robin 反例，并用一对假想零点演示尾项的回声。黎曼猜想仍是开放问题。The Robin ratio R(n) = σ(n)/(e^γ n log log n) has upper limit exactly 1 (Gronwall, frozen in Lean), attained along powers of primorials; when the exponent of a fixed prime is bounded the cap drops to 1 − p^(−(A+1)) (frozen); and if ζ has a zero with real part above 1/2, a weighted tail of θ peaks arbitrarily late (frozen). The page sieves σ(n) to 10⁶, marks the 26 Robin violations up to 5040, and uses one hypothetical zero pair to show the echo in the tail. The Riemann hypothesis remains open.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="gronwall-edge">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="GRONWALL//EDGE">GRONWALL<b>//</b>EDGE</h1>
+      <div class="tagline">
+        <span class="zh">除数和能多接近 e^γ n log log n · <em>上极限恰好是 1；5040 之后若越过它，黎曼猜想就不成立</em></span>
+        <span class="en">How close σ(n) comes to e^γ n log log n · <em>the upper limit is exactly 1, and crossing it after 5040 would refute the Riemann hypothesis</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="edge" aria-pressed="true"><span class="code">R(n) · v₂</span><span class="cn zh">贴着 1 往上爬</span><span class="cn en">Creeping up to 1</span></button>
+        <button class="preset" data-preset="violations" aria-pressed="false"><span class="code">n ≤ 5040</span><span class="cn zh">26 个 Robin 反例</span><span class="cn en">The 26 Robin violations</span></button>
+        <button class="preset" data-preset="odd" aria-pressed="false"><span class="code">1 − 2^(−A−1)</span><span class="cn zh">2 的指数有界时的上限</span><span class="cn en">Caps for bounded powers of 2</span></button>
+        <button class="preset" data-preset="three" aria-pressed="false"><span class="code">p = 3</span><span class="cn zh">换成 3 的指数</span><span class="cn en">Layers by the power of 3</span></button>
+        <button class="preset" data-preset="primorial" aria-pressed="false"><span class="code">(p_k#)⁵</span><span class="cn zh">素数阶乘的幂是证人</span><span class="cn en">Primorial powers as witnesses</span></button>
+        <button class="preset" data-preset="zeta" aria-pressed="false"><span class="code">6/π²</span><span class="cn zh">素数阶乘本身停在 1/ζ(2)</span><span class="cn en">Primorials stop at 1/ζ(2)</span></button>
+        <button class="preset" data-preset="echo75" aria-pressed="false"><span class="code">β = 0.75</span><span class="cn zh">离线零点的回声</span><span class="cn en">The echo of an off-line zero</span></button>
+        <button class="preset" data-preset="echo60" aria-pressed="false"><span class="code">β = 0.60</span><span class="cn zh">离临界线越近越慢</span><span class="cn en">Slower near the critical line</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">模型</span><span class="en">Model</span><span class="aside">R(n)</span></h2>
+      <div class="chips" id="modeChips" role="group" aria-label="模型" data-aria-en="Model">
+        <button class="chip" data-mode="layers"><span class="zh">按 p 的指数分层</span><span class="en">Layers by vₚ(n)</span></button>
+        <button class="chip" data-mode="witness"><span class="zh">素数阶乘的幂</span><span class="en">Primorial powers</span></button>
+        <button class="chip" data-mode="echo"><span class="zh">离线零点</span><span class="en">Off-line zero</span></button>
+      </div>
+      <div class="chips subchips" id="pChips" role="group" aria-label="素数 p" data-aria-en="Prime p">
+        <button class="chip" data-p="2">p = 2</button>
+        <button class="chip" data-p="3">p = 3</button>
+        <button class="chip" data-p="5">p = 5</button>
+      </div>
+      <div class="chips subchips" id="aChips" role="group" aria-label="指数 a" data-aria-en="Exponent a" hidden>
+        <button class="chip" data-a="1">a = 1</button>
+        <button class="chip" data-a="2">a = 2</button>
+        <button class="chip" data-a="3">a = 3</button>
+        <button class="chip" data-a="5">a = 5</button>
+        <button class="chip" data-a="8">a = 8</button>
+      </div>
+      <div id="echoBox" hidden>
+        <div class="field">
+          <label for="beta"><span class="zh">假想零点的实部 β</span><span class="en">Real part β of the hypothetical zero</span></label><output id="oBeta" for="beta">0.75</output>
+          <input type="range" id="beta" min="0.55" max="0.95" step="0.01" value="0.75">
+        </div>
+        <div class="chips subchips" id="gChips" role="group" aria-label="零点高度 γ" data-aria-en="Zero height γ">
+          <button class="chip" data-g="0">γ = 14.13</button>
+          <button class="chip" data-g="1">γ = 21.02</button>
+          <button class="chip" data-g="2">γ = 25.01</button>
+        </div>
+        <div class="chips subchips" id="mChips" role="group" aria-label="重数 m" data-aria-en="Multiplicity m">
+          <button class="chip" data-m="1">m = 1</button>
+          <button class="chip" data-m="2">m = 2</button>
+        </div>
+      </div>
+      <p class="note" id="formula"></p>
+      <p class="note" id="modeNote"></p>
+    </section>
+  </aside>
+
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：分层包络、素数阶乘幂的曲面或尾项的回声；拖动旋转，滚轮缩放" data-aria-en="3D view: the layered envelopes, the primorial-power surface or the echo in the tail; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="side" aria-pressed="false"><span class="zh">侧视</span><span class="en">Side</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="主图" data-aria-en="Main chart"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="辅图" data-aria-en="Side chart"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">σ(n)</span></h2>
+      <dl class="ro">
+        <div class="c"><dt id="ro1L"></dt><dd id="ro1">—</dd></div>
+        <div class="m"><dt id="ro2L"></dt><dd id="ro2">—</dd></div>
+        <div class="a w"><dt id="ro3L"></dt><dd id="ro3">—</dd></div>
+        <div><dt id="ro4L"></dt><dd id="ro4">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">Gronwall 包络：对每个 ε &gt; 0，从某处起 R(n) ≤ 1 + ε，并且有任意大的 n 使 R(n) ≥ 1 − ε，这些 n 取素数阶乘的幂；所以 R(n) 的上极限恰好是 1。Robin 对数余量 γ + log log log n − log(σ(n)/n) 的下极限是 0。这些结论不依赖黎曼猜想，也不断言 Robin 判据。已冻结：</span><span class="en">The Gronwall envelopes: for every ε &gt; 0, eventually R(n) ≤ 1 + ε, and there are arbitrarily large n with R(n) ≥ 1 − ε, taken among powers of primorials; so the upper limit of R(n) is exactly 1. The logarithmic Robin margin γ + log log log n − log(σ(n)/n) has lower limit 0. These are unconditional and assert no Robin criterion. Frozen: </span><code>GronwallLowerEnvelope.gronwall_envelopes · gronwall_lower_envelope · robin_log_margin_liminf</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">固定素数的指数有界：对素数 p、自然数 A 和 ε &gt; 0，从某处起，所有 p 的指数不超过 A 的 n 都有 R(n) ≤ 1 − p^(−(A+1)) + ε，对数余量至少 −log(1 − p^(−(A+1))) − ε。定理不给出这个“某处”的具体数值。已冻结：</span><span class="en">A bounded exponent of a fixed prime: for a prime p, a natural A and ε &gt; 0, eventually every n whose exponent of p is at most A has R(n) ≤ 1 − p^(−(A+1)) + ε, and logarithmic margin at least −log(1 − p^(−(A+1))) − ε. The theorem gives no numerical value for “eventually”. Frozen: </span><code>PrimeValuationGap.bounded_prime_valuation_robin_ratio · bounded_prime_valuation_robin_margin_gap</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">离线零点的峰值：若 ζ(ρ) = 0、1/2 &lt; β = Re ρ &lt; 1、重数为 m，则对每个 0 ≤ c &lt; m/(|ρ||ρ − 1|) 和每个 T，有 u &gt; max(T, log 2) 使 c &lt; u·e^((1−β)u)·f(u)。这里 f(u) = F(eᵘ)，F(x) = −∫ₓ^∞ (θ(t) − t)·(log t + 1)/(t² log² t) dt，θ 是 Chebyshev 函数。定理不断言存在离线零点，也不给出峰值的位置。已冻结：</span><span class="en">Peaks from an off-line zero: if ζ(ρ) = 0 with 1/2 &lt; β = Re ρ &lt; 1 and multiplicity m, then for every 0 ≤ c &lt; m/(|ρ||ρ − 1|) and every T there is u &gt; max(T, log 2) with c &lt; u·e^((1−β)u)·f(u). Here f(u) = F(eᵘ) and F(x) = −∫ₓ^∞ (θ(t) − t)·(log t + 1)/(t² log² t) dt, with θ the Chebyshev function. The theorem asserts no off-line zero and gives no location for the peaks. Frozen: </span><code>CriticalThetaTailPeak.critical_theta_tail_peak</code></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：σ(n) 由筛法精确算到 10⁶，R(n) 用双精度；素数阶乘的幂用对数求和，素数筛到 1.5·10⁶；1/ζ(a + 1) 由级数加 Euler–Maclaurin 尾项算出。离线零点模式只放一对假想零点 ρ、ρ̄：θ(t) − t 取显式公式里它们的那一项 −2m·Re(t^ρ/ρ)，尾项用 Simpson 法向后积分。</span><span class="en">Numbers computed on the page, not theorems: σ(n) is sieved exactly up to 10⁶ and R(n) is computed in double precision; primorial powers use sums of logarithms over primes sieved up to 1.5·10⁶; 1/ζ(a + 1) is a series plus an Euler–Maclaurin tail. The off-line mode keeps a single hypothetical zero pair ρ, ρ̄: θ(t) − t is taken to be their term −2m·Re(t^ρ/ρ) of the explicit formula, and the tail is integrated backwards by Simpson’s rule.</span></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">未决：黎曼猜想；5040 之后是否还有 R(n) ≥ 1 的数（Robin 证明这等价于黎曼猜想不成立）；以及把尾项越过 7e^(−u/2) 这类包络转成真实 Robin 反例的算术桥。</span><span class="en">Open: the Riemann hypothesis; whether any n after 5040 has R(n) ≥ 1 (Robin proved this equivalent to the failure of the Riemann hypothesis); and the arithmetic bridge that would turn a tail crossing an envelope such as 7e^(−u/2) into an actual Robin violation.</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">Gronwall（1913）证明 σ(n)/(n log log n) 的上极限是 e^γ。Robin（1984）证明：黎曼猜想成立当且仅当对所有 n &gt; 5040 都有 σ(n) &lt; e^γ n log log n。Choie、Lichiardopol、Moree、Solé（2007）证明：n ≥ 37 若违反 Robin 不等式，必是偶数，既不是无平方因子数，也不是每个素因子都至少二次的幂数，并且被某个大于 1 的五次方整除。Platt 与 Trudgian（2021）验证黎曼猜想到高度 3·10¹²，所以离线模式里挪动的前几个零点其实都在临界线上，那是反事实演示。</span><span class="en">Gronwall (1913) proved that the upper limit of σ(n)/(n log log n) is e^γ. Robin (1984) proved that the Riemann hypothesis holds exactly when σ(n) &lt; e^γ n log log n for all n &gt; 5040. Choie, Lichiardopol, Moree and Solé (2007) proved that an n ≥ 37 violating Robin’s inequality must be even, neither squarefree nor squarefull, and divisible by a fifth power greater than 1. Platt and Trudgian (2021) verified the Riemann hypothesis up to height 3·10¹², so the first zeros moved in the off-line mode actually lie on the critical line: that mode is a counterfactual demonstration.</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0005" value="0" aria-label="进度：n、k 或 u" data-aria-en="Progress: n, k or u">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 单步 · <kbd>E</kbd> 跳到末尾</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> step · <kbd>E</kbd> jump to the end</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">σ(n) 是 n 的全部因子之和。它可以比 n 大很多，但大不过 e^γ n log log n 太多：Robin 比值 R(n) = σ(n)/(e^γ n log log n) 的上极限恰好是 1。Robin 证明，黎曼猜想等价于 5040 之后 R(n) 永远小于 1。本库在 Lean 里冻结了这条边界附近的三类结论；黎曼猜想本身仍然开放。</p>
+      <ol>
+        <li><b>Gronwall 包络（已冻结）。</b>两个 ε 条件：从某处起 R(n) ≤ 1 + ε；又有任意大的 n 使 R(n) ≥ 1 − ε。后一条的证人是素数阶乘的幂 n = (2·3·…·p_k)^a：σ(n)/n = ∏ (1 − p^(−a−1))/(1 − 1/p)，由 Mertens 第三定理，固定 a、k → ∞ 时 R(n) → 1/ζ(a + 1)，再让 a 增大即趋于 1。由此 Robin 对数余量的下极限是 0。</li>
+        <li><b>按素数指数分层（已冻结）。</b>把 p 的指数固定在不超过 A，σ(n)/n 里 p 那一项最多是 (1 − p^(−A−1))/(1 − 1/p)，比无限制时少一个因子 1 − p^(−A−1)，所以这一层的 R(n) 最终不超过 1 − p^(−A−1) + ε。页面的绿线就是这些上限。收敛按 log log n 的速度，极慢：10⁶ 以内有些层的最大值仍高于自己的上限，这不违反定理，因为定理只说“从某处起”。</li>
+        <li><b>离线零点的回声（已冻结）。</b>显式公式里每个零点 ρ 给 θ(x) − x 贡献约 −x^ρ/ρ。若 β = Re ρ &gt; 1/2，这一项比临界线上零点的 √x 大。按 Lean 的定义取加权尾项 f(u)，冻结定理说 u·e^((1−β)u)·f(u) 会在任意晚的地方超过任何小于 m/(|ρ||ρ − 1|) 的数。页面只保留一对假想零点来画这个机制：归一化的尾项以约 2m/(|ρ||ρ − 1|) 的振幅振荡，超过定理的门槛；不归一化时它按 e^((β−1)u)/u 衰减，比 e^(−u/2) 慢，迟早越过 7e^(−u/2)。</li>
+        <li><b>页面数值。</b>σ(n) 筛到 10⁶；n ≤ 5040 有 26 个数 R(n) ≥ 1，最大的是 5040；页面在 (5040, 10⁶] 没有找到 R(n) ≥ 1 的数，这只是数值。</li>
+        <li><b>边界。</b>定理都是“最终”或“任意晚”的形式，不给出具体阈值；把尾项越过包络变成真实 Robin 反例的桥仍是开放的；离线模式移动的零点在现实中已验证在临界线上。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/GronwallLowerEnvelope.lean" target="_blank" rel="noopener">GronwallLowerEnvelope.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/PrimeValuationGap.lean" target="_blank" rel="noopener">PrimeValuationGap.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/Mertens/CriticalThetaTailPeak.lean" target="_blank" rel="noopener">CriticalThetaTailPeak.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/Mertens/ActualThetaTailLaplace.lean" target="_blank" rel="noopener">ActualThetaTailLaplace.lean</a> · Gronwall，<a href="https://doi.org/10.1090/s0002-9947-1913-1500940-6" target="_blank" rel="noopener">Trans. AMS 14（1913）</a> · Robin，J. Math. Pures Appl. 63（1984）187–213 · Choie、Lichiardopol、Moree、Solé，<a href="https://doi.org/10.5802/jtnb.591" target="_blank" rel="noopener">J. Théor. Nombres Bordeaux 19（2007）</a> · Platt、Trudgian，<a href="https://doi.org/10.1112/blms.12460" target="_blank" rel="noopener">Bull. LMS 53（2021）</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">σ(n) is the sum of all divisors of n. It can be much larger than n, but not much larger than e^γ n log log n: the Robin ratio R(n) = σ(n)/(e^γ n log log n) has upper limit exactly 1. Robin proved that the Riemann hypothesis is equivalent to R(n) staying below 1 for every n after 5040. This library has frozen three kinds of results near this edge in Lean; the Riemann hypothesis itself remains open.</p>
+      <ol>
+        <li><b>The Gronwall envelopes (frozen).</b> Two ε conditions: eventually R(n) ≤ 1 + ε, and there are arbitrarily large n with R(n) ≥ 1 − ε. The witnesses for the second are primorial powers n = (2·3·…·p_k)^a: σ(n)/n = ∏ (1 − p^(−a−1))/(1 − 1/p), and by Mertens’ third theorem R(n) → 1/ζ(a + 1) as k → ∞ with a fixed, which tends to 1 as a grows. Hence the logarithmic Robin margin has lower limit 0.</li>
+        <li><b>Layers by the exponent of a prime (frozen).</b> With the exponent of p held to at most A, the factor of p in σ(n)/n is at most (1 − p^(−A−1))/(1 − 1/p), one factor 1 − p^(−A−1) short of the unrestricted bound, so on this layer R(n) eventually stays below 1 − p^(−A−1) + ε. The green lines on the page are these caps. Convergence runs at the speed of log log n, very slowly: up to 10⁶ some layers still exceed their caps, which does not contradict the theorem, since it only says “eventually”.</li>
+        <li><b>The echo of an off-line zero (frozen).</b> In the explicit formula each zero ρ contributes about −x^ρ/ρ to θ(x) − x. If β = Re ρ &gt; 1/2, this term outgrows the √x of zeros on the critical line. With the weighted tail f(u) defined as in Lean, the frozen theorem says that u·e^((1−β)u)·f(u) exceeds any number below m/(|ρ||ρ − 1|) arbitrarily late. The page keeps one hypothetical zero pair to draw the mechanism: the normalized tail oscillates with amplitude about 2m/(|ρ||ρ − 1|), above the theorem’s threshold; unnormalized, it decays like e^((β−1)u)/u, slower than e^(−u/2), and sooner or later crosses 7e^(−u/2).</li>
+        <li><b>Page numerics.</b> σ(n) is sieved to 10⁶; for n ≤ 5040, 26 numbers have R(n) ≥ 1, the largest being 5040; the page finds no n in (5040, 10⁶] with R(n) ≥ 1, which is numerics only.</li>
+        <li><b>Limits.</b> The theorems are of the form “eventually” or “arbitrarily late” and give no thresholds; the bridge from a tail crossing an envelope to an actual Robin violation is open; the zeros moved in the off-line mode are verified to lie on the critical line in reality.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/GronwallLowerEnvelope.lean" target="_blank" rel="noopener">GronwallLowerEnvelope.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/PrimeValuationGap.lean" target="_blank" rel="noopener">PrimeValuationGap.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/Mertens/CriticalThetaTailPeak.lean" target="_blank" rel="noopener">CriticalThetaTailPeak.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/Mertens/ActualThetaTailLaplace.lean" target="_blank" rel="noopener">ActualThetaTailLaplace.lean</a> · Gronwall, <a href="https://doi.org/10.1090/s0002-9947-1913-1500940-6" target="_blank" rel="noopener">Trans. AMS 14 (1913)</a> · Robin, J. Math. Pures Appl. 63 (1984) 187–213 · Choie, Lichiardopol, Moree, Solé, <a href="https://doi.org/10.5802/jtnb.591" target="_blank" rel="noopener">J. Théor. Nombres Bordeaux 19 (2007)</a> · Platt, Trudgian, <a href="https://doi.org/10.1112/blms.12460" target="_blank" rel="noopener">Bull. LMS 53 (2021)</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

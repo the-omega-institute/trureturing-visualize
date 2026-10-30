@@ -2,6 +2,65 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "gronwall-edge",
+      "code": "GRONWALL//EDGE",
+      "title": "除数和能多接近 e^γ n log log n",
+      "title_en": "How close σ(n) comes to e^γ n log log n",
+      "summary": "Robin 比值 R(n) = σ(n)/(e^γ n log log n) 的上极限恰好是 1：本库在 Lean 里冻结了 Gronwall 的两条包络（从某处起 R ≤ 1 + ε；又有任意大的素数阶乘的幂使 R ≥ 1 − ε），以及 Robin 对数余量的下极限为 0；固定素数 p 的指数不超过 A 时，上限最终降到 1 − p^(−A−1)（已冻结）；ζ 若有实部大于 1/2 的零点，θ 的加权尾项会在任意晚的地方超过门槛 m/(|ρ||ρ − 1|)（已冻结）。页面把 σ(n) 筛到 10⁶，画出 n ≤ 5040 的 26 个 Robin 反例与按 p 的指数分层的包络，算出素数阶乘的幂怎样慢慢爬向 1/ζ(a + 1)，并用一对假想零点演示尾项的回声。黎曼猜想仍是开放问题。",
+      "summary_en": "The Robin ratio R(n) = σ(n)/(e^γ n log log n) has upper limit exactly 1: this library has frozen in Lean the two Gronwall envelopes (eventually R ≤ 1 + ε, and arbitrarily large primorial powers with R ≥ 1 − ε) and the lower limit 0 of the logarithmic Robin margin; when the exponent of a fixed prime p is at most A, the cap eventually drops to 1 − p^(−A−1) (frozen); and if ζ had a zero with real part above 1/2, a weighted tail of θ would exceed the threshold m/(|ρ||ρ − 1|) arbitrarily late (frozen). The page sieves σ(n) to 10⁶, marks the 26 Robin violations up to 5040 and the envelopes layered by the exponent of p, computes how primorial powers creep towards 1/ζ(a + 1), and uses one hypothetical zero pair to show the echo in the tail. The Riemann hypothesis remains open.",
+      "path": "viz/gronwall-edge/",
+      "thumbnail": "viz/gronwall-edge/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-30",
+      "tags": [
+        "数论",
+        "黎曼猜想",
+        "Robin 不等式",
+        "WebGL"
+      ],
+      "tags_en": [
+        "number theory",
+        "Riemann hypothesis",
+        "Robin inequality",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "Blueprint：Gronwall 包络",
+          "label_en": "Blueprint: the Gronwall envelopes",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Weil/GronwallLowerEnvelope.md"
+        },
+        {
+          "label": "Blueprint：固定素数的指数缺口",
+          "label_en": "Blueprint: the fixed prime valuation gap",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Weil/PrimeValuationGap.md"
+        },
+        {
+          "label": "Blueprint：临界指数下 θ 尾项的峰",
+          "label_en": "Blueprint: critical theta tail peaks",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Weil/Mertens/CriticalThetaTailPeak.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "GronwallLowerEnvelope.gronwall_envelopes",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/GronwallLowerEnvelope.lean"
+        },
+        {
+          "label": "GronwallLowerEnvelope.robin_log_margin_liminf",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/GronwallLowerEnvelope.lean"
+        },
+        {
+          "label": "PrimeValuationGap.bounded_prime_valuation_robin_ratio",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/PrimeValuationGap.lean"
+        },
+        {
+          "label": "CriticalThetaTailPeak.critical_theta_tail_peak",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/Mertens/CriticalThetaTailPeak.lean"
+        }
+      ]
+    },
+    {
       "id": "ledger-growth",
       "code": "LEDGER//GROWTH",
       "title": "真值账本的生长",
