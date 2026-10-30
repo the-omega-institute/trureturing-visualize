@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="LJ//BREAK · Broken bonds and unstable directions in a Lennard-Jones chain">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LJ//BREAK Lennard-Jones 链的断键与不稳定方向</title>
+<meta name="description" content="一串用 Lennard-Jones 势相连、两端固定的粒子。若平衡态里恰有 k 根键被拉过拐点，力的雅可比矩阵的正特征值个数（即不稳定的特征值对数）介于 k − 1 与 k 之间——Rodrigues、Kevrekidis 与 Dobson（2019）的猜想，本库在 Lean 里证明并冻结。页面求出平衡态、算出谱，并把两支平衡上 k − 1 与 k 两个端点都画出来，再从平衡出发模拟非线性运动。A chain of particles joined by Lennard-Jones bonds, with both ends fixed. If exactly k bonds of an equilibrium are stretched past the inflection point, the force Jacobian has between k − 1 and k positive eigenvalues, that is, unstable eigenvalue pairs — the conjecture of Rodrigues, Kevrekidis and Dobson (2019), proved in Lean and frozen in this library. The page solves for the equilibria, computes the spectrum, shows both endpoints k − 1 and k on the two branches of equilibria, and simulates the nonlinear motion from each equilibrium.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="lj-break">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="LJ//BREAK">LJ<b>//</b>BREAK</h1>
+      <div class="tagline">
+        <span class="zh">Lennard-Jones 链的断键与不稳定方向 · <em>k 根断键 ⇒ k − 1 到 k 对不稳定特征值（已冻结）</em></span>
+        <span class="en">Broken bonds and unstable directions in a Lennard-Jones chain · <em>k broken bonds ⇒ k − 1 to k unstable pairs (frozen)</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="one" aria-pressed="true"><span class="code">k = 1 · U = 0</span><span class="cn zh">一根断键：稳定</span><span class="cn en">One break: stable</span></button>
+        <button class="preset" data-preset="two" aria-pressed="false"><span class="code">k = 2 · U = 1</span><span class="cn zh">两根断键：一对不稳定</span><span class="cn en">Two breaks: one unstable pair</span></button>
+        <button class="preset" data-preset="five" aria-pressed="false"><span class="code">k = 5 · U = 4</span><span class="cn zh">五根断键</span><span class="cn en">Five breaks</span></button>
+        <button class="preset" data-preset="all" aria-pressed="false"><span class="code">k = m + 1</span><span class="cn zh">全部拉断：U = m</span><span class="cn en">All bonds broken: U = m</span></button>
+        <button class="preset" data-preset="high" aria-pressed="false"><span class="code">k = 3 · U = 3</span><span class="cn zh">高张力支：上端点</span><span class="cn en">High tension: the upper end</span></button>
+        <button class="preset" data-preset="twin" aria-pressed="false"><span class="code">L(τ)</span><span class="cn zh">同一个 d 的两支平衡</span><span class="cn en">Two branches at one d</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">链</span><span class="en">Chain</span><span class="aside">φ = r⁻¹² − 2r⁻⁶</span></h2>
+      <div class="chips" id="mChips" role="group" aria-label="自由粒子数 m" data-aria-en="Free particles m">
+        <button class="chip" data-m="6">m = 6</button>
+        <button class="chip" data-m="10">m = 10</button>
+        <button class="chip" data-m="14">m = 14</button>
+      </div>
+      <div class="field">
+        <label for="kk"><span class="zh">断键数 k</span><span class="en">Broken bonds k</span></label><output id="oK" for="kk">1</output>
+        <input type="range" id="kk" min="1" max="11" step="1" value="1">
+      </div>
+      <div class="field">
+        <label for="dd"><span class="zh">平均间距 d</span><span class="en">Mean spacing d</span></label><output id="oD" for="dd">1.300</output>
+        <input type="range" id="dd" min="1.08" max="1.6" step="0.002" value="1.3">
+      </div>
+      <div class="chips subchips" id="posChips" role="group" aria-label="断键位置" data-aria-en="Positions of the breaks">
+        <button class="chip" data-pos="spread"><span class="zh">均匀分布</span><span class="en">Spread out</span></button>
+        <button class="chip" data-pos="block"><span class="zh">连成一段</span><span class="en">In one block</span></button>
+        <button class="chip" data-pos="ends"><span class="zh">靠两端</span><span class="en">Near the ends</span></button>
+      </div>
+      <div class="chips subchips" id="branchChips" role="group" aria-label="平衡支" data-aria-en="Branch of equilibria">
+        <button class="chip" data-branch="0"><span class="zh">低张力支</span><span class="en">Low tension</span></button>
+        <button class="chip" data-branch="1"><span class="zh">高张力支</span><span class="en">High tension</span></button>
+      </div>
+      <p class="note" id="formula"></p>
+      <p class="note" id="modeNote"></p>
+    </section>
+  </aside>
+
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：链与粒子的世界线；拖动旋转，滚轮缩放" data-aria-en="3D view: the chain and the world-lines of its particles; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视：时空图</span><span class="en">Top: space-time</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="雅可比矩阵的谱" data-aria-en="The spectrum of the Jacobian"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="平均键长对张力" data-aria-en="Mean bond length against tension"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">J</span></h2>
+      <dl class="ro">
+        <div class="c"><dt id="ro1L"></dt><dd id="ro1">—</dd></div>
+        <div class="m"><dt id="ro2L"></dt><dd id="ro2">—</dd></div>
+        <div class="a w"><dt id="ro3L"></dt><dd id="ro3">—</dd></div>
+        <div><dt id="ro4L"></dt><dd id="ro4">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">势 φ(r) = r⁻¹² − 2r⁻⁶，拐点 rᵢ = (13/7)^(1/6)。对每个 m ≥ 1、d &gt; 0 和两端位移为零、每个自由粒子受力为零、所有键长 rⱼ = d + uⱼ₊₁ − uⱼ 为正的位移：若恰有 k ≥ 1 根键满足 rⱼ &gt; rᵢ，则三对角矩阵 J（Jₙₙ = −cₙ − cₙ₊₁，Jₙ,ₙ₊₁ = cₙ₊₁，cⱼ = φ″(rⱼ)）的正特征值个数（计重数）U 满足 k − 1 ≤ U ≤ k。这正是 Rodrigues、Kevrekidis 与 Dobson（2019）的猜想。已冻结：</span><span class="en">The potential is φ(r) = r⁻¹² − 2r⁻⁶ with inflection point rᵢ = (13/7)^(1/6). For every m ≥ 1, d &gt; 0 and displacement with both ends fixed, zero force on every free particle and all bond lengths rⱼ = d + uⱼ₊₁ − uⱼ positive: if exactly k ≥ 1 bonds have rⱼ &gt; rᵢ, then the number U of positive eigenvalues (with multiplicity) of the tridiagonal matrix J (Jₙₙ = −cₙ − cₙ₊₁, Jₙ,ₙ₊₁ = cₙ₊₁, cⱼ = φ″(rⱼ)) satisfies k − 1 ≤ U ≤ k. This is the conjecture of Rodrigues, Kevrekidis and Dobson (2019). Frozen: </span><code>LennardJonesChainBreakInstabilityCount.result</code></span></div>
+      <div class="lean theory"><span class="ok">ARGUED</span><span><span class="zh">卷宗里的散文论证（未形式化）：J 是力对自由位移的导数，所以在平衡附近 ü = Ju；每个正特征值 μ 给出一对实指数 ±√μ，即一对不稳定的特征值。证明的机制是 J = −Bᵀ diag(c) B，B 把位移映到键伸长，像是 Σwⱼ = 0 这个超平面：k 个负曲率在一个余维为 1 的子空间里至少留下 k − 1 维、至多 k 维。对任意的曲率系数，两个端点都能取到。</span><span class="en">Prose arguments in the dossier (not formalized): J is the derivative of the force with respect to the free displacements, so near an equilibrium ü = Ju; each positive eigenvalue μ gives a real pair ±√μ, an unstable eigenvalue pair. The mechanism of the proof is J = −Bᵀ diag(c) B, where B maps displacements to bond extensions with image the hyperplane Σwⱼ = 0: k negative curvatures leave at least k − 1 and at most k dimensions inside a subspace of codimension one. For arbitrary curvature coefficients both endpoints are attained.</span></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：平衡由二分法求出（所有键张力相同，断键长度 r_b、未断键长度 r_u 满足 k·r_b + (m + 1 − k)·r_u = (m + 1)d）；谱由 Jacobi 旋转算出；运动由速度 Verlet 积分。页面观察到：U = k − 1 出现在平均键长随张力减小的那一支，U = k 出现在随张力增大的那一支，与 dL/dτ = Σ 1/cⱼ 的符号一致。</span><span class="en">Numbers computed on the page, not theorems: equilibria are solved by bisection (all bonds carry the same tension, and the broken length r_b and unbroken length r_u satisfy k·r_b + (m + 1 − k)·r_u = (m + 1)d); the spectrum comes from Jacobi rotations; the motion is integrated by velocity Verlet. The page observes U = k − 1 on the branch where the mean bond length decreases with tension and U = k on the branch where it increases, matching the sign of dL/dτ = Σ 1/cⱼ.</span></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">定理之外：给定断键数的平衡是否存在、哪一支平衡带多出的那一对不稳定特征值、断键之后的非线性演化，以及论文第五节提出的次近邻相互作用与高维推广。</span><span class="en">Outside the theorem: whether equilibria with a prescribed number of breaks exist, which branch carries the extra unstable pair, the nonlinear evolution after a break, and the next-nearest-neighbour and higher-dimensional extensions raised in Section V of the paper.</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">Rodrigues、Kevrekidis、Dobson，N-break states in a chain of nonlinear oscillators，Phys. Rev. E 99, 022201（2019），arXiv:1802.03477：研究两端固定、被拉伸的 Lennard-Jones 链，数值上发现带 2 到 5 根断键的平衡支，每多一根断键多一对不稳定特征值，并在摘要中提出这个计数猜想。</span><span class="en">Rodrigues, Kevrekidis, Dobson, N-break states in a chain of nonlinear oscillators, Phys. Rev. E 99, 022201 (2019), arXiv:1802.03477: they study a stretched Lennard-Jones chain with fixed ends, find numerically branches of equilibria with two to five breaks, each extra break bringing one more unstable eigenvalue pair, and state this counting conjecture in the abstract.</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0005" value="0" aria-label="时间" data-aria-en="Time">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 单步 · <kbd>E</kbd> 跳到末尾</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> step · <kbd>E</kbd> jump to the end</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">m 个粒子排成一列，两端各接一面固定的墙，相邻之间（共 m + 1 根键）用 Lennard-Jones 势 φ(r) = r⁻¹² − 2r⁻⁶ 相连。把整条链拉长到平均间距 d，有些键会被拉过拐点 rᵢ = (13/7)^(1/6) ≈ 1.1087：那里 φ″ 变成负数，键“断了”。Rodrigues、Kevrekidis 与 Dobson 猜想，k 根断键的平衡态恰有 k − 1 到 k 对不稳定特征值；本库在 Lean 里证明了它。</p>
+      <ol>
+        <li><b>平衡。</b>每个自由粒子受力为零，意味着所有键的张力 τ = φ′(rⱼ) 相同。对 0 &lt; τ &lt; φ′(rᵢ)，φ′(r) = τ 有两个解：拐点内侧的 r_u 与外侧的 r_b。k 根断键的平衡由 k·r_b + (m + 1 − k)·r_u = (m + 1)d 定出 τ。断键放在哪些位置不影响键长，只影响谱的数值。</li>
+        <li><b>谱与计数（已冻结）。</b>cⱼ = φ″(rⱼ) 在断键处为负、其余为正。三对角矩阵 J 的正特征值个数 U 满足 k − 1 ≤ U ≤ k。页面直接算出谱并核对这个不等式。</li>
+        <li><b>两个端点都会出现。</b>把平均键长 L(τ)/(m + 1) 画成张力的函数：张力很小时断键很长，L 随 τ 下降；靠近拐点时，若断键少于一半，L 又随 τ 上升。d 略小于 rᵢ 时，同一个 d 有两支平衡：下降那一支 U = k − 1，上升那一支 U = k。这是页面的数值观察，与 dL/dτ = Σ 1/cⱼ 的符号一致。</li>
+        <li><b>运动。</b>从平衡出发，沿最不稳定的方向加 10⁻³ 的扰动，用速度 Verlet 积分 ü = F(u)。U = 0 时链只在平衡附近振动；U ≥ 1 时扰动按 e^(√μ t) 增长，接着断键会愈合、移动或合并。俯视时，三维视图就是粒子的时空图。</li>
+        <li><b>边界。</b>定理不保证给定断键数的平衡存在，不说哪一支带多出的那对不稳定特征值，也不涉及非线性演化与论文提出的推广。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/rodrigues-kevrekidis-dobson-2019-n-break-instability-count.md" target="_blank" rel="noopener">问题卷宗</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/LennardJonesChainBreakInstabilityCount.lean" target="_blank" rel="noopener">LennardJonesChainBreakInstabilityCount.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/StatisticalMechanics/LennardJonesChainBreakInstabilityCount.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/StatisticalMechanics/rodrigueskevrekidisdobson2019nbreak.md" target="_blank" rel="noopener">文献笔记</a> · Rodrigues、Kevrekidis、Dobson，<a href="https://doi.org/10.1103/PhysRevE.99.022201" target="_blank" rel="noopener">Phys. Rev. E 99, 022201（2019）</a> · <a href="https://arxiv.org/abs/1802.03477" target="_blank" rel="noopener">arXiv:1802.03477</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">m particles stand in a row with a fixed wall at each end, and neighbours (m + 1 bonds in all) are joined by the Lennard-Jones potential φ(r) = r⁻¹² − 2r⁻⁶. Stretch the chain to a mean spacing d and some bonds are pulled past the inflection point rᵢ = (13/7)^(1/6) ≈ 1.1087, where φ″ turns negative: the bond is “broken”. Rodrigues, Kevrekidis and Dobson conjectured that an equilibrium with k broken bonds has between k − 1 and k unstable eigenvalue pairs; this library proves it in Lean.</p>
+      <ol>
+        <li><b>Equilibria.</b> Zero force on every free particle means every bond carries the same tension τ = φ′(rⱼ). For 0 &lt; τ &lt; φ′(rᵢ), φ′(r) = τ has two solutions: r_u inside the inflection point and r_b outside. An equilibrium with k breaks fixes τ through k·r_b + (m + 1 − k)·r_u = (m + 1)d. Where the breaks sit does not change the lengths, only the values of the spectrum.</li>
+        <li><b>Spectrum and count (frozen).</b> cⱼ = φ″(rⱼ) is negative on broken bonds and positive on the others. The number U of positive eigenvalues of the tridiagonal matrix J satisfies k − 1 ≤ U ≤ k. The page computes the spectrum directly and checks this inequality.</li>
+        <li><b>Both endpoints occur.</b> Plot the mean bond length L(τ)/(m + 1) against the tension: at small tension the broken bonds are very long and L decreases with τ; near the inflection point, if fewer than half the bonds are broken, L increases again. For d slightly below rᵢ the same d has two branches of equilibria: U = k − 1 on the decreasing one and U = k on the increasing one. This is a numerical observation of the page, matching the sign of dL/dτ = Σ 1/cⱼ.</li>
+        <li><b>Motion.</b> From an equilibrium the page adds a 10⁻³ perturbation along the most unstable direction and integrates ü = F(u) by velocity Verlet. With U = 0 the chain only vibrates near equilibrium; with U ≥ 1 the perturbation grows like e^(√μ t), and then breaks heal, move or merge. Seen from the top, the 3D view is the space-time diagram of the particles.</li>
+        <li><b>Limits.</b> The theorem does not guarantee that an equilibrium with a given number of breaks exists, does not say which branch carries the extra unstable pair, and does not address the nonlinear evolution or the extensions raised in the paper.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/rodrigues-kevrekidis-dobson-2019-n-break-instability-count.md" target="_blank" rel="noopener">Problem dossier</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/LennardJonesChainBreakInstabilityCount.lean" target="_blank" rel="noopener">LennardJonesChainBreakInstabilityCount.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/StatisticalMechanics/LennardJonesChainBreakInstabilityCount.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/StatisticalMechanics/rodrigueskevrekidisdobson2019nbreak.md" target="_blank" rel="noopener">literature note</a> · Rodrigues, Kevrekidis, Dobson, <a href="https://doi.org/10.1103/PhysRevE.99.022201" target="_blank" rel="noopener">Phys. Rev. E 99, 022201 (2019)</a> · <a href="https://arxiv.org/abs/1802.03477" target="_blank" rel="noopener">arXiv:1802.03477</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

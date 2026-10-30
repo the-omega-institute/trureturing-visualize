@@ -2,6 +2,50 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "lj-break",
+      "code": "LJ//BREAK",
+      "path": "viz/lj-break/",
+      "thumbnail": "viz/lj-break/thumb.jpg",
+      "title": "Lennard-Jones 链的断键与不稳定方向",
+      "title_en": "Broken bonds and unstable directions in a Lennard-Jones chain",
+      "summary": "一串两端固定、用 Lennard-Jones 势相连的粒子被拉长后，有些键会被拉过势的拐点而“断开”。Rodrigues、Kevrekidis 与 Dobson（2019）猜想：恰有 k 根断键的平衡态，力的雅可比矩阵有 k − 1 到 k 个正特征值，即 k − 1 到 k 对不稳定特征值。本库在 Lean 里证明了这个计数并已冻结。页面求出所有键张力相同的平衡，算出雅可比矩阵的谱，把同一个 d 上两支平衡的 k − 1 与 k 两个端点都画出来，并从平衡出发模拟非线性运动：三维视图里粒子的世界线组成时空图，断键标成品红。",
+      "summary_en": "Stretch a chain of particles joined by Lennard-Jones bonds between two fixed walls, and some bonds are pulled past the inflection point of the potential: they “break”. Rodrigues, Kevrekidis and Dobson (2019) conjectured that an equilibrium with exactly k broken bonds has between k − 1 and k positive eigenvalues of the force Jacobian, that is, between k − 1 and k unstable eigenvalue pairs. This library proves the count in Lean, frozen. The page solves the equilibria (every bond carries the same tension), computes the spectrum of the Jacobian, shows both endpoints k − 1 and k on the two branches of equilibria at one d, and simulates the nonlinear motion from each equilibrium: in the 3D view the world-lines of the particles form a space-time diagram with the broken bonds in magenta.",
+      "status": "live",
+      "added": "2026-10-30",
+      "tags": [
+        "统计力学",
+        "Lennard-Jones",
+        "谱",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "statistical mechanics",
+        "Lennard-Jones",
+        "spectra",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：Rodrigues–Kevrekidis–Dobson 2019 的断键不稳定计数",
+          "label_en": "Problem dossier: the break instability count of Rodrigues–Kevrekidis–Dobson 2019",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/rodrigues-kevrekidis-dobson-2019-n-break-instability-count.md"
+        },
+        {
+          "label": "Blueprint：Lennard-Jones 链的断键不稳定计数",
+          "label_en": "Blueprint: the break instability count of a Lennard-Jones chain",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/StatisticalMechanics/LennardJonesChainBreakInstabilityCount.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "LennardJonesChainBreakInstabilityCount.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/LennardJonesChainBreakInstabilityCount.lean"
+        }
+      ]
+    },
+    {
       "id": "zeckendorf-chain",
       "code": "ZECKENDORF//CHAIN",
       "path": "viz/zeckendorf-chain/",
