@@ -9,6 +9,7 @@ Every page is bilingual (中文 / English, switchable in the header) and states 
 
 | id | Page | Theory |
 | --- | --- | --- |
+| `zeckendorf-chain` | [ZECKENDORF//CHAIN Zeckendorf 一项相同链：贪心序列是排列](https://the-omega-institute.github.io/trureturing-visualize/viz/zeckendorf-chain/) | 问题卷宗：一项相同的 Zeckendorf 贪心序列是排列 |
 | `qaoa-support` | [QAOA//SUPPORT 一层 QAOA 的四态真叠加](https://the-omega-institute.github.io/trureturing-visualize/viz/qaoa-support/) | 问题卷宗：一层 QAOA 在三个量子比特上的四态真叠加 |
 | `energy-game` | [ENERGY//GAME 图能量博弈：Shapley 值离开核](https://the-omega-institute.github.io/trureturing-visualize/viz/energy-game/) | 问题卷宗：图能量博弈的 Shapley 分配可以离开核 |
 | `pauli-volumes` | [PAULI//VOLUMES 广义 Pauli 信道的体积比](https://the-omega-institute.github.io/trureturing-visualize/viz/pauli-volumes/) | 问题卷宗：Siudzińska 2020 的三个体积比猜想 |

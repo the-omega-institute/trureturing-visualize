@@ -2,6 +2,50 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "zeckendorf-chain",
+      "code": "ZECKENDORF//CHAIN",
+      "path": "viz/zeckendorf-chain/",
+      "thumbnail": "viz/zeckendorf-chain/thumb.jpg",
+      "title": "Zeckendorf 一项相同链：贪心序列是排列",
+      "title_en": "The one-shared-term Zeckendorf chain is a permutation",
+      "summary": "OEIS A370630 从 1 出发，每一步取尚未用过、且 Zeckendorf 展开与上一项恰有一项相同的最小正整数。记录猜想它是正整数的一个排列；本库在 Lean 里证明了这一点并已冻结：链永不中断、各项互不相同、每个正整数都会出现。页面把链上每一项的 Fibonacci 数字织成三维图，用琥珀线标出相邻两项共享的那一项，画出 a(n) − n 与最小未出现数，并用“至少一项相同”（A370631）与二进制版本（A226077）作数值对照。",
+      "summary_en": "OEIS A370630 starts at 1 and at each step takes the least unused positive integer whose Zeckendorf expansion shares exactly one term with the previous one. The record conjectures that it is a permutation of the positive integers; this library proves it in Lean, frozen: the chain never stops, its terms are distinct, and every positive integer appears. The page weaves the Fibonacci digits of the chain into a 3D picture with the shared term of each step in amber, plots a(n) − n and the smallest number not yet seen, and compares the “at least one term” rule (A370631) and the binary version (A226077) numerically.",
+      "status": "live",
+      "added": "2026-10-30",
+      "tags": [
+        "组合数论",
+        "Zeckendorf",
+        "OEIS",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "combinatorial number theory",
+        "Zeckendorf",
+        "OEIS",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：一项相同的 Zeckendorf 贪心序列是排列",
+          "label_en": "Problem dossier: the one-common-Zeckendorf-term greedy sequence is a permutation",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a370630-zeckendorf-greedy-permutation.md"
+        },
+        {
+          "label": "Blueprint：一项相同的 Zeckendorf 贪心排列",
+          "label_en": "Blueprint: the one-common-Zeckendorf-term greedy permutation",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Combinatorics/Permutation/ZeckendorfGreedyPermutation.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "ZeckendorfGreedyPermutation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Permutation/ZeckendorfGreedyPermutation.lean"
+        }
+      ]
+    },
+    {
       "id": "qaoa-support",
       "code": "QAOA//SUPPORT",
       "path": "viz/qaoa-support/",
