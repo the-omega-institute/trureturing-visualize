@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="OQW//RUIN · The quantum gambler’s mean hitting time needs Im ρ₀₁">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OQW//RUIN 量子赌徒的平均吸收时间需要 Im ρ₀₁</title>
+<meta name="description" content="Jacq 与 Lardizabal（2017）在开放量子游走的赌徒破产问题里猜想：从位置 k、内部态 ρ 出发，平均吸收时间总是 1 + h(M, M − k)ρ₀₀ + h(M, k)ρ₁₁ + j(M, k)·Re ρ₀₁ 的形式，且 j(M, k) = −j(M, M − k)。本库在 Lean 里证明这对一般的复矩阵对不成立并已冻结：一对复矩阵 L、R 使 ρ 和 σ 的 ρ₀₀、ρ₁₁、Re ρ₀₁ 完全相同，平均吸收时间却分别是 1 和 2。页面画出游走在空间与时间里的展开、初始态 Bloch 球上的平均时间，以及猜想形式对每个 k 要求的三个等式。Jacq and Lardizabal (2017) conjectured for the gambler’s ruin of open quantum walks that the mean absorption time from site k with internal state ρ always has the form 1 + h(M, M − k)ρ₀₀ + h(M, k)ρ₁₁ + j(M, k)·Re ρ₀₁ with j(M, k) = −j(M, M − k). This library proves in Lean that this fails for general complex pairs, frozen: for one complex pair L, R, two states ρ and σ have the same ρ₀₀, ρ₁₁ and Re ρ₀₁, yet mean absorption times 1 and 2. The page shows the walk unfolding in space and time, the mean time over the Bloch ball of initial states, and the three equations the conjectured form requires for every k.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="oqw-ruin">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="OQW//RUIN">OQW<b>//</b>RUIN</h1>
+      <div class="tagline">
+        <span class="zh">开放量子游走的赌徒破产 · <em>平均吸收时间看得见 Im ρ₀₁（已冻结的反驳）</em></span>
+        <span class="en">Gambler’s ruin for open quantum walks · <em>the mean absorption time sees Im ρ₀₁ (frozen refutation)</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="lean" aria-pressed="true"><span class="code">M = 3 · k = 1 · ρ</span><span class="cn zh">Lean 里的反例：ρ</span><span class="cn en">Lean’s counterexample: ρ</span></button>
+        <button class="preset" data-preset="conj" aria-pressed="false"><span class="code">M = 3 · k = 1 · σ</span><span class="cn zh">实部相同的 σ</span><span class="cn en">σ, same real parts</span></button>
+        <button class="preset" data-preset="long" aria-pressed="false"><span class="code">M = 8 · k = 4</span><span class="cn zh">更长的走廊</span><span class="cn en">A longer corridor</span></button>
+        <button class="preset" data-preset="fair" aria-pressed="false"><span class="code">L = R = I/√2</span><span class="cn zh">经典公平硬币</span><span class="cn en">Classical fair coin</span></button>
+        <button class="preset" data-preset="complex" aria-pressed="false"><span class="code">complex · M = 5</span><span class="cn zh">随机复矩阵对</span><span class="cn en">Random complex pair</span></button>
+        <button class="preset" data-preset="real" aria-pressed="false"><span class="code">real · M = 5</span><span class="cn zh">随机实矩阵对</span><span class="cn en">Random real pair</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">游走</span><span class="en">The walk</span><span class="aside">L*L + R*R = I</span></h2>
+      <div class="chips" id="pairChips" role="group" aria-label="矩阵对" data-aria-en="Pair">
+        <button class="chip" data-pair="reset" aria-pressed="true"><span class="zh">Lean 的复矩阵对</span><span class="en">Lean’s complex pair</span></button>
+        <button class="chip" data-pair="fair" aria-pressed="false"><span class="zh">公平硬币</span><span class="en">Fair coin</span></button>
+        <button class="chip" data-pair="complex" aria-pressed="false"><span class="zh">随机复</span><span class="en">Random complex</span></button>
+        <button class="chip" data-pair="real" aria-pressed="false"><span class="zh">随机实</span><span class="en">Random real</span></button>
+        <button class="chip" id="redraw"><span class="zh">重抽</span><span class="en">Redraw</span></button>
+      </div>
+      <div class="slider-row"><label for="mIn"><span class="zh">吸收端 M</span><span class="en">Ends at M</span></label><input type="range" id="mIn" min="3" max="12" step="1" value="3"><b id="mOut">3</b></div>
+      <div class="slider-row"><label for="kIn"><span class="zh">起点 k</span><span class="en">Start k</span></label><input type="range" id="kIn" min="1" max="2" step="1" value="1"><b id="kOut">1</b></div>
+      <p class="note" id="pairNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">初始内部态 ρ</span><span class="en">Initial internal state ρ</span><span class="aside">BLOCH</span></h2>
+      <div class="slider-row"><label for="thIn">θ</label><input type="range" id="thIn" min="0" max="180" step="1" value="90"><b id="thOut">90°</b></div>
+      <div class="slider-row"><label for="phIn">φ</label><input type="range" id="phIn" min="0" max="360" step="1" value="90"><b id="phOut">90°</b></div>
+      <div class="slider-row"><label for="rIn"><span class="zh">纯度 r</span><span class="en">Purity r</span></label><input type="range" id="rIn" min="0" max="1" step="0.01" value="1"><b id="rOut">1.00</b></div>
+      <div class="rho" id="rhoBox"></div>
+    </section>
+  </aside>
+
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：游走在位置与时间里的展开，以及初始态的 Bloch 球；拖动旋转，滚轮缩放" data-aria-en="3D view: the walk unfolding over sites and time, and the Bloch ball of initial states; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="吸收时间的分布" data-aria-en="Distribution of the absorption time"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="猜想形式要求的三个等式" data-aria-en="The three equations the conjectured form requires"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">Fine</span></h2>
+      <dl class="ro">
+        <div class="c w"><dt id="ro1L"></dt><dd id="ro1">—</dd></div>
+        <div class="m w"><dt id="ro2L"></dt><dd id="ro2">—</dd></div>
+        <div class="a w"><dt id="ro3L"></dt><dd id="ro3">—</dd></div>
+        <div class="w"><dt id="ro4L"></dt><dd id="ro4">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">游走在 {0, …, M} 上，内部态是 2 × 2 密度矩阵；一步向右作用 R、向左作用 L，L*L + R*R = I。一条步序 w 的分支算子是按时间顺序的乘积（wordOperator），位置从 k 出发（position），firstAbsorbs 要求之前一直在 0 与 M 之间、最后一步到达 0 或 M；absorbedMass 是长度 n 的首次吸收步序上 tr(WρW*) 的和，meanHittingTime = Σ n·质量（取值于 [0, ∞]）。猜想 claim：对每个满足归一的复矩阵对与每个 M ≥ 3，存在 h、j 使 j(M, k) = −j(M, M − k)，且对每个 1 ≤ k ≤ M − 1 与每个密度矩阵 ρ，平均时间有限并等于 1 + h(M, M − k)ρ₀₀ + h(M, k)ρ₁₁ + j(M, k)·Re ρ₀₁。本库证明 ¬claim。已冻结：</span><span class="en">The walk lives on {0, …, M} with a 2 × 2 density matrix as internal state; a step right applies R, a step left applies L, and L*L + R*R = I. The branch operator of a step sequence w is the time-ordered product (wordOperator), the position starts at k (position), firstAbsorbs asks that the walk stays strictly between 0 and M and reaches 0 or M on the last step; absorbedMass sums tr(WρW*) over first-absorbing sequences of length n, and meanHittingTime = Σ n·mass (valued in [0, ∞]). The conjecture, claim: for every normalized complex pair and every M ≥ 3 there are h, j with j(M, k) = −j(M, M − k) such that for every 1 ≤ k ≤ M − 1 and every density matrix ρ the mean time is finite and equals 1 + h(M, M − k)ρ₀₀ + h(M, k)ρ₁₁ + j(M, k)·Re ρ₀₁. This library proves ¬claim. Frozen: </span><code>OpenQuantumWalkGamblerHittingTimeRefutation.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">证明的步骤（同一模块里一起冻结的私有引理）：分支算子把拼接变成反序乘积（word_operator_append）；若 L·R = 0，则 M = 3、k = 1 时长度 ≥ 3 的首次吸收步序算子为零（stopped_word_zero），所以 n ≥ 3 的质量为 0（absorbed_mass_tail）；时刻 1 的质量是 tr(LρL*)（absorbed_mass_one），时刻 2 的是 tr(RRρ(RR)*)（absorbed_mass_two），合起来平均时间 = tr(LρL*) + 2·tr(RRρ(RR)*)（mean_two_step）。取 u = (1, i)、v = (1, −i)，L = ½vu*、R = ½vv*、ρ = ½uu*、σ = ½vv*：L·R = 0，ρ 与 σ 的 ρ₀₀、ρ₁₁、Re ρ₀₁ 相同，平均时间却是 1 与 2。冻结：</span><span class="en">The steps of the proof (private lemmas frozen in the same module): the branch operator turns concatenation into the reversed product (word_operator_append); if L·R = 0 then for M = 3, k = 1 every first-absorbing sequence of length ≥ 3 has operator 0 (stopped_word_zero), so the mass vanishes for n ≥ 3 (absorbed_mass_tail); the mass at time 1 is tr(LρL*) (absorbed_mass_one) and at time 2 tr(RRρ(RR)*) (absorbed_mass_two), so the mean time is tr(LρL*) + 2·tr(RRρ(RR)*) (mean_two_step). With u = (1, i), v = (1, −i), L = ½vu*, R = ½vv*, ρ = ½uu*, σ = ½vv*: L·R = 0, ρ and σ have the same ρ₀₀, ρ₁₁ and Re ρ₀₁, yet mean times 1 and 2. Frozen: </span><code>wordOperator · position · firstAbsorbs · absorbedMass · meanHittingTime · claim · word_operator_append · stopped_word_zero · absorbed_mass_tail · absorbed_mass_one · absorbed_mass_two · mean_two_step</code></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：页面逐步推进各位置的未归一化态 ρₓ(t + 1) = Rρₓ₋₁(t)R* + Lρₓ₊₁(t)L*，收集两端的质量，直到剩余质量小于 10⁻¹⁴；平均时间与吸收概率由此算出。随机矩阵对由带种子的 4 × 2 随机矩阵经 Gram–Schmidt 正交化得到。右下图的 A_k 由页面解一个 4(M − 1) 元的复线性方程组得到。</span><span class="en">Numbers computed on the page, not theorems: the page advances the unnormalized states at every site, ρₓ(t + 1) = Rρₓ₋₁(t)R* + Lρₓ₊₁(t)L*, collecting the mass at both ends until less than 10⁻¹⁴ remains; the mean time and the absorption probabilities come from this. Random pairs come from a seeded random 4 × 2 matrix made orthonormal by Gram–Schmidt. The operators A_k in the lower right chart come from solving a complex linear system with 4(M − 1) unknowns.</span></span></div>
+      <div class="lean theory"><span class="ok">ARGUED</span><span><span class="zh">卷宗中的论证（未形式化）：这对矩阵把 u、v 两个方向都送到同一个方向：L 把 u 送到 v、R 保持 v，而 L·R = 0；M = 3、k = 1 时首次吸收只剩“一步向左”和“右、右”两条分支。能区分 ρ 与 σ 的信息是 Im ρ₀₁。卷宗把加上 Im ρ₀₁ 项的公式、特定的矩阵对、更高的内部维数、以及不一定几乎必然吸收的游走列为未决；原文的定理 1.6–1.7 不受影响。</span><span class="en">Arguments in the dossier (not formalized): the pair sends the two directions u and v to one direction — L sends u to v and R keeps v — while L·R = 0; for M = 3, k = 1 only the branches “one step left” and “right, right” are absorbed first. What separates ρ from σ is Im ρ₀₁. The dossier lists a formula with an added Im ρ₀₁ term, particular pairs, higher internal dimension and walks without almost sure absorption as open; the source’s Theorems 1.6–1.7 are not affected.</span></span></div>
+      <div class="lean page"><span class="ok">ARGUED</span><span><span class="zh">本页的论证（未形式化、未经评审）：若对某一矩阵对与 M，吸收几乎必然且平均时间有限，按第一步分析，E_k(ρ) = tr(A_k ρ)，其中 A_k = I + L*A_{k−1}L + R*A_{k+1}R，A₀ = A_M = 0。展开 tr(A_k ρ) = A_k,₀₀ρ₀₀ + A_k,₁₁ρ₁₁ + 2Re A_k,₀₁·Re ρ₀₁ + 2Im A_k,₀₁·Im ρ₀₁，可知猜想的形式对这一对矩阵与 M 成立，当且仅当对每个 k 都有 Im A_k,₀₁ = 0、A_k,₀₀ = A_{M−k},₁₁、Re A_k,₀₁ = −Re A_{M−k},₀₁（此时取 h(M, k) = A_k,₁₁ − 1、j(M, k) = 2Re A_k,₀₁）。L、R 都是实矩阵时 A_k 是实的，第一个等式自动成立，但另外两个不一定。Lean 的矩阵对里，从 k ≥ 2 出发的 ρ 先向左一步、再一路向右，平均时间 M − k + 2；σ 一路向右，平均时间 M − k。</span><span class="en">The page’s argument (not formalized, not reviewed): if for a given pair and M absorption is almost sure and the mean times are finite, first-step analysis gives E_k(ρ) = tr(A_k ρ) with A_k = I + L*A_{k−1}L + R*A_{k+1}R and A₀ = A_M = 0. Expanding tr(A_k ρ) = A_k,₀₀ρ₀₀ + A_k,₁₁ρ₁₁ + 2Re A_k,₀₁·Re ρ₀₁ + 2Im A_k,₀₁·Im ρ₀₁ shows that the conjectured form holds for that pair and M exactly when, for every k, Im A_k,₀₁ = 0, A_k,₀₀ = A_{M−k},₁₁ and Re A_k,₀₁ = −Re A_{M−k},₀₁ (then h(M, k) = A_k,₁₁ − 1 and j(M, k) = 2Re A_k,₀₁). For real L and R the A_k are real, so the first equation holds automatically, but the other two need not. For Lean’s pair, ρ from k ≥ 2 steps left once and then right all the way, mean time M − k + 2; σ goes right all the way, mean time M − k.</span></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">定理之外：加上 Im ρ₀₁ 项之后是否有统一的公式；原文针对特定矩阵对的公式；更高的内部维数；不一定几乎必然吸收的游走。右下图对随机实矩阵对显示的不等是页面数值，不是定理。</span><span class="en">Outside the theorem: whether a uniform formula exists once an Im ρ₀₁ term is added; the source’s formulas for particular pairs; higher internal dimension; walks without almost sure absorption. The inequalities the lower right chart shows for the random real pair are page numbers, not theorems.</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">T. S. Jacq 与 C. F. Lardizabal，Open Quantum Random Walks on the Half-Line: The Karlin–McGregor Formula, Path Counting and Foster’s Theorem，J. Stat. Phys. 169, 547–594（2017），doi:10.1007/s10955-017-1876-x，arXiv:1701.08400：注 5.3。经典公平硬币的平均吸收时间 k(M − k) 是赌徒破产问题的经典结果。</span><span class="en">T. S. Jacq and C. F. Lardizabal, Open Quantum Random Walks on the Half-Line: The Karlin–McGregor Formula, Path Counting and Foster’s Theorem, J. Stat. Phys. 169, 547–594 (2017), doi:10.1007/s10955-017-1876-x, arXiv:1701.08400: Remark 5.3. The mean absorption time k(M − k) of the classical fair coin is the classical gambler’s ruin result.</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0001" value="0" aria-label="游走的时间步" data-aria-en="Time step of the walk">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 一步 · <kbd>E</kbd> 跳到末尾</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> one step · <kbd>E</kbd> jump to the end</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">开放量子游走里，一个粒子在 0 到 M 的格点上左右走，同时带着一个两能级的内部态。向右一步对内部态作用 R，向左一步作用 L，两者满足 L*L + R*R = I，所以每一步的总概率守恒。赌徒破产问题问：从 k 出发、内部态为 ρ，平均多久走到 0 或 M？Jacq 与 Lardizabal 根据数值实验猜想，答案只依赖 ρ 的两个对角元和 Re ρ₀₁，并且关于 k ↔ M − k 有一种反射对称。本库在 Lean 里证明这个猜想对一般的复矩阵对不成立。</p>
+      <ol>
+        <li><b>反例。</b>取 u = (1, i)、v = (1, −i)。L 把 u 方向送到 v 方向并消灭 v，R 保持 v 并消灭 u。从 k = 1 出发，ρ（指向 u）第一步就向左被吸收，平均时间 1；σ（指向 v）向右走两步才被吸收，平均时间 2。但 ρ 与 σ 的 ρ₀₀、ρ₁₁、Re ρ₀₁ 完全相同，只有 Im ρ₀₁ 符号相反——猜想的公式分不开它们。</li>
+        <li><b>三维视图。</b>左边是游走在空间（横向）与时间（纵深）里的展开：每个格点上的点大小是那里的概率，短箭头是归一化内部态的 Bloch 向量，琥珀色表示 Im ρ₀₁ &lt; 0（指向 u），品红表示 Im ρ₀₁ &gt; 0；两端的柱是每一步被吸收的概率。右边是初始态的 Bloch 球，球面颜色是从那里出发的平均时间，品红轴是 Im ρ₀₁ 的方向——猜想只允许平均时间沿另外两个方向变化。</li>
+        <li><b>命中时间算子（本页的论证）。</b>平均时间对 ρ 是线性的：E_k(ρ) = tr(A_k ρ)，A_k 满足第一步方程。猜想的形式等价于每个 k 上三个等式；右下图画出它们的差，全为 0 才可能成立。经典公平硬币三个都为 0；Lean 的矩阵对与随机复矩阵对在 Im 项上就不为 0；随机实矩阵对 Im 项为 0，但反射等式不成立（页面数值）。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/jacq-lardizabal-2017-oqw-gambler-mean-hitting-time-form.md" target="_blank" rel="noopener">问题卷宗</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Walks/OpenQuantumWalkGamblerHittingTimeRefutation.lean" target="_blank" rel="noopener">OpenQuantumWalkGamblerHittingTimeRefutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Quantum/Walks/OpenQuantumWalkGamblerHittingTimeRefutation.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/Observer/jacqlardizabal2017oqwhalfline.md" target="_blank" rel="noopener">文献笔记</a> · Jacq、Lardizabal，<a href="https://doi.org/10.1007/s10955-017-1876-x" target="_blank" rel="noopener">doi:10.1007/s10955-017-1876-x</a> · <a href="https://arxiv.org/abs/1701.08400" target="_blank" rel="noopener">arXiv:1701.08400</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">In an open quantum walk a particle steps left or right on the sites 0 to M while carrying a two-level internal state. A step right applies R to the internal state and a step left applies L, with L*L + R*R = I, so total probability is conserved. The gambler’s ruin question asks: starting from k with internal state ρ, how long does it take on average to reach 0 or M? From numerical experiments Jacq and Lardizabal conjectured that the answer depends only on the two diagonal entries of ρ and on Re ρ₀₁, with a reflection symmetry under k ↔ M − k. This library proves in Lean that the conjecture fails for general complex pairs.</p>
+      <ol>
+        <li><b>The counterexample.</b> Take u = (1, i) and v = (1, −i). L sends the u direction to the v direction and kills v; R keeps v and kills u. From k = 1, ρ (pointing along u) steps left at once and is absorbed, mean time 1; σ (pointing along v) needs two steps right, mean time 2. Yet ρ and σ have the same ρ₀₀, ρ₁₁ and Re ρ₀₁; only the sign of Im ρ₀₁ differs — the conjectured formula cannot tell them apart.</li>
+        <li><b>3D view.</b> On the left the walk unfolds over the sites (across) and time (into the depth): the size of a dot is the probability at that site, the short arrow is the Bloch vector of the normalized internal state, amber for Im ρ₀₁ &lt; 0 (towards u) and magenta for Im ρ₀₁ &gt; 0; the bars at both ends are the probability absorbed at each step. On the right is the Bloch ball of initial states, coloured by the mean time from each of them; the magenta axis is the direction of Im ρ₀₁ — the conjecture lets the mean time vary only along the other two directions.</li>
+        <li><b>The hitting-time operator (the page’s argument).</b> The mean time is linear in ρ: E_k(ρ) = tr(A_k ρ), where A_k solves the first-step equations. The conjectured form is equivalent to three equations for every k; the lower right chart draws their gaps, which must all vanish. For the classical fair coin all three vanish; for Lean’s pair and the random complex pair the Im term already does not; for the random real pair the Im term vanishes but the reflection equations fail (page numbers).</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/jacq-lardizabal-2017-oqw-gambler-mean-hitting-time-form.md" target="_blank" rel="noopener">Problem dossier</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Walks/OpenQuantumWalkGamblerHittingTimeRefutation.lean" target="_blank" rel="noopener">OpenQuantumWalkGamblerHittingTimeRefutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Quantum/Walks/OpenQuantumWalkGamblerHittingTimeRefutation.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/Observer/jacqlardizabal2017oqwhalfline.md" target="_blank" rel="noopener">literature note</a> · Jacq, Lardizabal, <a href="https://doi.org/10.1007/s10955-017-1876-x" target="_blank" rel="noopener">doi:10.1007/s10955-017-1876-x</a> · <a href="https://arxiv.org/abs/1701.08400" target="_blank" rel="noopener">arXiv:1701.08400</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
