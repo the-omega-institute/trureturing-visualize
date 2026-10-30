@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="CATER//PAIRS · Caterpillars that only the third specialization cannot tell apart">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CATER//PAIRS 只有第三次主特化分不开的毛毛虫图</title>
+<meta name="description" content="Bingham、Celano、Commins、Orellana、Pan 与 Simone（2026）在注 3.11 里问：毛毛虫图 (5, j, j, 4, 3) 与 (4, j, j, 5, 3) 是否对每个 j 都“第二次主特化不同、第三次相同”？若是，它们（连同 (5, 4, 3)、(4, 5, 3)）是不是仅有的这样的成对？本库在 Lean 里证明第一问对所有 j 成立、第二问不成立，两者都已冻结：18 个顶点的 (2, 2, 2, 2, 2, 1, 4, 3) 与 (2, 2, 3, 2, 3, 4, 2) 也有这个现象，却不在名单里。页面画出两只毛毛虫与它们的系数天际线，并对 n ≤ 18 的全部组合做穷举搜索。Bingham, Celano, Commins, Orellana, Pan and Simone (2026, Remark 3.11) asked whether the caterpillars (5, j, j, 4, 3) and (4, j, j, 5, 3) have different second but equal third principal specializations for every j, and whether, if so, they are (with (5, 4, 3) and (4, 5, 3)) the only such pairs. This library proves in Lean that the first holds for every j and that the second fails, both frozen: the 18-vertex pair (2, 2, 2, 2, 2, 1, 4, 3) and (2, 2, 3, 2, 3, 4, 2) shows the phenomenon but is not on the list. The page draws both caterpillars and their coefficient skylines and searches every composition up to 18.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="caterpillar-pairs">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="CATER//PAIRS">CATER<b>//</b>PAIRS</h1>
+      <div class="tagline">
+        <span class="zh">毛毛虫图的主特化 · <em>整族成立，名单却不完整（两个已冻结的结算）</em></span>
+        <span class="en">Principal specializations of caterpillars · <em>the family holds, the list is incomplete (two frozen settlements)</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="family" aria-pressed="true"><span class="code">α_j / β_j · j = 1 → 12</span><span class="cn zh">名单里的整族</span><span class="cn en">The listed family</span></button>
+        <button class="preset" data-preset="base" aria-pressed="false"><span class="code">(5,4,3) / (4,5,3)</span><span class="cn zh">原文的基本对</span><span class="cn en">The source’s base pair</span></button>
+        <button class="preset" data-preset="witness" aria-pressed="false"><span class="code">n = 18 · Lean</span><span class="cn zh">名单外的反例</span><span class="cn en">The unlisted witness</span></button>
+        <button class="preset" data-preset="search" aria-pressed="false"><span class="code">n = 6 → 18</span><span class="cn zh">穷举搜索</span><span class="cn en">Exhaustive search</span></button>
+        <button class="preset" data-preset="other" aria-pressed="false"><span class="code">(3,3,3,4,5)</span><span class="cn zh">另一对名单外的</span><span class="cn en">Another unlisted pair</span></button>
+        <button class="preset" data-preset="big" aria-pressed="false"><span class="code">j = 5 · n = 22</span><span class="cn zh">大一点的 j</span><span class="cn en">A larger j</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">成对</span><span class="en">The pair</span><span class="aside">PS₂ ≠ · PS₃ =</span></h2>
+      <div class="chips" id="modeChips" role="group" aria-label="来源" data-aria-en="Source">
+        <button class="chip" data-mode="family" aria-pressed="true"><span class="zh">α_j / β_j 整族</span><span class="en">Family α_j / β_j</span></button>
+        <button class="chip" data-mode="search" aria-pressed="false"><span class="zh">搜索结果</span><span class="en">Search results</span></button>
+      </div>
+      <div class="slider-row"><label for="jIn">j</label><input type="range" id="jIn" min="1" max="12" step="1" value="1"><b id="jOut">1</b></div>
+      <p class="note" id="pairNote"></p>
+      <div class="chips subchips" id="pairChips" role="group" aria-label="这个 n 上找到的成对" data-aria-en="Pairs found at this n"></div>
+    </section>
+  </aside>
+
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：两只毛毛虫与它们第三次主特化的系数天际线；拖动旋转，滚轮缩放" data-aria-en="3D view: two caterpillars and the coefficient skylines of their third principal specializations; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="两个多项式的系数" data-aria-en="Coefficients of the two polynomials"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="每个 n 上找到的成对数" data-aria-en="Pairs found at each n"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">Fine</span></h2>
+      <dl class="ro">
+        <div class="c w"><dt id="ro1L"></dt><dd id="ro1">—</dd></div>
+        <div class="m w"><dt id="ro2L"></dt><dd id="ro2">—</dd></div>
+        <div class="a w"><dt id="ro3L"></dt><dd id="ro3">—</dd></div>
+        <div class="w"><dt id="ro4L"></dt><dd id="ro4">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">组合 a = (a₁, …, a_l) 给出毛毛虫 C_a：一条 l 个顶点的脊柱，第 i 个顶点挂 aᵢ − 1 片叶子（caterpillar）。主特化 ps(G, k) = Σ_c X^{Σ_v c(v)}，对所有正常着色 c : V → {0, …, k − 1} 求和（ps）。第一问 claim：对每个正整数 j，α_j = (5, j, j, 4, 3) 与 β_j = (4, j, j, 5, 3) 满足 ps(α_j, 2) ≠ ps(β_j, 2) 且 ps(α_j, 3) = ps(β_j, 3)。本库证明 claim。已冻结：</span><span class="en">A composition a = (a₁, …, a_l) gives the caterpillar C_a: a spine of l vertices with aᵢ − 1 leaves at the i-th (caterpillar). The principal specialization ps(G, k) = Σ_c X^{Σ_v c(v)} sums over proper colourings c : V → {0, …, k − 1} (ps). The first question, claim: for every positive integer j, α_j = (5, j, j, 4, 3) and β_j = (4, j, j, 5, 3) satisfy ps(α_j, 2) ≠ ps(β_j, 2) and ps(α_j, 3) = ps(β_j, 3). This library proves claim. Frozen: </span><code>BinghamCaterpillarPs3Family.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">证明的步骤（同一模块里一起冻结）：着色按脊柱分解，ps 是脊柱着色上各块权重 B_m(c) = X^c·(Σ_{d≠c} X^d)^{m−1} 的乘积之和（coloring_factorization、ps_spine_sum、blockWeight、leafSum）；对任意中间块 w，五块乘积满足 F(B₅, w, w, B₄, B₃) = F(B₄, w, w, B₅, B₃)（diagonal_identity），得到 ps3_equal；两色时 ps(α_j, 2) = X^{j+5} + X^{j+7}、ps(β_j, 2) = 2X^{j+6}（ps2_alpha、ps2_beta、ps2_ne）。冻结：</span><span class="en">The steps of the proof (frozen in the same module): colourings factor over the spine, so ps is a sum over spine colourings of products of block weights B_m(c) = X^c·(Σ_{d≠c} X^d)^{m−1} (coloring_factorization, ps_spine_sum, blockWeight, leafSum); for every middle block w the five-block products satisfy F(B₅, w, w, B₄, B₃) = F(B₄, w, w, B₅, B₃) (diagonal_identity), which gives ps3_equal; with two colours ps(α_j, 2) = X^{j+5} + X^{j+7} and ps(β_j, 2) = 2X^{j+6} (ps2_alpha, ps2_beta, ps2_ne). Frozen: </span><code>ps_spine_sum · leafSum_eq · coloring_factorization · diagonal_identity · ps3_equal · ps2_alpha · ps2_beta · ps2_ne</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">第二问 claim：对每个 n 与两条可容许组合 a、b（(1)，或首尾两部分都 ≥ 2），若两者大小都是 n、二色主特化不同、三色相同，则这一对（在图同构与交换意义下）是 (5, 4, 3)/(4, 5, 3) 或某个 α_j/β_j。本库证明 ¬claim：witnessA = (2, 2, 2, 2, 2, 1, 4, 3) 与 witnessB = (2, 2, 3, 2, 3, 4, 2) 的二色主特化是 X⁸ + X¹⁰ 与 2X⁹，三色相同（ps2_a、ps2_b、ps3_equal）；witnessA 的 8 个脊柱顶点都有两个不同的邻点（witness_roots），而名单里的毛毛虫都不到 8 段（no_iso_short），所以它不在名单里（outside_list）。冻结：</span><span class="en">The second question, claim: for every n and admissible compositions a, b ((1), or both end parts ≥ 2) of size n whose two-colour specializations differ and three-colour ones agree, the pair is (up to graph isomorphism and swapping) (5, 4, 3)/(4, 5, 3) or some α_j/β_j. This library proves ¬claim: witnessA = (2, 2, 2, 2, 2, 1, 4, 3) and witnessB = (2, 2, 3, 2, 3, 4, 2) have two-colour specializations X⁸ + X¹⁰ and 2X⁹ and equal three-colour ones (ps2_a, ps2_b, ps3_equal); all 8 spine vertices of witnessA have two distinct neighbours (witness_roots), while every listed caterpillar has fewer than 8 parts (no_iso_short), so the pair is not listed (outside_list). Frozen: </span><code>BinghamCaterpillarUniquenessRefutation.result</code></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：页面用脊柱上的转移矩阵算 ps(a, 2) 与 ps(a, 3)（3 × 3，多项式元素），并对 n ≤ 18 的全部可容许组合（只取一个方向）按 ps(a, 3) 分组，列出组内 ps(a, 2) 不同的成对。n ≤ 17 时找到的只有名单里的成对（n = 12、14、16）；n = 18 找到 6 对：1 对是名单里的 j = 3，另外 5 对不在名单里，Lean 的反例是其中之一。</span><span class="en">Numbers computed on the page, not theorems: the page computes ps(a, 2) and ps(a, 3) with a transfer matrix along the spine (3 × 3, polynomial entries), groups every admissible composition with n ≤ 18 (one of each reversal pair) by ps(a, 3), and lists the pairs within a group whose ps(a, 2) differ. For n ≤ 17 it finds only listed pairs (n = 12, 14, 16); at n = 18 it finds 6 pairs: one is the listed j = 3, the other 5 are unlisted, Lean’s witness among them.</span></span></div>
+      <div class="lean page"><span class="ok">ARGUED</span><span><span class="zh">本页的论证（未形式化、未经评审）：可容许组合的毛毛虫去掉所有叶子后恰好剩下脊柱这条路径（首尾两部分 ≥ 2 保证脊柱端点不是叶子），所以两只这样的毛毛虫同构当且仅当组合相同或互为反转。于是上面的搜索覆盖了 n ≤ 18 的全部同构类，名单外的最小反例有 18 个顶点。卷宗把最小规模列为未决；这条论证没有形式化。</span><span class="en">The page’s argument (not formalized, not reviewed): removing all leaves from the caterpillar of an admissible composition leaves exactly the spine path (end parts ≥ 2 keep the spine’s ends from being leaves), so two such caterpillars are isomorphic exactly when their compositions are equal or reversed. The search above therefore covers every isomorphism class with n ≤ 18, and the smallest unlisted counterexample has 18 vertices. The dossier lists the smallest size as open; this argument is not formalized.</span></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">定理之外：所有这类成对的分类；其他无限族（n = 18 另外四对名单外的成对是否属于某个族）；原文的四色问题；t 精化版本；最小反例规模（见上面的论证，它未经评审）。</span><span class="en">Outside the theorems: a classification of all such pairs; other infinite families (whether the other four unlisted pairs at n = 18 belong to one); the source’s four-colour questions; t-refined analogues; the smallest counterexample size (see the argument above, which is not reviewed).</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">A. Bingham、K. Celano、P. Commins、R. Orellana、J. Pan 与 M. C. Simone，Principal specializations of the t-chromatic symmetric function，arXiv:2610.31785v1（2026），doi:10.48550/arXiv.2610.31785：注 3.11。原文检查到 j ≤ 7，并报告直到总大小 16 只找到名单里的成对。</span><span class="en">A. Bingham, K. Celano, P. Commins, R. Orellana, J. Pan and M. C. Simone, Principal specializations of the t-chromatic symmetric function, arXiv:2610.31785v1 (2026), doi:10.48550/arXiv.2610.31785: Remark 3.11. The source checks j ≤ 7 and reports only the listed pairs up to total size 16.</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0001" value="0" aria-label="j 或 n" data-aria-en="j or n">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 一格 · <kbd>E</kbd> 跳到末尾</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> one step · <kbd>E</kbd> jump to the end</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">图的色对称函数把所有正常着色记下来；把第 i 种颜色换成 X^i 并只用 k 种颜色，就得到主特化 ps(G, k)：一个多项式，X^d 的系数是颜色编号之和为 d 的正常着色数。毛毛虫图由一列正整数决定：脊柱上第 i 个顶点挂 aᵢ − 1 片叶子。Bingham 等人发现 (5, 4, 3) 与 (4, 5, 3) 用两种颜色能分开、用三种颜色却分不开，并问这一现象在 (5, j, j, 4, 3)/(4, j, j, 5, 3) 上是否对所有 j 成立，以及是否只有这些成对。</p>
+      <ol>
+        <li><b>整族成立。</b>三色时，着色按脊柱分解成块权重的乘积；中间两块相同时，交换首块 5 与第四块 4 不改变总和（对角恒等式）。两色时一棵树只有两种着色，两种颜色之和分别是 X^{j+5} + X^{j+7} 与 2X^{j+6}，不同。</li>
+        <li><b>名单不完整。</b>18 个顶点的 (2, 2, 2, 2, 2, 1, 4, 3) 与 (2, 2, 3, 2, 3, 4, 2) 也是两色不同、三色相同；前者的脊柱有 8 段，名单里的都不到 8 段，所以不同构。</li>
+        <li><b>三维视图。</b>前面两排是两只毛毛虫（脊柱琥珀、叶子青/品红）。后面是三色主特化的系数天际线：每个次数 d 一对柱子，高度按 log₁₀(1 + 系数)，两只完全一样高。再后面一排小柱是二色主特化——它们落在不同的次数上。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/bingham-2026-caterpillar-principal-specialization-family.md" target="_blank" rel="noopener">问题卷宗：整族</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/bingham-2026-caterpillar-principal-specialization-uniqueness.md" target="_blank" rel="noopener">问题卷宗：唯一性</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Graph/PrincipalSpecialization/BinghamCaterpillarPs3Family.lean" target="_blank" rel="noopener">BinghamCaterpillarPs3Family.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Graph/PrincipalSpecialization/BinghamCaterpillarUniquenessRefutation.lean" target="_blank" rel="noopener">BinghamCaterpillarUniquenessRefutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Combinatorics/Graph/PrincipalSpecialization/BinghamCaterpillarPs3Family.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/Combinatorics/bingham2026principalspecializations.md" target="_blank" rel="noopener">文献笔记</a> · <a href="https://doi.org/10.48550/arXiv.2610.31785" target="_blank" rel="noopener">doi:10.48550/arXiv.2610.31785</a> · <a href="https://arxiv.org/abs/2610.31785" target="_blank" rel="noopener">arXiv:2610.31785</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">The chromatic symmetric function of a graph records all its proper colourings; replacing colour i by X^i and allowing only k colours gives the principal specialization ps(G, k): a polynomial whose coefficient of X^d counts the proper colourings with colour labels summing to d. A caterpillar is determined by a list of positive integers: the i-th spine vertex carries aᵢ − 1 leaves. Bingham et al. noticed that (5, 4, 3) and (4, 5, 3) are told apart with two colours but not with three, and asked whether this holds for (5, j, j, 4, 3)/(4, j, j, 5, 3) for every j, and whether these are the only such pairs.</p>
+      <ol>
+        <li><b>The family holds.</b> With three colours the colourings factor along the spine into products of block weights; when the two middle blocks agree, exchanging the first block 5 with the fourth block 4 does not change the sum (the diagonal identity). With two colours a tree has just two colourings, with colour sums giving X^{j+5} + X^{j+7} and 2X^{j+6}, which differ.</li>
+        <li><b>The list is incomplete.</b> The 18-vertex (2, 2, 2, 2, 2, 1, 4, 3) and (2, 2, 3, 2, 3, 4, 2) also differ with two colours and agree with three; the first has a spine of 8 parts, every listed caterpillar fewer than 8, so they are not isomorphic.</li>
+        <li><b>3D view.</b> The two front rows are the two caterpillars (spine amber, leaves cyan / magenta). Behind them is the coefficient skyline of the three-colour specialization: one pair of bars per degree d, height log₁₀(1 + coefficient), and both are exactly as tall. The row of small bars further back is the two-colour specialization — it sits at different degrees.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/bingham-2026-caterpillar-principal-specialization-family.md" target="_blank" rel="noopener">Problem dossier: the family</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/bingham-2026-caterpillar-principal-specialization-uniqueness.md" target="_blank" rel="noopener">Problem dossier: uniqueness</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Graph/PrincipalSpecialization/BinghamCaterpillarPs3Family.lean" target="_blank" rel="noopener">BinghamCaterpillarPs3Family.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Graph/PrincipalSpecialization/BinghamCaterpillarUniquenessRefutation.lean" target="_blank" rel="noopener">BinghamCaterpillarUniquenessRefutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Combinatorics/Graph/PrincipalSpecialization/BinghamCaterpillarPs3Family.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/Combinatorics/bingham2026principalspecializations.md" target="_blank" rel="noopener">literature note</a> · <a href="https://doi.org/10.48550/arXiv.2610.31785" target="_blank" rel="noopener">doi:10.48550/arXiv.2610.31785</a> · <a href="https://arxiv.org/abs/2610.31785" target="_blank" rel="noopener">arXiv:2610.31785</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

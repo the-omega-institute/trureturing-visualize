@@ -2,6 +2,64 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "caterpillar-pairs",
+      "code": "CATER//PAIRS",
+      "path": "viz/caterpillar-pairs/",
+      "thumbnail": "viz/caterpillar-pairs/thumb.jpg",
+      "title": "只有第三次主特化分不开的毛毛虫图",
+      "title_en": "Caterpillars that only the third principal specialization cannot tell apart",
+      "summary": "Bingham 等人（2026，注 3.11）问：毛毛虫图 (5, j, j, 4, 3) 与 (4, j, j, 5, 3) 是否对每个 j 都是二色主特化不同、三色主特化相同？它们（连同 (5, 4, 3)、(4, 5, 3)）是不是仅有的这样的成对？本库在 Lean 里证明第一问对所有 j 成立、第二问不成立，都已冻结：18 个顶点的 (2, 2, 2, 2, 2, 1, 4, 3) 与 (2, 2, 3, 2, 3, 4, 2) 也有这个现象却不在名单里。页面画出两只毛毛虫与系数天际线，并穷举 n ≤ 18 的全部组合：名单外的成对第一次出现在 n = 18，共 5 对。",
+      "summary_en": "Bingham et al. (2026, Remark 3.11) asked whether the caterpillars (5, j, j, 4, 3) and (4, j, j, 5, 3) have different two-colour but equal three-colour principal specializations for every j, and whether, with (5, 4, 3) and (4, 5, 3), they are the only such pairs. This library proves in Lean that the first holds for every j and that the second fails, both frozen: the 18-vertex pair (2, 2, 2, 2, 2, 1, 4, 3) and (2, 2, 3, 2, 3, 4, 2) shows the phenomenon but is not listed. The page draws both caterpillars and their coefficient skylines and searches every composition up to n = 18: unlisted pairs first appear at n = 18, five of them.",
+      "status": "live",
+      "added": "2026-10-30",
+      "tags": [
+        "组合",
+        "色对称函数",
+        "毛毛虫图",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "combinatorics",
+        "chromatic symmetric functions",
+        "caterpillars",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：毛毛虫主特化整族",
+          "label_en": "Problem dossier: the caterpillar specialization family",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/bingham-2026-caterpillar-principal-specialization-family.md"
+        },
+        {
+          "label": "问题卷宗：毛毛虫主特化唯一性",
+          "label_en": "Problem dossier: caterpillar specialization uniqueness",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/bingham-2026-caterpillar-principal-specialization-uniqueness.md"
+        },
+        {
+          "label": "Blueprint：整族的三色主特化",
+          "label_en": "Blueprint: the family’s three-colour specialization",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Combinatorics/Graph/PrincipalSpecialization/BinghamCaterpillarPs3Family.md"
+        },
+        {
+          "label": "文献笔记：Bingham 等 2026",
+          "label_en": "Literature note: Bingham et al. 2026",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Library/Combinatorics/bingham2026principalspecializations.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "BinghamCaterpillarPs3Family.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Graph/PrincipalSpecialization/BinghamCaterpillarPs3Family.lean"
+        },
+        {
+          "label": "BinghamCaterpillarUniquenessRefutation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Graph/PrincipalSpecialization/BinghamCaterpillarUniquenessRefutation.lean"
+        }
+      ]
+    },
+    {
       "id": "oqw-ruin",
       "code": "OQW//RUIN",
       "path": "viz/oqw-ruin/",
