@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="LINDBLAD//ZERO · Zero in the spectrum of a lattice Lindbladian">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LINDBLAD//ZERO 格点 Lindblad 生成元的谱含 0</title>
+<meta name="description" content="一维格点上有限力程、平移不变的 Lindblad 生成元 t 作用在核 ρ ∈ ℓ²(ℤ × ℤ) 上。Klausen（2025）请人证明秩 1 跳跃时 0 ∈ σ(t)；本库在 Lean 里证明了它，而且不要求秩、自伴或耗散的符号，已冻结。机制是截断的迹：⟨P_n, tρ⟩ = Σ_{|x|≤n} (tρ)(x, x) 的系数只剩角上几个，所以有一致的界 K‖ρ‖，而 ‖P_n‖ = √(2n + 1) 无界增长，逆不可能存在。页面对三个生成元算出这些系数，并画出同一生成元在有限环上的谱。A finite-range translation-invariant Lindblad generator t on a one-dimensional lattice acts on kernels ρ ∈ ℓ²(ℤ × ℤ). Klausen (2025) asked for a proof that 0 ∈ σ(t) for rank-one jumps; this library proves it in Lean, with no rank, self-adjointness or sign condition, frozen. The mechanism is the truncated trace: ⟨P_n, tρ⟩ = Σ_{|x|≤n} (tρ)(x, x) keeps only a few coefficients at the corners, so it is bounded by K‖ρ‖ uniformly, while ‖P_n‖ = √(2n + 1) grows without bound, so no inverse can exist. The page computes these coefficients for three generators and draws the spectrum of the same generator on a finite ring.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="lindblad-zero">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="LINDBLAD//ZERO">LINDBLAD<b>//</b>ZERO</h1>
+      <div class="tagline">
+        <span class="zh">格点 Lindblad 生成元 · <em>有限力程、平移不变就够了：0 一定在谱里（已冻结）</em></span>
+        <span class="en">Lattice Lindblad generators · <em>finite range and translation invariance suffice: 0 is always in the spectrum (frozen)</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="deph" aria-pressed="true"><span class="code">S + S* · |k⟩⟨k|</span><span class="cn zh">Klausen 的例子</span><span class="cn en">Klausen’s example</span></button>
+        <button class="preset" data-preset="jump" aria-pressed="false"><span class="code">|k+1⟩⟨k|</span><span class="cn zh">只向右跳</span><span class="cn en">Jumps to the right</span></button>
+        <button class="preset" data-preset="rand" aria-pressed="false"><span class="code">rank 3</span><span class="cn zh">随机生成元</span><span class="cn en">A random generator</span></button>
+        <button class="preset" data-preset="neg" aria-pressed="false"><span class="code">g = −1</span><span class="cn zh">耗散反号也成立</span><span class="cn en">Even with g &lt; 0</span></button>
+        <button class="preset" data-preset="ring" aria-pressed="false"><span class="code">ℤ₄₈</span><span class="cn zh">有限环上的谱</span><span class="cn en">Spectrum on a ring</span></button>
+        <button class="preset" data-preset="edge" aria-pressed="false"><span class="code">4 ≤ 90</span><span class="cn zh">边界估计</span><span class="cn en">The boundary estimate</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">生成元</span><span class="en">Generator</span><span class="aside">−i[H, ρ] + g𝒟(ρ)</span></h2>
+      <div class="chips" id="genChips" role="group" aria-label="生成元" data-aria-en="Generator">
+        <button class="chip" data-gen="deph"><span class="zh">去相位跳跃</span><span class="en">Dephased hopping</span></button>
+        <button class="chip" data-gen="jump"><span class="zh">向右跳</span><span class="en">Right jumps</span></button>
+        <button class="chip" data-gen="rand"><span class="zh">随机</span><span class="en">Random</span></button>
+      </div>
+      <label class="slider-row"><span>g</span><input type="range" id="gSlider" min="-2" max="2" step="0.1" value="1" aria-label="耗散强度 g" data-aria-en="Dissipation strength g"><b id="gVal">1.0</b></label>
+      <div class="chips subchips" id="ringChips" role="group" aria-label="环的大小" data-aria-en="Ring size">
+        <button class="chip" data-ring="12">ℤ₁₂</button>
+        <button class="chip" data-ring="24">ℤ₂₄</button>
+        <button class="chip" data-ring="48">ℤ₄₈</button>
+      </div>
+      <p class="note" id="formula"></p>
+      <p class="note" id="genNote"></p>
+    </section>
+  </aside>
+
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：核坐标平面上的 P_n 与截断迹的系数；拖动旋转，滚轮缩放" data-aria-en="3D view: P_n and the coefficients of the truncated trace on the plane of kernel coordinates; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="‖P_n‖ 与截断迹范数随 n 的变化" data-aria-en="‖P_n‖ and the norm of the truncated trace against n"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="有限环上的谱" data-aria-en="The spectrum on a finite ring"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">0 ∈ σ(t)</span></h2>
+      <dl class="ro">
+        <div class="c w"><dt id="ro1L"></dt><dd id="ro1">—</dd></div>
+        <div class="m"><dt id="ro2L"></dt><dd id="ro2">—</dd></div>
+        <div class="a w"><dt id="ro3L"></dt><dd id="ro3">—</dd></div>
+        <div class="w"><dt id="ro4L"></dt><dd id="ro4">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">E = ℓ²(ℤ × ℤ; ℂ)。对任意 r ∈ ℕ、g ∈ ℝ、h : ℤ² → ℂ 与 ℓ : ℤ³ → ℂ，若有限力程（|x − y| &gt; r 时 h(x, y) = 0；max{|x − k|, |y − k|} &gt; r 时 ℓ(k, x, y) = 0）并且平移不变（h(x + 1, y + 1) = h(x, y)，ℓ(k + 1, x + 1, y + 1) = ℓ(k, x, y)），则存在有界算子 t : E → E，使 (tρ)(x, y) 等于 Lindblad 矩阵元 −i(hρ − ρh)(x, y) + g Σ_k [ℓ_k ρ ℓ_k* − ½{ℓ_k*ℓ_k, ρ}](x, y)，并且 0 ∈ σ(t)。定理不要求秩 1、不要求 h 自伴，也不要求 g 的符号。已冻结：</span><span class="en">E = ℓ²(ℤ × ℤ; ℂ). For every r ∈ ℕ, g ∈ ℝ, h : ℤ² → ℂ and ℓ : ℤ³ → ℂ that have finite range (h(x, y) = 0 when |x − y| &gt; r; ℓ(k, x, y) = 0 when max{|x − k|, |y − k|} &gt; r) and are translation invariant (h(x + 1, y + 1) = h(x, y), ℓ(k + 1, x + 1, y + 1) = ℓ(k, x, y)), there is a bounded operator t : E → E whose entries (tρ)(x, y) are the Lindblad matrix entries −i(hρ − ρh)(x, y) + g Σ_k [ℓ_k ρ ℓ_k* − ½{ℓ_k*ℓ_k, ρ}](x, y), and 0 ∈ σ(t). The theorem needs no rank-one condition, no self-adjoint h and no sign of g. Frozen: </span><code>LatticeLindbladianZeroSpectrum.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">证明的机制（同一模块里一起冻结的私有引理）：P_n 是对角线上 |x| ≤ n 处取 1 的核，⟨P_n, ρ⟩ = Σ_{|x|≤n} ρ(x, x)，‖P_n‖² = 2n + 1；完整的迹把每个矩阵单位送到 0；所以截断迹 ⟨P_n, tρ⟩ 只剩靠近 ±n 的系数，存在与 n 无关的 K 使 |⟨P_n, tρ⟩| ≤ K‖ρ‖；若 t 有逆 S，取 ρ = SP_n 得 √(2n + 1) ≤ K‖S‖ 对所有 n 成立，矛盾。冻结：</span><span class="en">The mechanism of the proof (private lemmas frozen in the same module): P_n is the kernel equal to 1 on the diagonal for |x| ≤ n, ⟨P_n, ρ⟩ = Σ_{|x|≤n} ρ(x, x) and ‖P_n‖² = 2n + 1; the full trace sends every matrix unit to 0; so the truncated trace ⟨P_n, tρ⟩ keeps only coefficients near ±n, and some K independent of n gives |⟨P_n, tρ⟩| ≤ K‖ρ‖; if t had an inverse S, taking ρ = SP_n gives √(2n + 1) ≤ K‖S‖ for every n, a contradiction. Frozen: </span><code>bounded_operator · projection_trace · projection_norm_sq · trace_single_zero · boundary_estimate · nonunit_from_boundary</code></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：截断迹的系数、它的范数与非零系数个数，都由页面按上面的矩阵元公式在有限窗口里逐项相加得到；右下图是同一生成元放在周期环 ℤ_N 上的谱——那是另一个算子（N² 维矩阵，按动量分块，用 Hessenberg–QR 求本征值），只用来看 0 附近的样子。随机生成元由固定种子生成，不是卷宗里那个无法复现的随机例子。页面观察到：n ≥ 2r 之后截断迹的范数不再变化（去相位例子从 n = 0 起恒为 2，向右跳恒为 |g|√2），非零系数远少于 Lean 的上界；环上 q = 0 块总有本征值 0，最小非零 |λ| 随 N 增大而变小。</span><span class="en">Numbers computed on the page, not theorems: the coefficients of the truncated trace, its norm and the number of nonzero coefficients come from adding up the matrix-entry formula above on a finite window; the lower right chart is the spectrum of the same generator on the periodic ring ℤ_N — a different operator (an N²-dimensional matrix, split by momentum, eigenvalues by Hessenberg–QR), shown only to see what happens near 0. The random generator comes from a fixed seed; it is not the dossier’s random example, which cannot be reproduced. The page observes that the norm of the truncated trace stops changing once n ≥ 2r (for the dephasing example it is 2 from n = 0 on, for right jumps |g|√2), that it has far fewer nonzero coefficients than the Lean bound, that the q = 0 block on the ring always has the eigenvalue 0, and that the smallest nonzero |λ| shrinks as N grows.</span></span></div>
+      <div class="lean theory"><span class="ok">ARGUED</span><span><span class="zh">卷宗中的论证（未形式化）：E 与 Hilbert–Schmidt 算子空间等距同构，谱随之搬运，所以对 H 自伴、g &gt; 0 的情形这正回答了 Klausen 的问题；再用原文的定理 no_gap 得到“无能隙，或核是无穷维”。在 Klausen 的例子 H = S + S*、L_k = |δ_k⟩⟨δ_k|、g &gt; 0 中，tρ = 0 迫使 ρ 是对角且对角线为常数，不在 E 里——所以 0 在谱里却不是 E 中的本征值。</span><span class="en">Arguments in the dossier (not formalized): E is isometric to the Hilbert–Schmidt operators and the spectrum transfers, so for self-adjoint H and g &gt; 0 this answers Klausen’s question; the source’s theorem no_gap then gives “gapless, or an infinite-dimensional kernel”. In Klausen’s example H = S + S*, L_k = |δ_k⟩⟨δ_k|, g &gt; 0, tρ = 0 forces ρ to be diagonal with a constant diagonal, which is not in E — so 0 lies in the spectrum without being an eigenvalue in E.</span></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">定理之外：去掉秩 1 之后“无能隙或核无穷维”的二选一；有限体积下能隙是否闭合；ℤ^d（d &gt; 1）；迹类算子上的谱以及全部有界算子上的谱。</span><span class="en">Outside the theorem: the “gapless or infinite-dimensional kernel” alternative without rank one; whether the gap closes in finite volume; ℤ^d with d &gt; 1; spectra on trace-class operators and on all bounded operators.</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">Frederik Ravn Klausen，Spectra of generators of Markovian evolution in the thermodynamic limit: From non-Hermitian to full evolution via tridiagonal Laurent matrices，arXiv:2206.09879v3（2025），doi:10.48550/arXiv.2206.09879：“Further questions” 一节请人证明在有限力程、平移不变与秩 1 的假设下 0 ∈ σ(𝓛)，以加强其定理 no_gap。</span><span class="en">Frederik Ravn Klausen, Spectra of generators of Markovian evolution in the thermodynamic limit: From non-Hermitian to full evolution via tridiagonal Laurent matrices, arXiv:2206.09879v3 (2025), doi:10.48550/arXiv.2206.09879: the section “Further questions” asks for a proof that 0 ∈ σ(𝓛) under finite range, translation invariance and rank one, strengthening its theorem no_gap.</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0001" value="0" aria-label="截断宽度 n" data-aria-en="Truncation width n">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 单步 · <kbd>E</kbd> 跳到末尾</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> step · <kbd>E</kbd> jump to the end</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">一条无限长的原子链，每个格点 x 上可以有一个粒子；开放量子系统的状态写成核 ρ(x, y)，演化由 Lindblad 生成元 t 决定：哈密顿量 H 让粒子相干地跳，跳跃算子 L_k 描述环境的作用。Klausen 研究这种生成元的谱，问：只要力程有限、平移不变（并且 L_k 秩 1），0 是否一定在谱里？本库在 Lean 里证明是的，而且连秩 1、H 自伴、g &gt; 0 都不需要。</p>
+      <ol>
+        <li><b>为什么会想到 0。</b>Lindblad 演化保持迹，所以完整的迹把 t 的输出送到 0：Σ_x (tρ)(x, x) = 0。但单位矩阵（迹对应的核）不在 ℓ² 里，所以这不能直接说明 t 不可逆。</li>
+        <li><b>截断。</b>把迹截到 |x| ≤ n：P_n 是对角线上 2n + 1 个 1，它在 ℓ² 里，范数 √(2n + 1)（三维视图的青柱，左下图的青线）。</li>
+        <li><b>只剩边界。</b>Σ_{|x|≤n} (tρ)(x, x) 把每个 (tρ)(x, x) 用到的系数（灰柱）加起来。内部的系数两两抵消，因为完整的迹把每个矩阵单位送到 0；只有靠近 (±n, ±n) 的几个系数留下（品红柱），全落在 Lean 证明给出的琥珀区域里。它们的范数不随 n 增长（左下图品红线）。</li>
+        <li><b>没有逆。</b>若 t 有逆 S，令 ρ = SP_n，则 ‖P_n‖² = ⟨P_n, tρ⟩ ≤ K‖S‖‖P_n‖，即 √(2n + 1) ≤ K‖S‖ 对所有 n 成立——不可能。左下图琥珀虚线就是任何逆都必须超过的下界。</li>
+        <li><b>有限环（页面数值）。</b>右下图把同一个生成元放到 N 个格点的环上：q = 0 块有精确的 0，其他本征值随 q → 0 靠近 0。这是有限体积的另一个算子，只作直观对照。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/klausen-2025-lattice-lindbladian-zero-spectrum.md" target="_blank" rel="noopener">问题卷宗</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumChannels/LatticeLindbladianZeroSpectrum.lean" target="_blank" rel="noopener">LatticeLindbladianZeroSpectrum.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/QuantumChannels/LatticeLindbladianZeroSpectrum.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/HilbertOperators/klausen2025spectragenerators.md" target="_blank" rel="noopener">文献笔记</a> · Klausen，<a href="https://arxiv.org/abs/2206.09879v3" target="_blank" rel="noopener">arXiv:2206.09879v3</a> · <a href="https://doi.org/10.48550/arXiv.2206.09879" target="_blank" rel="noopener">doi:10.48550/arXiv.2206.09879</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">An infinite chain of sites, with at most one particle per site x; the state of the open quantum system is a kernel ρ(x, y), and its evolution is given by a Lindblad generator t: the Hamiltonian H makes the particle hop coherently, and the jump operators L_k describe the environment. Klausen studies the spectra of such generators and asks: if the range is finite and the generator translation invariant (and the L_k have rank one), must 0 lie in the spectrum? This library proves in Lean that it must, without needing rank one, a self-adjoint H or g &gt; 0.</p>
+      <ol>
+        <li><b>Why 0.</b> Lindblad evolution preserves the trace, so the full trace sends the output of t to 0: Σ_x (tρ)(x, x) = 0. But the identity kernel (the one behind the trace) is not in ℓ², so this alone does not show that t is not invertible.</li>
+        <li><b>Truncate.</b> Cut the trace to |x| ≤ n: P_n is 2n + 1 ones on the diagonal, it lies in ℓ², and its norm is √(2n + 1) (cyan bars in the 3D view, the cyan line in the lower left chart).</li>
+        <li><b>Only the boundary is left.</b> Σ_{|x|≤n} (tρ)(x, x) adds up the coefficients used by each (tρ)(x, x) (grey bars). Inside, they cancel, because the full trace sends every matrix unit to 0; only a few coefficients near (±n, ±n) survive (magenta bars), all inside the amber region given by the Lean proof. Their norm does not grow with n (the magenta line in the lower left chart).</li>
+        <li><b>No inverse.</b> If t had an inverse S, put ρ = SP_n: then ‖P_n‖² = ⟨P_n, tρ⟩ ≤ K‖S‖‖P_n‖, so √(2n + 1) ≤ K‖S‖ for every n — impossible. The amber dashed line in the lower left chart is the lower bound every inverse would have to exceed.</li>
+        <li><b>A finite ring (page numbers).</b> The lower right chart puts the same generator on a ring of N sites: the q = 0 block has an exact 0, and the other eigenvalues approach 0 as q → 0. This is a different, finite-volume operator, shown only for intuition.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/klausen-2025-lattice-lindbladian-zero-spectrum.md" target="_blank" rel="noopener">Problem dossier</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumChannels/LatticeLindbladianZeroSpectrum.lean" target="_blank" rel="noopener">LatticeLindbladianZeroSpectrum.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/QuantumChannels/LatticeLindbladianZeroSpectrum.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/HilbertOperators/klausen2025spectragenerators.md" target="_blank" rel="noopener">literature note</a> · Klausen, <a href="https://arxiv.org/abs/2206.09879v3" target="_blank" rel="noopener">arXiv:2206.09879v3</a> · <a href="https://doi.org/10.48550/arXiv.2206.09879" target="_blank" rel="noopener">doi:10.48550/arXiv.2206.09879</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

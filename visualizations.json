@@ -2,6 +2,50 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "lindblad-zero",
+      "code": "LINDBLAD//ZERO",
+      "path": "viz/lindblad-zero/",
+      "thumbnail": "viz/lindblad-zero/thumb.jpg",
+      "title": "格点 Lindblad 生成元的谱含 0",
+      "title_en": "Zero in the spectrum of a lattice Lindbladian",
+      "summary": "一维格点上有限力程、平移不变的 Lindblad 生成元 t 作用在核 ρ ∈ ℓ²(ℤ × ℤ) 上。Klausen（2025）请人证明秩 1 跳跃时 0 ∈ σ(t)；本库在 Lean 里证明了它，不要求秩 1、H 自伴或耗散的符号，已冻结。机制是截断的迹：Σ_{|x|≤n} (tρ)(x, x) 只剩角上几个系数，有与 n 无关的界 K‖ρ‖，而 ‖P_n‖ = √(2n + 1) 无界增长，所以 t 没有有界逆。页面对三个生成元算出这些系数，并画出同一生成元在有限环上的谱。",
+      "summary_en": "A finite-range translation-invariant Lindblad generator t on a one-dimensional lattice acts on kernels ρ ∈ ℓ²(ℤ × ℤ). Klausen (2025) asked for a proof that 0 ∈ σ(t) for rank-one jumps; this library proves it in Lean, with no rank-one, self-adjointness or sign condition, frozen. The mechanism is the truncated trace: Σ_{|x|≤n} (tρ)(x, x) keeps only a few coefficients at the corners and is bounded by K‖ρ‖ uniformly in n, while ‖P_n‖ = √(2n + 1) grows without bound, so t has no bounded inverse. The page computes these coefficients for three generators and draws the spectrum of the same generator on a finite ring.",
+      "status": "live",
+      "added": "2026-10-30",
+      "tags": [
+        "开放量子系统",
+        "Lindblad 生成元",
+        "谱理论",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "open quantum systems",
+        "Lindblad generators",
+        "spectral theory",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：有限力程平移不变格点 Lindblad 生成元的谱含 0",
+          "label_en": "Problem dossier: zero belongs to the spectrum of a finite-range translation-invariant lattice Lindbladian",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/klausen-2025-lattice-lindbladian-zero-spectrum.md"
+        },
+        {
+          "label": "Blueprint：格点 Lindblad 生成元的谱零点",
+          "label_en": "Blueprint: spectral zero of lattice Lindbladians",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/QuantumChannels/LatticeLindbladianZeroSpectrum.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "LatticeLindbladianZeroSpectrum.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumChannels/LatticeLindbladianZeroSpectrum.lean"
+        }
+      ]
+    },
+    {
       "id": "ku-lines",
       "code": "KU//LINES",
       "path": "viz/ku-lines/",
