@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="ENERGY//GAME · The graph energy game: the Shapley value leaves the core">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ENERGY//GAME 图能量博弈：Shapley 值离开核</title>
+<meta name="description" content="图能量博弈里，联盟的价值是它诱导子图的能量（邻接特征值绝对值之和）。Arizmendi 与 Arizmendi 猜想 Shapley 值总在核里；本库在 Lean 里用完全二部图 K₂,ₘ（m ≥ 50）反驳了它，已冻结。页面在完全二部图上画出每一类联盟的赤字地形，看它何时冒出零面，并在小图上穷举所有联盟核对核条件。In the graph energy game a coalition is worth the energy of the subgraph it induces (the sum of the absolute adjacency eigenvalues). Arizmendi and Arizmendi conjectured that the Shapley value always lies in the core; this library refutes it in Lean with the complete bipartite graphs K₂,ₘ for m ≥ 50, frozen. The page draws the deficit landscape of every coalition type on complete bipartite graphs and watches it break through the zero level, and checks the core condition on small graphs by enumerating every coalition.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="energy-game">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="ENERGY//GAME">ENERGY<b>//</b>GAME</h1>
+      <div class="tagline">
+        <span class="zh">图能量博弈 · <em>K₂,ₘ 的稀缺侧拿得太多，Shapley 值离开核（已冻结的反驳）</em></span>
+        <span class="en">The graph energy game · <em>the scarce side of K₂,ₘ takes too much and the Shapley value leaves the core (frozen refutation)</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="lean" aria-pressed="true"><span class="code">K₂,₅₀ · LEAN</span><span class="cn zh">冻结的反例</span><span class="cn en">The frozen counterexample</span></button>
+        <button class="preset" data-preset="sweep" aria-pressed="false"><span class="code">K₂,ₘ · m → 400</span><span class="cn zh">赤字随 m 增长</span><span class="cn en">The deficit grows with m</span></button>
+        <button class="preset" data-preset="k25" aria-pressed="false"><span class="code">K₂,₅ · 2⁷</span><span class="cn zh">K₂,ₘ 最早离开核</span><span class="cn en">The first K₂,ₘ outside the core</span></button>
+        <button class="preset" data-preset="k34" aria-pressed="false"><span class="code">K₃,₄ · 2⁷</span><span class="cn zh">赤字只有 0.002</span><span class="cn en">A deficit of only 0.002</span></button>
+        <button class="preset" data-preset="star" aria-pressed="false"><span class="code">K₁,ₘ</span><span class="cn zh">星图：始终在核里</span><span class="cn en">Stars stay in the core</span></button>
+        <button class="preset" data-preset="p3" aria-pressed="false"><span class="code">P₃ · Ex. 3.9</span><span class="cn zh">论文的例子</span><span class="cn en">The paper’s example</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">图</span><span class="en">Graph</span><span class="aside">w(S) = 𝓔(G[S])</span></h2>
+      <div class="chips" id="modeChips" role="group" aria-label="模式" data-aria-en="Mode">
+        <button class="chip" data-mode="bip"><span class="zh">完全二部图 K_{a,b}</span><span class="en">Complete bipartite K_{a,b}</span></button>
+        <button class="chip" data-mode="graph"><span class="zh">小图穷举</span><span class="en">Small graphs, every coalition</span></button>
+      </div>
+      <div class="chips subchips" id="aChips" role="group" aria-label="稀缺侧顶点数 a" data-aria-en="Scarce side a">
+        <button class="chip" data-a="1">a = 1</button>
+        <button class="chip" data-a="2">a = 2</button>
+        <button class="chip" data-a="3">a = 3</button>
+        <button class="chip" data-a="4">a = 4</button>
+      </div>
+      <div class="chips subchips" id="bChips" role="group" aria-label="另一侧的最大顶点数" data-aria-en="Largest other side">
+        <button class="chip" data-bmax="60">b ≤ 60</button>
+        <button class="chip" data-bmax="200">b ≤ 200</button>
+        <button class="chip" data-bmax="400">b ≤ 400</button>
+      </div>
+      <div class="chips subchips" id="gChips" role="group" aria-label="小图" data-aria-en="Small graph">
+        <button class="chip" data-g="P3">P₃</button>
+        <button class="chip" data-g="star">K₁,₆</button>
+        <button class="chip" data-g="K24">K₂,₄</button>
+        <button class="chip" data-g="K25">K₂,₅</button>
+        <button class="chip" data-g="K34">K₃,₄</button>
+        <button class="chip" data-g="K33">K₃,₃</button>
+        <button class="chip" data-g="C6">C₆</button>
+        <button class="chip" data-g="petersen"><span class="zh">Petersen 图</span><span class="en">Petersen</span></button>
+      </div>
+      <p class="note" id="formula"></p>
+      <p class="note" id="modeNote"></p>
+    </section>
+  </aside>
+
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：联盟赤字地形或图本身；拖动旋转，滚轮缩放" data-aria-en="3D view: the coalition deficit landscape or the graph itself; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="联盟赤字" data-aria-en="Coalition deficits"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="分配" data-aria-en="Allocations"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">φ</span></h2>
+      <dl class="ro">
+        <div class="c"><dt id="ro1L"></dt><dd id="ro1">—</dd></div>
+        <div class="m"><dt id="ro2L"></dt><dd id="ro2">—</dd></div>
+        <div class="a w"><dt id="ro3L"></dt><dd id="ro3">—</dd></div>
+        <div><dt id="ro4L"></dt><dd id="ro4">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">联盟 S 的价值 w(S) 是诱导子图 G[S] 的能量（邻接特征值绝对值之和）；核由满足“每个联盟拿到的总和不少于它的价值、全体拿到的总和等于全体的价值”的分配组成。Arizmendi 与 Arizmendi 的猜想 3.10 说，对每个有限简单图，Shapley 值都在核里。本库证明它不成立：在完全二部图 K₂,ₘ（m ≥ 50）里，去掉一个稀缺侧顶点 a 的联盟 V∖{a} 的价值 2√m，大于它在 Shapley 分配下拿到的总和。已冻结：</span><span class="en">A coalition S is worth the energy of its induced subgraph G[S] (the sum of the absolute adjacency eigenvalues); the core consists of the allocations under which every coalition receives at least its worth and everyone together receives exactly the worth of the whole graph. Conjecture 3.10 of Arizmendi and Arizmendi says that for every finite simple graph the Shapley value lies in the core. This library proves it false: in the complete bipartite graph K₂,ₘ with m ≥ 50, the coalition V∖{a} that leaves out one scarce-side vertex a is worth 2√m, more than it receives in total under the Shapley allocation. Frozen: </span><code>ArizmendiEnergyGameShapleyRefutation.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">证明的骨架是同一模块里一起冻结的私有引理：在完全二部图里，联盟含一侧 r 个、另一侧 k 个顶点时能量为 2√(rk)；稀缺点的 Shapley 值为 φₐ = 2((m + √2)S₁ + (√2 − 2)S₃)/((m + 1)(m + 2))，其中 S₁ = Σₖ √k、S₃ = Σₖ k√k（k = 0 … m）；对每个 m ≥ 50 有 φₐ &gt; 2(√2 − 1)√m，于是 V∖{a} 的赤字为正。公开结论 result 取 m = 50。冻结（模块内引理）：</span><span class="en">The skeleton of the proof is a set of private lemmas frozen with the module: in a complete bipartite graph a coalition with r vertices on one side and k on the other has energy 2√(rk); the scarce-side Shapley value is φₐ = 2((m + √2)S₁ + (√2 − 2)S₃)/((m + 1)(m + 2)) with S₁ = Σₖ √k and S₃ = Σₖ k√k (k = 0 … m); for every m ≥ 50, φₐ &gt; 2(√2 − 1)√m, so the deficit of V∖{a} is positive. The public result takes m = 50. Frozen (lemmas inside the module): </span><code>worth_cut · scarce_payoff · scarce_formula_gap · family_not_core</code></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：K_{a,b} 的 Shapley 值按联盟类型 (r, k) 精确求和；小图穷举所有 2ⁿ 个联盟，能量由 Jacobi 旋转求出。页面观察到：K₂,ₘ 从 m = 5 起就离开核（最早挡住它的是 1 个稀缺点加 3 个其他点的联盟），联盟 V∖{a} 从 m = 11 起挡住它；K₃,₄ 的最大赤字只有约 0.002；星图 K₁,ₘ 在 m ≤ 400 都在核里。</span><span class="en">Numbers computed on the page, not theorems: on K_{a,b} the Shapley value is summed exactly over coalition types (r, k); on small graphs all 2ⁿ coalitions are enumerated and energies come from Jacobi rotations. The page observes that K₂,ₘ leaves the core from m = 5 (the first blocking coalition has 1 scarce vertex and 3 others), that V∖{a} blocks from m = 11, that the largest deficit of K₃,₄ is only about 0.002, and that the stars K₁,ₘ stay in the core for m ≤ 400.</span></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">定理之外：K₂,ₘ 的最优门槛（Lean 只证到 m ≥ 50）；赤字是否无界——卷宗里的符号计算给出 V∖{a} 的赤字约为 ((26 − 18√2)/15)√m ≈ 0.036√m，但没有 Lean 定理；树、正则图与平衡完全二部图的分类。</span><span class="en">Outside the theorem: the optimal threshold for K₂,ₘ (Lean proves m ≥ 50); whether the deficit is unbounded — a symbolic calculation in the dossier gives about ((26 − 18√2)/15)√m ≈ 0.036√m for V∖{a}, but there is no Lean theorem; the classification of trees, regular graphs and balanced complete bipartite graphs.</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">G. Arizmendi、O. Arizmendi，The graph energy game，Discrete Applied Mathematics 330（2023）128–140，arXiv:2012.14114：定义图能量博弈，证明另一种分配——顶点能量（|A| 的对角元）——总在核里（定理 3.6），算出 P₃ 的 Shapley 值仍在核里（例 3.9），并提出猜想 3.10。</span><span class="en">G. Arizmendi, O. Arizmendi, The graph energy game, Discrete Applied Mathematics 330 (2023) 128–140, arXiv:2012.14114: they define the graph energy game, prove that a different allocation — the vertex energies (the diagonal of |A|) — always lies in the core (Theorem 3.6), compute that the Shapley value of P₃ is in the core (Example 3.9), and state Conjecture 3.10.</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0005" value="0" aria-label="时间轴" data-aria-en="Timeline">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 单步 · <kbd>E</kbd> 跳到末尾</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> step · <kbd>E</kbd> jump to the end</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">把图的顶点当作玩家。一组顶点（联盟）S 的价值是它诱导的子图的能量 𝓔(G[S])，即邻接矩阵特征值的绝对值之和。Shapley 值按“每个玩家在所有加入顺序下带来的平均增量”分配全体的价值。Arizmendi 与 Arizmendi 猜想它总在核里——没有哪个联盟能抱怨自己拿得比自己的价值少。本库在 Lean 里给出了反例。</p>
+      <ol>
+        <li><b>完全二部图上的联盟只看两个数。</b>K_{a,b} 里一个联盟含稀缺侧 r 个、另一侧 k 个顶点，诱导子图是 K_{r,k}，能量 2√(rk)（冻结引理）。同侧的顶点对称，Shapley 值只有两个：稀缺侧 φ_A、另一侧 φ_B。</li>
+        <li><b>赤字地形。</b>联盟 (r, k) 的赤字是 2√(rk) − (rφ_A + kφ_B)。核要求所有赤字 ≤ 0。三维视图把每个 r 画成一条随 k 变化的曲线；品红是正赤字——这个联盟挡住了 Shapley 分配。纵轴用 asinh 刻度，小的正赤字也看得见。</li>
+        <li><b>冻结的反例。</b>K₂,ₘ 里稀缺点 a 的平均增量很大：它和另一侧的每个子集都连满，加入时贡献 2√(2k) − 2√k 或 2√k。Lean 证明 m ≥ 50 时 φₐ &gt; 2(√2 − 1)√m；由效率，V∖{a} 拿到 2√(2m) − φₐ &lt; 2√m = w(V∖{a})。</li>
+        <li><b>更早的反例（页面数值）。</b>时间轴把 b 从 1 推到上限。K₂,ₘ 在 m = 5 就被 (1, 3) 挡住，V∖{a} 从 m = 11 起挡住；K₃,₄ 也离开核，但赤字只有 0.002。小图模式穷举全部 2ⁿ 个联盟，直接核对这些结论；6 个顶点以内的所有图都在核里（数值穷举，容差 10⁻⁹，在测试里核对，不是定理）。</li>
+        <li><b>边界。</b>定理只说 m ≥ 50 时 K₂,ₘ 离开核。最优门槛、赤字是否无界（数值上约 0.036√m）、哪些图类一定在核里，都不在定理之内。论文里另一种分配——顶点能量——已被证明总在核里，页面在小图上同时画出它作对照。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/aa2012.md" target="_blank" rel="noopener">问题卷宗</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/SpectralGraph/ArizmendiEnergyGameShapleyRefutation.lean" target="_blank" rel="noopener">ArizmendiEnergyGameShapleyRefutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Combinatorics/SpectralGraph/ArizmendiEnergyGameShapleyRefutation.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/GraphInvariants/arizmendi2020energygame.md" target="_blank" rel="noopener">文献笔记</a> · Arizmendi、Arizmendi，<a href="https://doi.org/10.1016/j.dam.2023.01.030" target="_blank" rel="noopener">Discrete Appl. Math. 330（2023）</a> · <a href="https://arxiv.org/abs/2012.14114" target="_blank" rel="noopener">arXiv:2012.14114</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">Treat the vertices of a graph as players. A set of vertices (a coalition) S is worth the energy 𝓔(G[S]) of the subgraph it induces, the sum of the absolute values of its adjacency eigenvalues. The Shapley value shares out the worth of the whole graph as each player's average increment over all orders of joining. Arizmendi and Arizmendi conjectured that it always lies in the core — no coalition can complain that it receives less than its own worth. This library gives a counterexample in Lean.</p>
+      <ol>
+        <li><b>On complete bipartite graphs a coalition is two numbers.</b> In K_{a,b}, a coalition with r vertices on the scarce side and k on the other induces K_{r,k}, of energy 2√(rk) (a frozen lemma). Vertices on one side are symmetric, so the Shapley value takes two values: φ_A on the scarce side and φ_B on the other.</li>
+        <li><b>The deficit landscape.</b> The deficit of coalition (r, k) is 2√(rk) − (rφ_A + kφ_B). The core requires every deficit to be ≤ 0. The 3D view draws each r as a curve in k; magenta marks a positive deficit — a coalition that blocks the Shapley allocation. The vertical axis uses an asinh scale so that small positive deficits stay visible.</li>
+        <li><b>The frozen counterexample.</b> In K₂,ₘ a scarce vertex a has a large average increment: it is joined to every vertex of the other side, so when it joins it adds 2√(2k) − 2√k or 2√k. Lean proves φₐ &gt; 2(√2 − 1)√m for m ≥ 50; by efficiency V∖{a} receives 2√(2m) − φₐ &lt; 2√m = w(V∖{a}).</li>
+        <li><b>Earlier counterexamples (page numbers).</b> The timeline pushes b from 1 to its limit. K₂,ₘ is blocked by (1, 3) already at m = 5, and V∖{a} blocks from m = 11; K₃,₄ also leaves the core, with a deficit of only 0.002. The small-graph mode enumerates all 2ⁿ coalitions to check these directly; every graph on at most 6 vertices stays in the core (a numerical enumeration with tolerance 10⁻⁹, run in the tests, not a theorem).</li>
+        <li><b>Limits.</b> The theorem only says that K₂,ₘ leaves the core for m ≥ 50. The optimal threshold, whether the deficit is unbounded (numerically about 0.036√m), and which graph classes always stay in the core are outside it. The paper’s other allocation — the vertex energies — is proved to lie in the core, and the page draws it beside the Shapley value on small graphs for comparison.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/aa2012.md" target="_blank" rel="noopener">Problem dossier</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/SpectralGraph/ArizmendiEnergyGameShapleyRefutation.lean" target="_blank" rel="noopener">ArizmendiEnergyGameShapleyRefutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Combinatorics/SpectralGraph/ArizmendiEnergyGameShapleyRefutation.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/GraphInvariants/arizmendi2020energygame.md" target="_blank" rel="noopener">literature note</a> · Arizmendi, Arizmendi, <a href="https://doi.org/10.1016/j.dam.2023.01.030" target="_blank" rel="noopener">Discrete Appl. Math. 330 (2023)</a> · <a href="https://arxiv.org/abs/2012.14114" target="_blank" rel="noopener">arXiv:2012.14114</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

@@ -2,6 +2,50 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "energy-game",
+      "code": "ENERGY//GAME",
+      "path": "viz/energy-game/",
+      "thumbnail": "viz/energy-game/thumb.jpg",
+      "title": "图能量博弈：Shapley 值离开核",
+      "title_en": "The graph energy game: the Shapley value leaves the core",
+      "summary": "图能量博弈里，一组顶点的价值是它诱导子图的能量（邻接特征值绝对值之和）。Arizmendi 与 Arizmendi 猜想 Shapley 值总在核里，即没有哪组顶点拿到的总和少于自己的价值。本库在 Lean 里给出反例并已冻结：完全二部图 K₂,ₘ（m ≥ 50）里，去掉一个稀缺侧顶点的联盟拿到的少于它的价值。页面在完全二部图上按联盟类型 (r, k) 画出赤字地形，看它何时冒出零面（数值上 K₂,ₘ 从 m = 5 起就离开核），并在小图上穷举全部 2ⁿ 个联盟核对核条件，与论文里总在核内的顶点能量分配对照。",
+      "summary_en": "In the graph energy game a set of vertices is worth the energy of the subgraph it induces (the sum of the absolute adjacency eigenvalues). Arizmendi and Arizmendi conjectured that the Shapley value always lies in the core, that is, no set of vertices receives less than its worth. This library gives a counterexample in Lean, frozen: in the complete bipartite graph K₂,ₘ with m ≥ 50, the coalition that leaves out one scarce-side vertex receives less than its worth. The page draws the deficit landscape of the coalition types (r, k) on complete bipartite graphs and watches it break through the zero level (numerically K₂,ₘ leaves the core from m = 5), and on small graphs enumerates all 2ⁿ coalitions, comparing with the vertex-energy allocation that the paper proves always lies in the core.",
+      "status": "live",
+      "added": "2026-10-30",
+      "tags": [
+        "谱图论",
+        "合作博弈",
+        "图能量",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "spectral graph theory",
+        "cooperative games",
+        "graph energy",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：图能量博弈的 Shapley 分配可以离开核",
+          "label_en": "Problem dossier: the Shapley allocation of a graph energy game can leave its core",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/aa2012.md"
+        },
+        {
+          "label": "Blueprint：图能量博弈与一个不平衡二部图障碍",
+          "label_en": "Blueprint: the graph energy game and an unbalanced bipartite obstruction",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Combinatorics/SpectralGraph/ArizmendiEnergyGameShapleyRefutation.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "ArizmendiEnergyGameShapleyRefutation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/SpectralGraph/ArizmendiEnergyGameShapleyRefutation.lean"
+        }
+      ]
+    },
+    {
       "id": "pauli-volumes",
       "code": "PAULI//VOLUMES",
       "path": "viz/pauli-volumes/",

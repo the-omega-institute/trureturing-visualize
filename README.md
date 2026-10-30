@@ -9,6 +9,7 @@ Every page is bilingual (中文 / English, switchable in the header) and states 
 
 | id | Page | Theory |
 | --- | --- | --- |
+| `energy-game` | [ENERGY//GAME 图能量博弈：Shapley 值离开核](https://the-omega-institute.github.io/trureturing-visualize/viz/energy-game/) | 问题卷宗：图能量博弈的 Shapley 分配可以离开核 |
 | `pauli-volumes` | [PAULI//VOLUMES 广义 Pauli 信道的体积比](https://the-omega-institute.github.io/trureturing-visualize/viz/pauli-volumes/) | 问题卷宗：Siudzińska 2020 的三个体积比猜想 |
 | `gronwall-edge` | [GRONWALL//EDGE 除数和能多接近 e^γ n log log n](https://the-omega-institute.github.io/trureturing-visualize/viz/gronwall-edge/) | Lean：D5/S3/Weil 的 GronwallLowerEnvelope · PrimeValuationGap · Mertens/CriticalThetaTailPeak |
 | `ledger-growth` | [LEDGER//GROWTH 真值账本的生长](https://the-omega-institute.github.io/trureturing-visualize/viz/ledger-growth/) | trureturing dev 分支的每日快照：Lean 模块、冻结、消化账目与问题卷宗 |
