@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="LG//SIX · Six-time Leggett–Garg inequalities do not suffice">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LG//SIX 六时刻 Leggett–Garg 不等式不够用</title>
+<meta name="description" content="Halliwell 与 Mawby（2019）猜想：n 个二值量的成对概率表只要满足完整的 n 边形不等式与全部三时刻 Leggett–Garg 不等式，就有一个联合分布与之匹配。本库在 Lean 里证明 n = 6 时不成立并已冻结：时刻 6 与 1–4 的关联为 1/2、与 5 为 −1/2、其余为 0，条件全部成立，可权重 b = (1, 1, 1, 1, −1, −2) 让每个符号向量都有 W² ≥ 1，任何联合分布对 W² 的平均却必须是 −1。页面把关联乘以 t，画出各条件在哪里成立，并对 t ≤ 0.8 给出一个精确的联合分布。Halliwell and Mawby (2019) conjectured that pair tables of n two-valued quantities have a matching joint law as soon as the full n-gon inequality and every three-time Leggett–Garg inequality hold. This library proves in Lean that this fails at n = 6, frozen: with time 6 correlated 1/2 with times 1–4, −1/2 with time 5 and all other correlations 0, every condition holds, yet the weights b = (1, 1, 1, 1, −1, −2) give W² ≥ 1 for every sign vector while any joint law would average W² to −1. The page scales the correlations by t, shows where each condition holds, and gives an exact joint law for t ≤ 0.8.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="leggett-six">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="LG//SIX">LG<b>//</b>SIX</h1>
+      <div class="tagline">
+        <span class="zh">六时刻 Leggett–Garg 检验 · <em>不等式全部成立，联合分布却不存在（已冻结的反驳）</em></span>
+        <span class="en">Six-time Leggett–Garg tests · <em>every inequality holds, yet no joint law exists (frozen refutation)</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="lean" aria-pressed="true"><span class="code">t = 1 · −1 &lt; 1</span><span class="cn zh">Lean 里的反例</span><span class="cn en">The counterexample in Lean</span></button>
+        <button class="preset" data-preset="sweep" aria-pressed="false"><span class="code">0 → 1.2</span><span class="cn zh">扫过 t</span><span class="cn en">Sweep t</span></button>
+        <button class="preset" data-preset="edge" aria-pressed="false"><span class="code">t = 0.8</span><span class="cn zh">恰好还有联合分布</span><span class="cn en">Just still a joint law</span></button>
+        <button class="preset" data-preset="psd" aria-pressed="false"><span class="code">t = 0.85 · PSD</span><span class="cn zh">加上半正定也不够</span><span class="cn en">Even with PSD</span></button>
+        <button class="preset" data-preset="half" aria-pressed="false"><span class="code">t = 0.5</span><span class="cn zh">一切正常</span><span class="cn en">All is well</span></button>
+        <button class="preset" data-preset="beyond" aria-pressed="false"><span class="code">t = 1.1</span><span class="cn zh">LG 本身失败</span><span class="cn en">LG itself fails</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">成对概率表</span><span class="en">Pair tables</span><span class="aside">n = 6</span></h2>
+      <p class="note" id="formula"></p>
+      <p class="note" id="tNote"></p>
+    </section>
+  </aside>
+
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：64 个符号向量上的 W² 与联合分布；拖动旋转，滚轮缩放" data-aria-en="3D view: W² and the joint law over the 64 sign vectors; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="各条件的余量随 t 变化" data-aria-en="Slack of each condition against t"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="关联矩阵与星形图" data-aria-en="The correlation matrix and the star graph"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">Fine</span></h2>
+      <dl class="ro">
+        <div class="c w"><dt id="ro1L"></dt><dd id="ro1">—</dd></div>
+        <div class="m w"><dt id="ro2L"></dt><dd id="ro2">—</dd></div>
+        <div class="a w"><dt id="ro3L"></dt><dd id="ro3">—</dd></div>
+        <div class="w"><dt id="ro4L"></dt><dd id="ro4">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">成对表 p_ij(a, b) ≥ 0、各自归一、单时刻边缘相容；关联 C_ij = Σ ab·p_ij(a, b)；n 边形不等式：对每个 s ∈ {±1}ⁿ，n + 2Σ_{i&lt;j} sᵢsⱼC_ij ≥ 1（n 奇）或 ≥ 0（n 偶）；三时刻 LG：1 + ab C_ij + ac C_ik + bc C_jk ≥ 0；联合分布：非负的 μ 使每个成对边缘都等于 p_ij（不另外要求总质量 1）。猜想 claim：对所有 n ≥ 3，这些条件蕴含联合分布。本库证明 ¬claim，反例是 n = 6 的星形关联。已冻结：</span><span class="en">Pair tables p_ij(a, b) ≥ 0, each normalized, with consistent one-time marginals; correlations C_ij = Σ ab·p_ij(a, b); the n-gon inequality: for every s ∈ {±1}ⁿ, n + 2Σ_{i&lt;j} sᵢsⱼC_ij ≥ 1 (n odd) or ≥ 0 (n even); three-time LG: 1 + ab C_ij + ac C_ik + bc C_jk ≥ 0; a joint law: a nonnegative μ whose every pair marginal equals p_ij (total mass 1 is not assumed separately). The conjecture, claim: for every n ≥ 3 these conditions imply a joint law. This library proves ¬claim with the star correlations at n = 6. Frozen: </span><code>LeggettGargSixTimeSufficiencyRefutation.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">证明的步骤（同一模块里一起冻结的私有引理）：这组表是合法的成对表（p_family），64 种符号下 6 边形不等式成立（p_ngon），全部三时刻 LG 成立（p_three）；W = Σ bᵢxᵢ 的平方恒 ≥ 1（weight_sq_lower）；若 μ 匹配全部成对边缘，则 Σμ = 1 且 Σμ xᵢxⱼ = C_ij（sum_mu_one、pair_expect），于是 Σμ W² = 9 + 2(−5) = −1，矛盾（p_no_joint）。冻结：</span><span class="en">The steps of the proof (private lemmas frozen in the same module): the tables are a valid pair family (p_family), the 6-gon inequality holds for all 64 sign patterns (p_ngon), every three-time LG inequality holds (p_three); the square of W = Σ bᵢxᵢ is always ≥ 1 (weight_sq_lower); if μ matches every pair marginal then Σμ = 1 and Σμ xᵢxⱼ = C_ij (sum_mu_one, pair_expect), so Σμ W² = 9 + 2(−5) = −1, a contradiction (p_no_joint). Frozen: </span><code>p_family · p_ngon · p_three · weight_sq_lower · sum_mu_one · pair_expect · p_no_joint</code></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：页面对每个 t 枚举 6 边形（64 种符号）、所有至少三个时刻的子集多边形与三时刻 LG（20 × 8），用 Jacobi 旋转求 I + C 的特征值。t ≤ 0.8 时的联合分布是离线线性规划找到的一个 16 点分布（权重 1/10 与 1/20），页面把它与均匀分布混合，并逐项核对 60 个成对边缘表。</span><span class="en">Numbers computed on the page, not theorems: for every t the page enumerates the 6-gon (64 sign patterns), every polygon on a subset of at least three times and the three-time LG inequalities (20 × 8), and computes the eigenvalues of I + C by Jacobi rotations. The joint law for t ≤ 0.8 is a 16-point law (weights 1/10 and 1/20) found offline by linear programming; the page mixes it with the uniform law and checks all 60 pair-marginal tables.</span></span></div>
+      <div class="lean theory"><span class="ok">ARGUED</span><span><span class="zh">卷宗中的论证（未形式化）：二阶矩矩阵 I + C 必须半正定，这个例子（t = 1）不满足，所以多边形检验漏掉了某些加权方向；全局翻转符号不变，所以对对称情形同样成立；去掉任何一个时刻后都有联合分布；它不能由对称化的算符关联实现。卷宗把“再加上半正定条件是否足够”列为未决。</span><span class="en">Arguments in the dossier (not formalized): the second-moment matrix I + C must be positive semidefinite, and this example (t = 1) is not, so the polygon tests miss some weighted directions; the tables are invariant under global sign reversal, so the obstruction also concerns the symmetric setting; dropping any one time leaves tables with a joint law; the example cannot be realized by symmetrized operator correlators. The dossier lists “does adding positive semidefiniteness suffice?” as open.</span></span></div>
+      <div class="lean page"><span class="ok">ARGUED</span><span><span class="zh">本页的论证（未形式化、未经评审）：把关联乘以 t。0 ≤ t ≤ 1 时成对表合法，6 边形、子集多边形与三时刻 LG 在 t = 0 与 t = 1 成立，而它们关于 t 是仿射的，所以对整段都成立。若有联合分布，Σμ W² = bᵀ(I + tC)b = 9 − 10t，而 W² ≥ 1、Σμ = 1，所以 t &gt; 0.8 时不存在；I + tC 的特征值是 1 ± t√5/2 与 1，到 t = 2/√5 ≈ 0.894 都半正定。于是 0.8 &lt; t ≤ 2/√5 时，这些条件加上半正定仍然不足以保证联合分布。</span><span class="en">The page’s argument (not formalized, not reviewed): scale the correlations by t. For 0 ≤ t ≤ 1 the pair tables are valid, and the 6-gon, the subset polygons and the three-time LG inequalities hold at t = 0 and t = 1; they are affine in t, so they hold on the whole interval. A joint law would give Σμ W² = bᵀ(I + tC)b = 9 − 10t, while W² ≥ 1 and Σμ = 1, so none exists for t &gt; 0.8; I + tC has eigenvalues 1 ± t√5/2 and 1, so it stays positive semidefinite up to t = 2/√5 ≈ 0.894. Hence for 0.8 &lt; t ≤ 2/√5 these conditions together with positive semidefiniteness still do not guarantee a joint law.</span></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">定理之外：n ≥ 6 时完整的充分条件；较小 n 的一般非对称情形；其他时间量子测量模型下的可实现性。“加上半正定是否足够”在卷宗里仍是未决，上面本页的论证没有经过形式化或评审。</span><span class="en">Outside the theorem: a complete sufficient condition for n ≥ 6; the general nonsymmetric cases for smaller n; realizability under other temporal quantum measurement models. “Does adding positive semidefiniteness suffice?” is still open in the dossier; the page’s argument above is neither formalized nor reviewed.</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">J. J. Halliwell 与 C. Mawby，Fine’s theorem for Leggett–Garg tests with an arbitrary number of measurement times，Phys. Rev. A 100, 042103（2019），doi:10.1103/PhysRevA.100.042103，arXiv:1906.04865：第 4.B 节“Sufficient Conditions: A Conjecture”。</span><span class="en">J. J. Halliwell and C. Mawby, Fine’s theorem for Leggett–Garg tests with an arbitrary number of measurement times, Phys. Rev. A 100, 042103 (2019), doi:10.1103/PhysRevA.100.042103, arXiv:1906.04865: Section 4.B, “Sufficient Conditions: A Conjecture”.</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0001" value="0" aria-label="关联的缩放 t" data-aria-en="Correlation scale t">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> t ± 0.05 · <kbd>E</kbd> 跳到末尾</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> t ± 0.05 · <kbd>E</kbd> jump to the end</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">Leggett–Garg 检验在几个时刻测量同一个二值量 Q = ±1，但每次只测两个时刻，得到成对的概率表。经典（宏观实在论）的解释要求存在一个联合分布，把全部成对表作为边缘。Fine 定理在少数时刻给出这种存在性的不等式刻画；Halliwell 与 Mawby 猜想，对任意 n，完整的 n 边形不等式加上全部三时刻 LG 不等式就够了。本库在 Lean 里证明 n = 6 时不够。</p>
+      <ol>
+        <li><b>例子。</b>时刻 6 与时刻 1–4 正相关（1/2），与时刻 5 负相关（−1/2），其余时刻两两无关（右下图）。所有不等式都成立；最紧的三时刻 LG 不等式恰好取等号。</li>
+        <li><b>为什么没有联合分布。</b>取 W = x₁ + x₂ + x₃ + x₄ − x₅ − 2x₆。系数和是奇数，所以 W 总是奇数，W² ≥ 1（三维视图的青柱全在青框之上）。若有联合分布，W² 的平均只取决于成对关联：bᵀ(I + C)b = 9 + 2·(−5) = −1。平均不可能比每一项都小——琥珀框掉到了地板以下。</li>
+        <li><b>把关联缩小（页面的推论）。</b>把关联乘以 t：W² 的平均变成 9 − 10t，t ≤ 0.8 时不低于 1，而页面在 t ≤ 0.8 给出一个真正的联合分布（琥珀柱）。t 在 0.8 到 1 之间，猜想的条件仍然成立，却没有联合分布。</li>
+        <li><b>半正定也不够（本页的论证）。</b>二阶矩矩阵 I + tC 直到 t = 2/√5 ≈ 0.894 都半正定。卷宗把“再加上半正定是否足够”列为未决；0.8 &lt; t ≤ 0.894 这一段按同样的论证给出反例。这一点没有形式化，也未经评审。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/halliwell-mawby-2019-leggett-garg-six-time-sufficiency.md" target="_blank" rel="noopener">问题卷宗</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Contextuality/LeggettGargSixTimeSufficiencyRefutation.lean" target="_blank" rel="noopener">LeggettGargSixTimeSufficiencyRefutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Quantum/Contextuality/LeggettGargSixTimeSufficiencyRefutation.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/Observer/halliwellmawby2019finentimes.md" target="_blank" rel="noopener">文献笔记</a> · Halliwell、Mawby，<a href="https://doi.org/10.1103/PhysRevA.100.042103" target="_blank" rel="noopener">doi:10.1103/PhysRevA.100.042103</a> · <a href="https://arxiv.org/abs/1906.04865" target="_blank" rel="noopener">arXiv:1906.04865</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">A Leggett–Garg test measures one two-valued quantity Q = ±1 at several times, but only two times per run, which gives pairwise probability tables. A classical (macrorealist) account requires a joint law with all the pair tables as its marginals. Fine’s theorem characterizes this by inequalities for a few times; Halliwell and Mawby conjectured that for every n the full n-gon inequality together with every three-time LG inequality suffices. This library proves in Lean that it does not at n = 6.</p>
+      <ol>
+        <li><b>The example.</b> Time 6 is positively correlated with times 1–4 (1/2) and negatively with time 5 (−1/2); all other pairs are uncorrelated (lower right chart). Every inequality holds; the tightest three-time LG inequalities hold with equality.</li>
+        <li><b>Why there is no joint law.</b> Take W = x₁ + x₂ + x₃ + x₄ − x₅ − 2x₆. Its coefficients sum to an odd number, so W is always odd and W² ≥ 1 (in the 3D view every cyan bar rises above the cyan frame). A joint law would make the average of W² depend only on the pair correlations: bᵀ(I + C)b = 9 + 2·(−5) = −1. An average cannot be smaller than every term — the amber frame has sunk below the floor.</li>
+        <li><b>Scaling the correlations (the page’s corollary).</b> Multiply the correlations by t: the average of W² becomes 9 − 10t, at least 1 for t ≤ 0.8, and the page gives a genuine joint law for t ≤ 0.8 (amber bars). For t between 0.8 and 1 the conjecture’s conditions still hold, yet there is no joint law.</li>
+        <li><b>Positive semidefiniteness does not suffice either (the page’s argument).</b> The second-moment matrix I + tC is positive semidefinite up to t = 2/√5 ≈ 0.894. The dossier lists “does adding positive semidefiniteness suffice?” as open; the stretch 0.8 &lt; t ≤ 0.894 gives counterexamples by the same argument. This is neither formalized nor reviewed.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/halliwell-mawby-2019-leggett-garg-six-time-sufficiency.md" target="_blank" rel="noopener">Problem dossier</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Contextuality/LeggettGargSixTimeSufficiencyRefutation.lean" target="_blank" rel="noopener">LeggettGargSixTimeSufficiencyRefutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Quantum/Contextuality/LeggettGargSixTimeSufficiencyRefutation.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/Observer/halliwellmawby2019finentimes.md" target="_blank" rel="noopener">literature note</a> · Halliwell, Mawby, <a href="https://doi.org/10.1103/PhysRevA.100.042103" target="_blank" rel="noopener">doi:10.1103/PhysRevA.100.042103</a> · <a href="https://arxiv.org/abs/1906.04865" target="_blank" rel="noopener">arXiv:1906.04865</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
