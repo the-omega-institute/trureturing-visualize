@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="CARRYLESS//PAIRS · Ordinary against carryless multiplication: four OEIS conjectures">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CARRYLESS//PAIRS 普通乘法对无进位乘法：四个 OEIS 猜想</title>
+<meta name="description" content="C(u, k) 是二进制无进位乘法（GF(2) 上的多项式乘法，OEIS A048720）。Karttunen 在 OEIS 里问：方程 m·k = C(u, k) 的解集之间是否相等或包含。本库在 Lean 里对全部 k ≥ 0 证明了四条并已冻结：9k = C(25, k) ⇔ 15k = C(19, k)，7k = C(11, k) ⇔ 5k = C(13, k)，13k = C(29, k) ⇒ 11k = C(31, k)，17k = C(49, k) ⇒ 9k = C(25, k)。每个证明都把两条方程当作从低位读 k 的自动机，闭合一个有限的状态关系。页面画出这个乘积自动机，让 k 沿它走，并比较两个解集。C(u, k) is binary carryless multiplication (polynomial multiplication over GF(2), OEIS A048720). Karttunen asked in the OEIS whether the solution sets of equations m·k = C(u, k) coincide or contain one another. This library proves four of them in Lean for every k ≥ 0, frozen: 9k = C(25, k) ⇔ 15k = C(19, k), 7k = C(11, k) ⇔ 5k = C(13, k), 13k = C(29, k) ⇒ 11k = C(31, k), 17k = C(49, k) ⇒ 9k = C(25, k). Each proof runs both equations as automata that read k from the lowest bit and closes a finite relation between their states. The page draws that product automaton, walks k through it and compares the two solution sets.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="carryless-pairs">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="CARRYLESS//PAIRS">CARRYLESS<b>//</b>PAIRS</h1>
+      <div class="tagline">
+        <span class="zh">普通乘法对无进位乘法 · <em>四个 OEIS 猜想，对全部 k 证明（已冻结）</em></span>
+        <span class="en">Ordinary against carryless multiplication · <em>four OEIS conjectures, proved for every k (frozen)</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="nine" aria-pressed="true"><span class="code">9·25 ⇔ 15·19</span><span class="cn zh">A115801：两个集合相同</span><span class="cn en">A115801: the same set</span></button>
+        <button class="preset" data-preset="seven" aria-pressed="false"><span class="code">7·11 ⇔ 5·13</span><span class="cn zh">A115770：最小的自动机</span><span class="cn en">A115770: the smallest automaton</span></button>
+        <button class="preset" data-preset="member" aria-pressed="false"><span class="code">k = 15</span><span class="cn zh">沿路径读一个解</span><span class="cn en">Walking one solution</span></button>
+        <button class="preset" data-preset="contain" aria-pressed="false"><span class="code">13·29 ⇒ 11·31</span><span class="cn zh">A115805 ⊆ A115803</span><span class="cn en">A115805 ⊆ A115803</span></button>
+        <button class="preset" data-preset="seventeen" aria-pressed="false"><span class="code">17·49 ⇒ 9·25</span><span class="cn zh">A115809 ⊆ A115801</span><span class="cn en">A115809 ⊆ A115801</span></button>
+        <button class="preset" data-preset="converse" aria-pressed="false"><span class="code">k = 15 · ⇍</span><span class="cn zh">反方向不成立</span><span class="cn en">The converse fails</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">定理</span><span class="en">Theorem</span><span class="aside">m·k = C(u, k)</span></h2>
+      <div class="chips" id="modChips" role="group" aria-label="定理" data-aria-en="Theorem">
+        <button class="chip" data-mod="A115801">A115801</button>
+        <button class="chip" data-mod="A115770">A115770</button>
+        <button class="chip" data-mod="A115803">A115805 ⊆ A115803</button>
+        <button class="chip" data-mod="A115809">A115809 ⊆ A115801</button>
+      </div>
+      <div class="chips subchips" id="lenChips" role="group" aria-label="k 的范围" data-aria-en="Range of k">
+        <button class="chip" data-len="8">k &lt; 2⁸</button>
+        <button class="chip" data-len="10">k &lt; 2¹⁰</button>
+        <button class="chip" data-len="12">k &lt; 2¹²</button>
+      </div>
+      <p class="note" id="formula"></p>
+      <p class="note" id="modNote"></p>
+    </section>
+  </aside>
+
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：两条方程的乘积自动机与 k 的路径；拖动旋转，滚轮缩放" data-aria-en="3D view: the product automaton of the two equations and the path of k; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="两个解集的条码" data-aria-en="Barcode of the two solution sets"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="当前 k 的普通乘积与无进位乘积" data-aria-en="Ordinary and carryless products of the current k"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">GF(2)[X]</span></h2>
+      <dl class="ro">
+        <div class="c w"><dt id="ro1L"></dt><dd id="ro1">—</dd></div>
+        <div class="m w"><dt id="ro2L"></dt><dd id="ro2">—</dd></div>
+        <div class="a w"><dt id="ro3L"></dt><dd id="ro3">—</dd></div>
+        <div class="w"><dt id="ro4L"></dt><dd id="ro4">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">C(u, k) 的第 t 位是 (Σ_{i ≤ t} bitᵢ(u)·bit_{t−i}(k)) mod 2；其余乘法是普通乘法；k 取全部自然数（含 0）。冻结的四个定理：9k = C(25, k) ⇔ 15k = C(19, k)；7k = C(11, k) ⇔ 5k = C(13, k)；13k = C(29, k) ⇒ 11k = C(31, k)；17k = C(49, k) ⇒ 9k = C(25, k)。已冻结：</span><span class="en">Bit t of C(u, k) is (Σ_{i ≤ t} bitᵢ(u)·bit_{t−i}(k)) mod 2; the other products are ordinary multiplication; k ranges over all natural numbers, 0 included. The four frozen theorems: 9k = C(25, k) ⇔ 15k = C(19, k); 7k = C(11, k) ⇔ 5k = C(13, k); 13k = C(29, k) ⇒ 11k = C(31, k); 17k = C(49, k) ⇒ 9k = C(25, k). Frozen: </span><code>CarrylessMultiplierEquivalence.result · CarrylessSevenFiveEquivalence.result · CarrylessThirteenElevenContainment.result · CarrylessSeventeenNineContainment.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">证明的机制：carryless 等于按位递推 P(u, 2n) = 2P(u, n)、P(u, 2n + 1) = 2P(u, n) xor u；状态 (c, d) 表示 m·k + c = P(u, k) xor d，读一位就换成下一个状态（holds_step）；每个模块列出一个有限的状态对集合 related，用 decide 验证它在读 0 或 1 时封闭、并且在结束时两条方程一致（或第一条蕴含第二条），再对 k 归纳。冻结的公开声明：</span><span class="en">The mechanism: carryless equals the bitwise recursion P(u, 2n) = 2P(u, n), P(u, 2n + 1) = 2P(u, n) xor u; a state (c, d) stands for m·k + c = P(u, k) xor d, and reading one bit moves to the next state (holds_step); each module lists a finite set of state pairs, related, checks by decide that it is closed under reading 0 or 1 and that at the end the two equations agree (or the first implies the second), then inducts on k. Frozen public declarations: </span><code>binaryProduct · carryless_eq · step · holds_step</code></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：乘积自动机由页面从 (0, 0)|(0, 0) 广度优先展开，可达的状态对分别是 29、15、50、101 个——与各 Lean 模块里 related 集合的大小相同；条码、计数与乘积都由页面按定义算出，k 只到 2¹²。页面观察到：没有一个可达状态“只有第一条方程成立”。</span><span class="en">Numbers computed on the page, not theorems: the page expands the product automaton breadth-first from (0, 0)|(0, 0), and the reachable state pairs number 29, 15, 50 and 101 — the sizes of the related sets in the Lean modules; the barcode, the counts and the products are computed from the definitions, for k up to 2¹² only. The page observes that no reachable state accepts only the first equation.</span></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">定理之外：哪些乘数对 (m, u) 有这种有限的进位关系的统一分类；两个包含关系的反方向（页面上 k = 15 已说明不成立，这不是 Lean 定理）；用二进制游程刻画这些集合。</span><span class="en">Outside the theorems: a uniform classification of the multiplier pairs (m, u) that admit such a finite carry relation; converses of the two containments (k = 15 on this page shows they fail; that is not a Lean theorem); a description of these sets by binary runs.</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">OEIS（Antti Karttunen）：A115801（第 20 次修订，注释猜想 15k = C(19, k) 给出同一集合，已查到 2²⁵）；A115770（第 22 次修订，猜想 5k = C(13, k)，查到 2²⁵）；A115805 与 A115803 之间的包含交叉引用；A115809 自 2006 年的“Subset of A115801 ?”；运算 A048720（1999）。OEIS 条目没有 DOI。</span><span class="en">OEIS (Antti Karttunen): A115801 (revision 20, a comment conjectures that 15k = C(19, k) gives the same set, checked to 2²⁵); A115770 (revision 22, conjecturing 5k = C(13, k), checked to 2²⁵); the containment cross-reference between A115805 and A115803; A115809’s “Subset of A115801 ?” from 2006; the operation A048720 (1999). OEIS entries have no DOI.</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0001" value="0" aria-label="k" data-aria-en="k">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> k ± 1 · <kbd>E</kbd> 跳到末尾</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> k ± 1 · <kbd>E</kbd> jump to the end</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">无进位乘法把二进制数当作 GF(2) 上的多项式相乘：竖式里每一列只取奇偶，不进位。方程 m·k = C(u, k) 问：哪些 k 的普通 m 倍恰好等于它与 u 的无进位乘积。Karttunen 在 OEIS 里收集了这样的集合，并猜想某些集合相等或互相包含，只做了有限的检查。本库在 Lean 里对全部 k 证明了四条。</p>
+      <ol>
+        <li><b>从低位读 k。</b>两种乘法都可以一位一位地从低位算起：普通乘法要记住进位 c，无进位乘法要记住还没对齐的异或部分 d。状态 (c, d) 就是“剩下的位还欠多少”，读一位就转到下一个状态；对不上就拒绝。</li>
+        <li><b>状态是有限的。</b>c 与 d 都不会无限增长，所以两条方程的状态对只有有限个。三维视图就是这个乘积自动机：从 (0, 0)|(0, 0) 出发，每个节点两条出边（读 0 或读 1）。</li>
+        <li><b>证明就是检查每个节点。</b>相等的情形：每个可达节点上，两条方程“此刻结束是否成立”都相同（琥珀 = 都成立）。包含的情形：没有节点只让第一条成立（紫色节点只让第二条成立）。Lean 用 decide 列举这个有限集合，再对 k 归纳。</li>
+        <li><b>沿路径读一个 k。</b>时间轴扫过 k；琥珀线是当前 k 的路径，终点决定两条方程是否成立。右下图把两种乘积逐位对齐，品红位就是它们不同的地方。</li>
+        <li><b>反方向。</b>k = 15 满足 11k = C(31, k) 却不满足 13k = C(29, k)，所以 A115805 ⊆ A115803 是严格的包含。这是页面的计算。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：问题卷宗 <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a115801-carryless-multiplier-equivalence.md" target="_blank" rel="noopener">A115801</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a115770-carryless-seven-five-equivalence.md" target="_blank" rel="noopener">A115770</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a115803-carryless-thirteen-eleven-containment.md" target="_blank" rel="noopener">A115803</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a115809-carryless-seventeen-nine-containment.md" target="_blank" rel="noopener">A115809</a> · Lean <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Digit/Admissibility/CarrylessMultiplierEquivalence.lean" target="_blank" rel="noopener">CarrylessMultiplierEquivalence.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Digit/Admissibility/CarrylessSevenFiveEquivalence.lean" target="_blank" rel="noopener">CarrylessSevenFiveEquivalence.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Digit/Admissibility/CarrylessThirteenElevenContainment.lean" target="_blank" rel="noopener">CarrylessThirteenElevenContainment.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Digit/Admissibility/CarrylessSeventeenNineContainment.lean" target="_blank" rel="noopener">CarrylessSeventeenNineContainment.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S1/Digit/Admissibility/CarrylessMultiplierEquivalence.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://oeis.org/A115801" target="_blank" rel="noopener">OEIS A115801</a> · <a href="https://oeis.org/A115770" target="_blank" rel="noopener">A115770</a> · <a href="https://oeis.org/A115803" target="_blank" rel="noopener">A115803</a> · <a href="https://oeis.org/A115805" target="_blank" rel="noopener">A115805</a> · <a href="https://oeis.org/A115809" target="_blank" rel="noopener">A115809</a> · <a href="https://oeis.org/A048720" target="_blank" rel="noopener">A048720</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">Carryless multiplication multiplies binary numbers as polynomials over GF(2): every column of the long multiplication keeps only its parity and nothing is carried. The equation m·k = C(u, k) asks for which k the ordinary product m·k equals the carryless product of u and k. Karttunen collected such sets in the OEIS and conjectured, after finite checks, that some of them coincide or contain one another. This library proves four of them in Lean for every k.</p>
+      <ol>
+        <li><b>Read k from the lowest bit.</b> Both products can be computed one bit at a time from the bottom: ordinary multiplication carries c, carryless multiplication keeps the pending exclusive-or part d. A state (c, d) is “what the remaining bits still owe”; reading a bit moves to the next state, and a mismatch rejects.</li>
+        <li><b>Finitely many states.</b> Neither c nor d grows without bound, so the two equations have only finitely many state pairs. The 3D view is this product automaton: it starts at (0, 0)|(0, 0), and each node has two outgoing edges (read 0 or read 1).</li>
+        <li><b>The proof checks every node.</b> For equality, at every reachable node the two equations agree on whether they would hold if the input ended there (amber = both hold). For containment, no node lets only the first equation hold (violet nodes let only the second). Lean enumerates this finite set by decide and then inducts on k.</li>
+        <li><b>Walk one k along its path.</b> The time axis sweeps k; the amber line is the path of the current k, and its end decides both equations. The lower right chart lines the two products up bit by bit, and the magenta bits are where they differ.</li>
+        <li><b>The converse.</b> k = 15 satisfies 11k = C(31, k) but not 13k = C(29, k), so A115805 ⊆ A115803 is a strict containment. This is a computation on the page.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: problem dossiers <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a115801-carryless-multiplier-equivalence.md" target="_blank" rel="noopener">A115801</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a115770-carryless-seven-five-equivalence.md" target="_blank" rel="noopener">A115770</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a115803-carryless-thirteen-eleven-containment.md" target="_blank" rel="noopener">A115803</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a115809-carryless-seventeen-nine-containment.md" target="_blank" rel="noopener">A115809</a> · Lean <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Digit/Admissibility/CarrylessMultiplierEquivalence.lean" target="_blank" rel="noopener">CarrylessMultiplierEquivalence.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Digit/Admissibility/CarrylessSevenFiveEquivalence.lean" target="_blank" rel="noopener">CarrylessSevenFiveEquivalence.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Digit/Admissibility/CarrylessThirteenElevenContainment.lean" target="_blank" rel="noopener">CarrylessThirteenElevenContainment.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Digit/Admissibility/CarrylessSeventeenNineContainment.lean" target="_blank" rel="noopener">CarrylessSeventeenNineContainment.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S1/Digit/Admissibility/CarrylessMultiplierEquivalence.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://oeis.org/A115801" target="_blank" rel="noopener">OEIS A115801</a> · <a href="https://oeis.org/A115770" target="_blank" rel="noopener">A115770</a> · <a href="https://oeis.org/A115803" target="_blank" rel="noopener">A115803</a> · <a href="https://oeis.org/A115805" target="_blank" rel="noopener">A115805</a> · <a href="https://oeis.org/A115809" target="_blank" rel="noopener">A115809</a> · <a href="https://oeis.org/A048720" target="_blank" rel="noopener">A048720</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
