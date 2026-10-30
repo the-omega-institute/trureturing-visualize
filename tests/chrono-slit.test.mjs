@@ -22,7 +22,7 @@ const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, l
 const page = await ctx.newPage();
 const errors = [];
 page.on('pageerror', e => errors.push(e.message));
-page.on('console', m => { if (m.type() === 'error' && !/ERR_CERT|fonts\.g/.test(m.text())) errors.push('console: ' + m.text()); });
+page.on('console', m => { if (m.type() === 'error' && !/ERR_CERT/.test(m.text()) && !/^https:\/\/fonts\.(googleapis|gstatic)\.com\//.test((m.location() || {}).url || '')) errors.push('console: ' + m.text()); });
 const D = (expr) => page.evaluate(expr);
 // Controls are applied on the next animation frame; wait until the page has no pending recomputation,
 // so the checks do not depend on how fast the machine renders.

@@ -27,7 +27,7 @@ const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, l
 const page = await ctx.newPage();
 const errors = [];
 page.on('pageerror', e => errors.push(e.message));
-page.on('console', m => { if (m.type() === 'error' && !/ERR_CERT|fonts\.g/.test(m.text())) errors.push('console: ' + m.text()); });
+page.on('console', m => { if (m.type() === 'error' && !/ERR_CERT/.test(m.text()) && !/^https:\/\/fonts\.(googleapis|gstatic)\.com\//.test((m.location() || {}).url || '')) errors.push('console: ' + m.text()); });
 const D = (expr, arg) => page.evaluate(expr, arg);
 const settle = async () => {
   const start = await page.evaluate(() => MF_DEBUG.frames());
