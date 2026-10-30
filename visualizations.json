@@ -2,6 +2,50 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "cyclic-arrange",
+      "code": "CYCLIC//ARRANGE",
+      "path": "viz/cyclic-arrange/",
+      "thumbnail": "viz/cyclic-arrange/thumb.jpg",
+      "title": "Javaheri 的循环排列猜想在 (6, 1) 不成立",
+      "title_en": "Javaheri’s cyclic arrangement conjecture fails at (6, 1)",
+      "summary": "对 a, b ≥ 0 与 c = (a + b + 1)/2，循环不等式 (Σ xᵢ)(Σ xᵢᵃ xᵢ₊₁ᵇ) ≤ (Σ xᵢᶜ)² 在多大的维数 n 内对全部非负 n 元组成立？Javaheri（2026）猜想答案是 N*(a, b) = max{n : n = 1 或 (a + b − 1)² ≤ 8ab sin²(π/n)}。本库在 Lean 里证明它在 (6, 1) 不成立：门槛在 n = 3 取等号，N* = 3，可三元组 (6, 5, 5) 让左边比右边大 364，已冻结。页面画出三元组三角形上两边之比、门槛图，以及每个维数的数值搜索与最小整数反例。",
+      "summary_en": "For a, b ≥ 0 and c = (a + b + 1)/2, up to which dimension n does the cyclic inequality (Σ xᵢ)(Σ xᵢᵃ xᵢ₊₁ᵇ) ≤ (Σ xᵢᶜ)² hold for every nonnegative n-tuple? Javaheri (2026) conjectured the answer N*(a, b) = max{n : n = 1 or (a + b − 1)² ≤ 8ab sin²(π/n)}. This library proves in Lean that it fails at (6, 1): the threshold holds with equality at n = 3, so N* = 3, yet the triple (6, 5, 5) makes the left side exceed the right by 364, frozen. The page draws the ratio of the two sides over the triangle of triples, the threshold, a numerical search in every dimension and the smallest integer counterexamples.",
+      "status": "live",
+      "added": "2026-10-30",
+      "tags": [
+        "不等式",
+        "排列不等式",
+        "反例",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "inequalities",
+        "arrangement inequalities",
+        "counterexamples",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：Javaheri 循环排列维数猜想的反驳",
+          "label_en": "Problem dossier: refutation of Javaheri’s cyclic arrangement dimension conjecture",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/javaheri-2026-cyclic-arrangement-conjecture-refutation.md"
+        },
+        {
+          "label": "Blueprint：排列不等式的维数",
+          "label_en": "Blueprint: the dimension of the arrangement inequality",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S0/Certificates/Polynomials/JavaheriArrangementDimensionRefutation.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "JavaheriArrangementDimensionRefutation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S0/Certificates/Polynomials/JavaheriArrangementDimensionRefutation.lean"
+        }
+      ]
+    },
+    {
       "id": "lindblad-zero",
       "code": "LINDBLAD//ZERO",
       "path": "viz/lindblad-zero/",
