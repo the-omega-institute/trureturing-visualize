@@ -2,6 +2,67 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "carryless-pairs",
+      "code": "CARRYLESS//PAIRS",
+      "path": "viz/carryless-pairs/",
+      "thumbnail": "viz/carryless-pairs/thumb.jpg",
+      "title": "普通乘法对无进位乘法：四个 OEIS 猜想",
+      "title_en": "Ordinary against carryless multiplication: four OEIS conjectures",
+      "summary": "C(u, k) 是二进制无进位乘法（GF(2) 上的多项式乘法，A048720）。Karttunen 在 OEIS 里猜想方程 m·k = C(u, k) 的某些解集相等或互相包含，只做了有限的检查。本库在 Lean 里对全部 k ≥ 0 证明了四条并已冻结：9k = C(25, k) ⇔ 15k = C(19, k)，7k = C(11, k) ⇔ 5k = C(13, k)，13k = C(29, k) ⇒ 11k = C(31, k)，17k = C(49, k) ⇒ 9k = C(25, k)。证明把两条方程当作从低位读 k 的自动机，检查有限个状态对。页面画出这个乘积自动机（29、15、50、101 个状态），让 k 沿它走，并比较两个解集。",
+      "summary_en": "C(u, k) is binary carryless multiplication (polynomial multiplication over GF(2), A048720). Karttunen conjectured in the OEIS, after finite checks, that some solution sets of equations m·k = C(u, k) coincide or contain one another. This library proves four of them in Lean for every k ≥ 0, frozen: 9k = C(25, k) ⇔ 15k = C(19, k), 7k = C(11, k) ⇔ 5k = C(13, k), 13k = C(29, k) ⇒ 11k = C(31, k), 17k = C(49, k) ⇒ 9k = C(25, k). The proofs run both equations as automata reading k from the lowest bit and check finitely many state pairs. The page draws that product automaton (29, 15, 50 and 101 states), walks k through it and compares the two solution sets.",
+      "status": "live",
+      "added": "2026-10-30",
+      "tags": [
+        "数论",
+        "无进位乘法",
+        "自动机",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "number theory",
+        "carryless multiplication",
+        "automata",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：A115801 普通与无进位乘数条件等价",
+          "label_en": "Problem dossier: A115801, equivalent ordinary and carryless multiplier conditions",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a115801-carryless-multiplier-equivalence.md"
+        },
+        {
+          "label": "问题卷宗：A115770、A115803、A115809",
+          "label_en": "Problem dossiers: A115770, A115803, A115809",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a115770-carryless-seven-five-equivalence.md"
+        },
+        {
+          "label": "Blueprint：普通与无进位乘数方程",
+          "label_en": "Blueprint: ordinary and carryless multiplier equations",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S1/Digit/Admissibility/CarrylessMultiplierEquivalence.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "CarrylessMultiplierEquivalence.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Digit/Admissibility/CarrylessMultiplierEquivalence.lean"
+        },
+        {
+          "label": "CarrylessSevenFiveEquivalence.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Digit/Admissibility/CarrylessSevenFiveEquivalence.lean"
+        },
+        {
+          "label": "CarrylessThirteenElevenContainment.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Digit/Admissibility/CarrylessThirteenElevenContainment.lean"
+        },
+        {
+          "label": "CarrylessSeventeenNineContainment.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Digit/Admissibility/CarrylessSeventeenNineContainment.lean"
+        }
+      ]
+    },
+    {
       "id": "cyclic-arrange",
       "code": "CYCLIC//ARRANGE",
       "path": "viz/cyclic-arrange/",
