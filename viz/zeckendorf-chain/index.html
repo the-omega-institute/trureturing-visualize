@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="ZECKENDORF//CHAIN · The one-shared-term Zeckendorf chain is a permutation">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ZECKENDORF//CHAIN Zeckendorf 一项相同链：贪心序列是排列</title>
+<meta name="description" content="OEIS A370630：从 1 开始，每一步取尚未用过、且 Zeckendorf 展开与上一项恰有一项相同的最小正整数。记录猜想它是正整数的一个排列；本库在 Lean 里证明了它并已冻结——每一步都有合格的后继，各项互不相同，每个正整数都会出现。页面把链上每一项的 Zeckendorf 数字织成三维图，标出相邻两项共享的那一项，并追踪最小的尚未出现的数。OEIS A370630: start at 1 and at each step take the least unused positive integer whose Zeckendorf expansion shares exactly one term with the previous one. The record conjectures that this is a permutation of the positive integers; this library proves it in Lean, frozen — every step has an eligible successor, the terms are distinct, and every positive integer appears. The page weaves the Zeckendorf digits of the chain into a 3D picture, marks the one term shared by neighbours, and tracks the smallest number not yet seen.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="zeckendorf-chain">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="ZECKENDORF//CHAIN">ZECKENDORF<b>//</b>CHAIN</h1>
+      <div class="tagline">
+        <span class="zh">OEIS A370630 · <em>相邻两项的 Zeckendorf 展开恰有一项相同，贪心地走下去会走遍所有正整数（已冻结）</em></span>
+        <span class="en">OEIS A370630 · <em>neighbours share exactly one Zeckendorf term, and the greedy walk visits every positive integer (frozen)</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="start" aria-pressed="true"><span class="code">1, 4, 3, 11, 8, …</span><span class="cn zh">链的开头</span><span class="cn en">The start of the chain</span></button>
+        <button class="preset" data-preset="two" aria-pressed="false"><span class="code">a(10) = 2</span><span class="cn zh">2 要等到第 10 步</span><span class="cn en">2 waits until step 10</span></button>
+        <button class="preset" data-preset="long" aria-pressed="false"><span class="code">n ≤ 30000</span><span class="cn zh">长程：贴着对角线</span><span class="cn en">Long run: close to the diagonal</span></button>
+        <button class="preset" data-preset="wait" aria-pressed="false"><span class="code">max τ(m) − m</span><span class="cn zh">等得最久的数</span><span class="cn en">The longest wait</span></button>
+        <button class="preset" data-preset="atleast" aria-pressed="false"><span class="code">A370631 · ≥ 1</span><span class="cn zh">至少一项相同</span><span class="cn en">At least one shared term</span></button>
+        <button class="preset" data-preset="binary" aria-pressed="false"><span class="code">A226077 · 2ᵏ</span><span class="cn zh">二进制版本</span><span class="cn en">The binary version</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">规则</span><span class="en">Rule</span><span class="aside">a(n+1) = min</span></h2>
+      <div class="chips" id="ruleChips" role="group" aria-label="相邻规则" data-aria-en="Adjacency rule">
+        <button class="chip" data-rule="one"><span class="zh">Zeckendorf 恰一项</span><span class="en">Zeckendorf, exactly one</span></button>
+        <button class="chip" data-rule="atleast"><span class="zh">Zeckendorf 至少一项</span><span class="en">Zeckendorf, at least one</span></button>
+        <button class="chip" data-rule="binary"><span class="zh">二进制恰一位</span><span class="en">Binary, exactly one bit</span></button>
+      </div>
+      <div class="chips subchips" id="nChips" role="group" aria-label="步数" data-aria-en="Number of steps">
+        <button class="chip" data-n="300">n ≤ 300</button>
+        <button class="chip" data-n="3000">n ≤ 3000</button>
+        <button class="chip" data-n="30000">n ≤ 30000</button>
+      </div>
+      <p class="note" id="formula"></p>
+      <p class="note" id="modeNote"></p>
+    </section>
+  </aside>
+
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：链上每一项的 Zeckendorf 数字；拖动旋转，滚轮缩放" data-aria-en="3D view: the Zeckendorf digits of every term of the chain; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视：数字织锦</span><span class="en">Top: the digit weave</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="偏离对角线 a(n) − n" data-aria-en="Distance from the diagonal a(n) − n"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="最小的未出现数" data-aria-en="The smallest number not yet seen"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">a(n)</span></h2>
+      <dl class="ro">
+        <div class="c"><dt id="ro1L"></dt><dd id="ro1">—</dd></div>
+        <div class="m"><dt id="ro2L"></dt><dd id="ro2">—</dd></div>
+        <div class="a w"><dt id="ro3L"></dt><dd id="ro3">—</dd></div>
+        <div><dt id="ro4L"></dt><dd id="ro4">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">设 Z(m) 是正整数 m 的 Zeckendorf 展开里出现的 Fibonacci 下标集合（下标 ≥ 2、两两不相邻）。a(1) = 1；a(n+1) 是尚未出现、且 |Z(m) ∩ Z(a(n))| = 1 的最小正整数 m。OEIS A370630 的记录猜想它是正整数的一个排列。本库证明：每一步都存在合格的后继，a(n+1) 确实是其中最小的，各项互不相同，每个正整数都出现在某一步。已冻结：</span><span class="en">Let Z(m) be the set of Fibonacci indices (all ≥ 2, no two adjacent) in the Zeckendorf expansion of a positive integer m. a(1) = 1, and a(n+1) is the least positive integer m not yet used with |Z(m) ∩ Z(a(n))| = 1. The OEIS record A370630 conjectures that this is a permutation of the positive integers. This library proves that every step has an eligible successor, that a(n+1) is indeed the least of them, that the terms are distinct, and that every positive integer appears at some step. Frozen: </span><code>ZeckendorfGreedyPermutation.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">证明的骨架是同一模块里一起冻结的私有引理：取一个足够远的新 Fibonacci 下标，与当前项的某个下标配对，就得到一个比已用值之和还大的合格值，所以链永不中断；单射来自“只取未用过的数”；若某个正整数永远缺席，每当它合格，最小性就把下一项压在它下面，它若无限次合格便与单射矛盾；大下标的“记录对”迫使某个固定下标成为“中枢”（含它的数都会被访问），中枢再沿新的三项展开传播到所有下标。冻结（模块内引理）：</span><span class="en">The skeleton of the proof is a set of private lemmas frozen with the module: pairing a sufficiently distant fresh Fibonacci index with an index of the current term gives an eligible value larger than the sum of all used values, so the chain never stops; injectivity comes from taking only unused numbers; if some positive integer were missing forever, minimality would put the next term below it whenever it is eligible, which contradicts injectivity if it is eligible infinitely often; record pairs of large indices force some fixed index to be a “hub” (every number containing it is visited), and hubs propagate to every index through fresh three-term expansions. Frozen (lemmas inside the module): </span><code>exists_next · v_injective · record_pairs · pair_forces_two · root_hub · hub_propagates · every_positive</code></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：页面按定义逐步算出前 30000 项，前 67 项与 OEIS 记录的数据逐项一致。页面观察到：n ≤ 30000 时约 62% 的相邻两项共享的是双方的最高项；a(n) 离对角线不远，|a(n) − n| 最大为 3355（n = 29428，a(n) = 26073）；最小未出现数一路上升。</span><span class="en">Numbers computed on the page, not theorems: the page computes the first 30000 terms step by step from the definition, and the first 67 agree with the data of the OEIS record term by term. The page observes that for n ≤ 30000 about 62% of consecutive pairs share the leading term of both, that a(n) stays near the diagonal, with |a(n) − n| at most 3355 (n = 29428, a(n) = 26073), and that the smallest number not yet seen keeps rising.</span></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">定理之外：任何定量的访问界（某个数最晚第几步出现）；换起点、换权重或换“恰一项”条件后的同类问题。A370631（至少一项）与 A226077（二进制恰一位）的 OEIS 评注称它们也是排列，本库没有核对这些陈述。</span><span class="en">Outside the theorem: any quantitative visiting bound (by which step a given number must appear); the same question with another start, another weight system or a condition other than “exactly one term”. The OEIS comments of A370631 (at least one term) and A226077 (exactly one binary bit) call them permutations too; this library has not checked those statements.</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">OEIS A370630（Rémy Sigrist，2024；卷宗钉住的是第 16 次修订）：“Lexicographically earliest sequence of distinct positive integers such that the Zeckendorf expansions of two consecutive terms have exactly one common term.” 评注：“Conjecture: this sequence is a permutation of the positive integers.”</span><span class="en">OEIS A370630 (Rémy Sigrist, 2024; the dossier pins revision 16): “Lexicographically earliest sequence of distinct positive integers such that the Zeckendorf expansions of two consecutive terms have exactly one common term.” Comment: “Conjecture: this sequence is a permutation of the positive integers.”</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.00001" value="0" aria-label="步数 n" data-aria-en="Step n">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 单步 · <kbd>E</kbd> 跳到末尾</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> step · <kbd>E</kbd> jump to the end</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">每个正整数都能唯一地写成若干个两两不相邻的 Fibonacci 数之和（Zeckendorf 展开），例如 11 = 8 + 3 = F(6) + F(4)。A370630 从 1 出发，每一步都贪心地取最小的、还没用过、并且与上一项恰好共享一个 Fibonacci 项的数。它会不会卡住？会不会漏掉某个数？本库在 Lean 里证明：都不会。</p>
+      <ol>
+        <li><b>数字织锦。</b>三维视图里横向是步数 n，纵深是 Fibonacci 下标 k，每个点表示 F(k) 出现在 a(n) 的展开里。相邻两步共享的那一项用琥珀线连起来——按定义每一步恰有一条。俯视时它像一块织物，经线是长时间被延续的高位项。</li>
+        <li><b>不会卡住（冻结）。</b>取一个比所有已用下标都远的新下标 j，再取当前项的某个下标 i，F(i) + F(j) 与当前项恰共享 F(i)，且比所有已用值都大，所以合格的后继总是存在。</li>
+        <li><b>不会漏掉（冻结）。</b>如果某个数 m 永远不出现，那么每当它在某一步合格，贪心选出的下一项就不超过 m；若 m 无限次合格，就有无限多个互不相同的项不超过 m，矛盾。证明的难点是说明 m 确实无限次合格：大下标的“记录对”迫使某个下标成为“中枢”，再传播到所有下标。</li>
+        <li><b>页面上的读数。</b>左下图是 a(n) − n：链贴着对角线前进，偶尔向前跳、向后补。右下图是最小未出现数 m*(n)，冻结定理保证它趋于无穷；对每个已出现的 m，等待时间 τ(m) − m 是有限的。</li>
+        <li><b>边界。</b>定理不给出任何定量的访问界。规则切换到“至少一项”（A370631）或“二进制恰一位”（A226077）只是数值对照，那些序列的排列性质不在本库定理之内。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a370630-zeckendorf-greedy-permutation.md" target="_blank" rel="noopener">问题卷宗</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Permutation/ZeckendorfGreedyPermutation.lean" target="_blank" rel="noopener">ZeckendorfGreedyPermutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Combinatorics/Permutation/ZeckendorfGreedyPermutation.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://oeis.org/A370630" target="_blank" rel="noopener">OEIS A370630</a> · <a href="https://oeis.org/A370631" target="_blank" rel="noopener">A370631</a> · <a href="https://oeis.org/A226077" target="_blank" rel="noopener">A226077</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">Every positive integer is uniquely a sum of Fibonacci numbers, no two adjacent (its Zeckendorf expansion), for example 11 = 8 + 3 = F(6) + F(4). A370630 starts at 1 and at every step greedily takes the least number not yet used that shares exactly one Fibonacci term with the previous one. Can it get stuck? Can it skip a number for ever? This library proves in Lean that neither happens.</p>
+      <ol>
+        <li><b>The digit weave.</b> In the 3D view, across is the step n and depth is the Fibonacci index k; each point means that F(k) occurs in the expansion of a(n). The term shared by consecutive steps is joined by an amber line — by definition there is exactly one per step. From above it looks like a woven cloth whose warp threads are high terms carried over many steps.</li>
+        <li><b>It never gets stuck (frozen).</b> Take a fresh index j farther than every index used so far and an index i of the current term: F(i) + F(j) shares exactly F(i) with the current term and is larger than every used value, so an eligible successor always exists.</li>
+        <li><b>It skips nothing (frozen).</b> If some number m never appeared, then whenever m is eligible the next term chosen by the greedy rule is at most m; if m were eligible infinitely often, infinitely many distinct terms would be at most m, a contradiction. The hard part is showing that m is indeed eligible infinitely often: record pairs of large indices force some index to become a “hub”, which then propagates to every index.</li>
+        <li><b>The readings.</b> The lower left chart is a(n) − n: the chain runs close to the diagonal, sometimes jumping ahead and later filling in behind. The lower right chart is the smallest number not yet seen, m*(n), which the frozen theorem sends to infinity; for every m already seen the waiting time τ(m) − m is finite.</li>
+        <li><b>Limits.</b> The theorem gives no quantitative visiting bound. Switching the rule to “at least one term” (A370631) or “exactly one binary bit” (A226077) is a numerical comparison only; the permutation property of those sequences is outside this library’s theorem.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a370630-zeckendorf-greedy-permutation.md" target="_blank" rel="noopener">Problem dossier</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Permutation/ZeckendorfGreedyPermutation.lean" target="_blank" rel="noopener">ZeckendorfGreedyPermutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Combinatorics/Permutation/ZeckendorfGreedyPermutation.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://oeis.org/A370630" target="_blank" rel="noopener">OEIS A370630</a> · <a href="https://oeis.org/A370631" target="_blank" rel="noopener">A370631</a> · <a href="https://oeis.org/A226077" target="_blank" rel="noopener">A226077</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
