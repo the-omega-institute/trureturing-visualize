@@ -2,6 +2,50 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "pauli-volumes",
+      "code": "PAULI//VOLUMES",
+      "path": "viz/pauli-volumes/",
+      "thumbnail": "viz/pauli-volumes/thumb.jpg",
+      "title": "广义 Pauli 信道的体积比",
+      "title_en": "Volume ratios of generalized Pauli channels",
+      "summary": "Siudzińska（2020）用 d + 1 组互无偏基构造广义 Pauli 信道，每组基对应一个特征值；她在 d ≤ 5 算出四个特征值区域的体积，猜想三个比值公式：V_C/V_P = d/(d + 1)!，V_G/V_C = ((d² − 1)/d²)((d − 1)/d)^d，V_E/V_G = 1/(d + 1)。本库在 Lean 里对每个 d ≥ 2 证明了这三个公式，均已冻结；证明的关键是 C 为单纯形的仿射像、G 是两块单纯形之并、E 就是标准单纯形。页面画出 d = 2 时盒子里的四面体、双锥与单纯形，d = 3 时四维区域的三维截面（截面体积对 λ₄ 积分回到四维体积），并用随机取点核对更高维的比值。",
+      "summary_en": "Siudzińska (2020) built generalized Pauli channels from d + 1 mutually unbiased bases, one eigenvalue per basis; after computing the volumes of four eigenvalue regions for d ≤ 5 she conjectured three ratio formulas: V_C/V_P = d/(d + 1)!, V_G/V_C = ((d² − 1)/d²)((d − 1)/d)^d and V_E/V_G = 1/(d + 1). This library proves all three in Lean for every d ≥ 2, frozen; the key is that C is an affine image of a simplex, G is the union of two simplices, and E is the standard simplex. The page draws, for d = 2, the tetrahedron, the bipyramid and the simplex inside the box; for d = 3, three-dimensional sections of the four-dimensional regions (whose volumes integrate over λ₄ back to the four-dimensional volumes); and checks the higher-dimensional ratios with random points.",
+      "status": "live",
+      "added": "2026-10-30",
+      "tags": [
+        "量子信道",
+        "互无偏基",
+        "多面体体积",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "quantum channels",
+        "mutually unbiased bases",
+        "polytope volumes",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：Siudzińska 2020 的三个体积比猜想",
+          "label_en": "Problem dossier: the three volume-ratio conjectures of Siudzińska 2020",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/siudzinska-2020-generalized-pauli-volume-ratios.md"
+        },
+        {
+          "label": "Blueprint：广义 Pauli 信道的体积比",
+          "label_en": "Blueprint: volume ratios for generalized Pauli channels",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/QuantumChannels/GeneralizedPauliVolumeRatios.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "GeneralizedPauliVolumeRatios.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumChannels/GeneralizedPauliVolumeRatios.lean"
+        }
+      ]
+    },
+    {
       "id": "gronwall-edge",
       "code": "GRONWALL//EDGE",
       "title": "除数和能多接近 e^γ n log log n",
