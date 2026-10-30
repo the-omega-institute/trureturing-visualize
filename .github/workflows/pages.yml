@@ -38,15 +38,15 @@ jobs:
         with:
           path: _site
 
-  # The suites run in four parallel shards; the aggregate `browser` check below passes only when every shard passes.
+  # The suites run in eight parallel shards; the aggregate `browser` check below passes only when every shard passes.
   browser-shard:
-    name: browser shard ${{ matrix.shard }}/4
+    name: browser shard ${{ matrix.shard }}/8
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4]
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -62,7 +62,7 @@ jobs:
           npx playwright install --with-deps chromium
 
       - name: Browser regression suites
-        run: node scripts/test-browser.mjs --shard ${{ matrix.shard }}/4
+        run: node scripts/test-browser.mjs --shard ${{ matrix.shard }}/8
 
   browser:
     if: always()
