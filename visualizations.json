@@ -2,6 +2,55 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "error-disturbance",
+      "code": "ERROR//DISTURB",
+      "path": "viz/error-disturbance/",
+      "thumbnail": "viz/error-disturbance/thumb.jpg",
+      "title": "中间的测量比两个端点都好",
+      "title_en": "An intermediate measurement beats both endpoints",
+      "summary": "Zhou、Wu、Chau（2016，猜想 3 的第二个不等式）猜想：用测量 A′ 测 A 的误差加上它对 B 的扰动，在同一个态上取最坏值 Δ(A, A′, B)，总不小于两个端点中便宜的那个 f(A, B) = min{ε_rel(A, B), η(A, B)}。本库在 Lean 里证明这在三维不成立并已冻结：A = I、A′ = U、B = V 取有理正交矩阵，36 个半正定证书给出 Δ ≤ 71/250，两个见证态给出 f > 57/200。页面让 A′ 沿 SO(3) 上的路径从 A 走到 B，画出三组测量基、最坏的态与沿路的 Δ：经过 U 的路从 A 出发直到 t ≈ 0.54 都低于 f，直接的测地线上处处不低于 f（页面数值）。",
+      "summary_en": "Zhou, Wu and Chau (2016, second inequality of Conjecture 3) conjectured that the error of a measurement A′ in measuring A plus the disturbance it causes to B, maximized over one common state as Δ(A, A′, B), is never below the cheaper endpoint f(A, B) = min{ε_rel(A, B), η(A, B)}. This library proves in Lean that this fails in dimension three, frozen: with A = I, A′ = U and B = V rational orthogonal matrices, 36 semidefinite certificates give Δ ≤ 71/250 and two witness states give f > 57/200. The page moves A′ from A to B along paths on SO(3) and draws the three measurement bases, the worst state and Δ along the way: on the path through U it stays below f from A until t ≈ 0.54, along the direct geodesic Δ never drops below f (page numbers).",
+      "status": "live",
+      "added": "2026-10-30",
+      "tags": [
+        "量子测量",
+        "误差与扰动",
+        "半正定证书",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "quantum measurement",
+        "error and disturbance",
+        "semidefinite certificates",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：Zhou–Wu–Chau 端点下界",
+          "label_en": "Problem dossier: the Zhou–Wu–Chau endpoint bound",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/zhou-wu-chau-2016-error-disturbance-endpoint-refutation.md"
+        },
+        {
+          "label": "Blueprint：端点下界的反驳",
+          "label_en": "Blueprint: refuting the endpoint bound",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Quantum/Measurement/ErrorDisturbanceEndpointRefutation.md"
+        },
+        {
+          "label": "文献笔记：Zhou、Wu、Chau 2016",
+          "label_en": "Literature note: Zhou, Wu and Chau 2016",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Library/Estimation/zhouwuchau2016errordisturbance.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "ErrorDisturbanceEndpointRefutation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Measurement/ErrorDisturbanceEndpointRefutation.lean"
+        }
+      ]
+    },
+    {
       "id": "book-roots",
       "code": "BOOK//ROOTS",
       "path": "viz/book-roots/",

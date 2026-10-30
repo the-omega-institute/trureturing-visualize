@@ -9,6 +9,7 @@ Every page is bilingual (中文 / English, switchable in the header) and states 
 
 | id | Page | Theory |
 | --- | --- | --- |
+| `error-disturbance` | [ERROR//DISTURB 中间的测量比两个端点都好](https://the-omega-institute.github.io/trureturing-visualize/viz/error-disturbance/) | 问题卷宗：Zhou–Wu–Chau 端点下界 |
 | `book-roots` | [BOOK//ROOTS 书图支配多项式根的猜想在正方形上不成立](https://the-omega-institute.github.io/trureturing-visualize/viz/book-roots/) | 问题卷宗：书图支配多项式根的猜想 |
 | `caterpillar-pairs` | [CATER//PAIRS 只有第三次主特化分不开的毛毛虫图](https://the-omega-institute.github.io/trureturing-visualize/viz/caterpillar-pairs/) | 问题卷宗：毛毛虫主特化整族与唯一性 |
 | `oqw-ruin` | [OQW//RUIN 开放量子游走的赌徒破产：平均吸收时间需要 Im ρ₀₁](https://the-omega-institute.github.io/trureturing-visualize/viz/oqw-ruin/) | 问题卷宗：Jacq–Lardizabal 平均命中时间的形式 |
