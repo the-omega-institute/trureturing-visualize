@@ -9,6 +9,7 @@ Every page is bilingual (中文 / English, switchable in the header) and states 
 
 | id | Page | Theory |
 | --- | --- | --- |
+| `qaoa-support` | [QAOA//SUPPORT 一层 QAOA 的四态真叠加](https://the-omega-institute.github.io/trureturing-visualize/viz/qaoa-support/) | 问题卷宗：一层 QAOA 在三个量子比特上的四态真叠加 |
 | `energy-game` | [ENERGY//GAME 图能量博弈：Shapley 值离开核](https://the-omega-institute.github.io/trureturing-visualize/viz/energy-game/) | 问题卷宗：图能量博弈的 Shapley 分配可以离开核 |
 | `pauli-volumes` | [PAULI//VOLUMES 广义 Pauli 信道的体积比](https://the-omega-institute.github.io/trureturing-visualize/viz/pauli-volumes/) | 问题卷宗：Siudzińska 2020 的三个体积比猜想 |
 | `gronwall-edge` | [GRONWALL//EDGE 除数和能多接近 e^γ n log log n](https://the-omega-institute.github.io/trureturing-visualize/viz/gronwall-edge/) | Lean：D5/S3/Weil 的 GronwallLowerEnvelope · PrimeValuationGap · Mertens/CriticalThetaTailPeak |

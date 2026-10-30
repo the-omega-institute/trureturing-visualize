@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="QAOA//SUPPORT · A genuine four-state superposition from level-one QAOA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>QAOA//SUPPORT 一层 QAOA 的四态真叠加</title>
+<meta name="description" content="一层 QAOA 在 3 个量子比特上输出的态 e^(−iβB) e^(−iγC)|+⟩⊗³ 能否恰好落在 4 个基态上、每个振幅都不为零？Streif 与 Leib（2020）断言支撑大小在 2 与 2ⁿ 之间是不可能的；本库在 Lean 里给出反例并冻结：β = π/8、γ = 1 时支撑恰为 4 个基态。页面在 (β, γ) 平面上画出最小振幅的地形，用牛顿法定位每个振幅的零点，并对照三种能量函数。Can the three-qubit level-one QAOA state e^(−iβB) e^(−iγC)|+⟩⊗³ land on exactly 4 basis states with every amplitude nonzero? Streif and Leib (2020) asserted that a support size strictly between 2 and 2ⁿ is impossible; this library gives a counterexample in Lean, frozen: at β = π/8 and γ = 1 the support is exactly 4 basis states. The page draws the landscape of the smallest amplitude over the (β, γ) plane, locates the zeros of every amplitude by Newton's method, and compares three energy functions.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="qaoa-support">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="QAOA//SUPPORT">QAOA<b>//</b>SUPPORT</h1>
+      <div class="tagline">
+        <span class="zh">一层 QAOA 的支撑 · <em>β = π/8 时三个量子比特恰好落在 4 个基态上（已冻结的反驳）</em></span>
+        <span class="en">The support of level-one QAOA · <em>at β = π/8 three qubits land on exactly 4 basis states (frozen refutation)</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="lean" aria-pressed="true"><span class="code">β = π/8 · γ = 1</span><span class="cn zh">冻结的反例：支撑 4</span><span class="cn en">The frozen counterexample: support 4</span></button>
+        <button class="preset" data-preset="sweep" aria-pressed="false"><span class="code">β: 0 → π</span><span class="cn zh">沿 β 扫过零点</span><span class="cn en">Sweep β through the zeros</span></button>
+        <button class="preset" data-preset="miss" aria-pressed="false"><span class="code">γ = 0.9</span><span class="cn zh">偏离 γ：零点消失</span><span class="cn en">Off γ: the zeros vanish</span></button>
+        <button class="preset" data-preset="tri" aria-pressed="false"><span class="code">MaxCut · |S| = 6</span><span class="cn zh">三角形：支撑 6</span><span class="cn en">Triangle: support 6</span></button>
+        <button class="preset" data-preset="asym" aria-pressed="false"><span class="code">|S| = 7</span><span class="cn zh">无对称能量：支撑 7</span><span class="cn en">No symmetry: support 7</span></button>
+        <button class="preset" data-preset="map" aria-pressed="false"><span class="code">(β, γ)</span><span class="cn zh">零点地图</span><span class="cn en">The map of zeros</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">电路</span><span class="en">Circuit</span><span class="aside">e<sup>−iβB</sup> e<sup>−iγC</sup> |+⟩<sup>⊗3</sup></span></h2>
+      <div class="chips" id="eChips" role="group" aria-label="能量函数" data-aria-en="Energy function">
+        <button class="chip" data-e="lean"><span class="zh">Lean 的能量</span><span class="en">Lean’s energy</span></button>
+        <button class="chip" data-e="tri"><span class="zh">三角形 MaxCut</span><span class="en">Triangle MaxCut</span></button>
+        <button class="chip" data-e="asym"><span class="zh">无对称</span><span class="en">No symmetry</span></button>
+      </div>
+      <div class="field">
+        <label for="gg"><span class="zh">相位角 γ</span><span class="en">Phase angle γ</span></label><output id="oG" for="gg">1.0000</output>
+        <input type="range" id="gg" min="0" max="6.2832" step="0.0001" value="1">
+      </div>
+      <p class="note" id="formula"></p>
+      <p class="note" id="modeNote"></p>
+    </section>
+  </aside>
+
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：(β, γ) 平面上最小振幅的地形与 8 个基态的振幅；拖动旋转，滚轮缩放" data-aria-en="3D view: the landscape of the smallest amplitude over the (β, γ) plane and the amplitudes of the 8 basis states; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视：零点地图</span><span class="en">Top: map of zeros</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="各基态的概率随 β 的变化" data-aria-en="The probability of each basis state against β"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="振幅相量图" data-aria-en="Phasor diagram of the amplitudes"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">ψ</span></h2>
+      <dl class="ro">
+        <div class="c"><dt id="ro1L"></dt><dd id="ro1">—</dd></div>
+        <div class="m"><dt id="ro2L"></dt><dd id="ro2">—</dd></div>
+        <div class="a w"><dt id="ro3L"></dt><dd id="ro3">—</dd></div>
+        <div><dt id="ro4L"></dt><dd id="ro4">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">一层 QAOA 态为 ψ = e^(−iβB) e^(−iγC)|+⟩⊗ⁿ，B = Σⱼ Xⱼ，C = diag(e)。Streif 与 Leib 断言：支撑（振幅不为零的基态）大小严格介于 2 与 2ⁿ 之间是不可能的。本库证明这个不加限制的断言不成立：n = 3，能量 e 在前两位不同的 4 个基态上为 π/2、其余为 2π，β = π/8，γ = 1 时，前两位相同的 4 个基态振幅恰为 0，另 4 个（010、011、100、101）振幅都等于 −(1 + i)e^(iπ/8)/√8，不为零；2 &lt; 4 &lt; 2³。已冻结：</span><span class="en">The level-one QAOA state is ψ = e^(−iβB) e^(−iγC)|+⟩⊗ⁿ with B = Σⱼ Xⱼ and C = diag(e). Streif and Leib asserted that a support (the basis states with nonzero amplitude) of size strictly between 2 and 2ⁿ is impossible. This library proves the unrestricted assertion false: for n = 3, the energy e equal to π/2 on the 4 basis states whose first two bits differ and 2π on the others, β = π/8 and γ = 1, the 4 basis states with equal first two bits have amplitude exactly 0 and the other 4 (010, 011, 100, 101) all have amplitude −(1 + i)e^(iπ/8)/√8 ≠ 0; 2 &lt; 4 &lt; 2³. Frozen: </span><code>LevelOneQAOAGenuineSuperposition.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">证明的骨架是同一模块里一起冻结的私有引理：混合算子把全 1 向量乘 3、把前两位的奇偶向量乘 −1，于是在 e^(−iβB) 下它们分别得到相位 e^(−3iβ) 与 e^(iβ)；相位层把 |+⟩⊗³ 写成这两个向量的组合；在 β = π/8 处 e^(−3iπ/8) = −i·e^(iπ/8)，前两位相同的分量恰好抵消。冻结（模块内引理）：</span><span class="en">The skeleton of the proof is a set of private lemmas frozen with the module: the mixer multiplies the all-ones vector by 3 and the parity vector of the first two bits by −1, so under e^(−iβB) they pick up the phases e^(−3iβ) and e^(iβ); the phase layer writes |+⟩⊗³ as a combination of these two vectors; at β = π/8, e^(−3iπ/8) = −i·e^(iπ/8), and the components with equal first two bits cancel exactly. Frozen (lemmas inside the module): </span><code>mixer_uniform · mixer_parity · mixer_evolution · output_amplitudes · genuine_output</code></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：振幅按 e^(−iβX) = cos β − i sin β X 逐比特展开求和；零点由网格上的局部极小出发、牛顿法收敛到 |ψ(x)| &lt; 10⁻¹²。页面观察到：Lean 的能量在 β ∈ {π/8, 3π/8, 5π/8, 7π/8}、γ ∈ {1/3, 1, 5/3, …} 处每次同时消去 4 个振幅；三角形 MaxCut 在 (β, γ) ≈ (0.3077, 0.6155) 处消去 |000⟩、|111⟩，支撑为 6；无对称的能量只在孤立点消去单个振幅，支撑为 7。</span><span class="en">Numbers computed on the page, not theorems: amplitudes are summed by expanding e^(−iβX) = cos β − i sin β X bit by bit; zeros are found from local minima on a grid and refined by Newton's method until |ψ(x)| &lt; 10⁻¹². The page observes that Lean’s energy removes 4 amplitudes at once at β ∈ {π/8, 3π/8, 5π/8, 7π/8} and γ ∈ {1/3, 1, 5/3, …}; that the triangle MaxCut energy removes |000⟩ and |111⟩ at (β, γ) ≈ (0.3077, 0.6155), a support of 6; and that the energy without symmetry removes single amplitudes at isolated points, a support of 7.</span></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">定理之外：Lean 的命题不要求目标态是能量的基态，论文的受限表述（目标为基态、配合其必要条件）是否同样被推翻不在定理之内；论文把混合角限制为 π/4 的奇数倍，这个限制下的排除是否成立仍未解决；更大 n、其他支撑大小的反例也未形式化。</span><span class="en">Outside the theorem: Lean’s claim does not require the target states to be ground states of the energy, so whether the paper’s restricted formulation (ground-state targets together with its necessary condition) also fails is not settled; whether the exclusion holds when the mixing angle is restricted to odd multiples of π/4, as in the paper, remains open; counterexamples for larger n or other support sizes are not formalized.</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">M. Streif、M. Leib，Forbidden subspaces for level-1 quantum approximate optimization algorithm and instantaneous quantum polynomial circuits，Phys. Rev. A 102, 042416（2020），arXiv:2007.13563：研究一层 QAOA 何时能与目标子空间完全重合，处理了 1 个与 2 个目标态，并在假设“必要条件只在 β = π/4 的奇数倍处有解”的前提下断言不存在 2 到 2ⁿ 之间的真叠加，同时猜想这就是全部解。</span><span class="en">M. Streif, M. Leib, Forbidden subspaces for level-1 quantum approximate optimization algorithm and instantaneous quantum polynomial circuits, Phys. Rev. A 102, 042416 (2020), arXiv:2007.13563: they study when level-one QAOA can have unit overlap with a target subspace, treat one and two target states, and — assuming that their necessary condition is solved only by odd multiples of π/4 — assert that no genuine superposition of more than 2 and fewer than 2ⁿ target states exists, conjecturing that these are all the solutions.</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0001" value="0" aria-label="混合角 β" data-aria-en="Mixing angle β">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 单步 · <kbd>E</kbd> 跳到末尾</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> step · <kbd>E</kbd> jump to the end</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">一层 QAOA 先给每个基态 |x⟩ 乘上相位 e^(−iγ e(x))，再让每个量子比特绕 X 轴转 2β。输出态在哪些基态上振幅不为零——它的“支撑”——取决于这些相位怎样干涉。Streif 与 Leib 断言支撑不可能恰好有 3 到 2ⁿ − 1 个基态；本库在 Lean 里给出 3 个量子比特、支撑为 4 的反例。</p>
+      <ol>
+        <li><b>振幅。</b>ψ(x) = 2^(−3/2) Σ_y (cos β)^(3 − d) (−i sin β)^d e^(−iγ e(y))，d 是 x 与 y 不同的比特数。每个 ψ(x) 是 (β, γ) 的复函数；它为零要两个实方程同时成立，所以零点一般是平面上的孤立点。</li>
+        <li><b>冻结的反例。</b>Lean 的能量只看前两位是否相同，于是 |+⟩⊗³ 经相位层后是全 1 向量与奇偶向量的组合，它们是混合算子的特征向量（特征值 3 与 −1）。β = π/8、γ = 1 时，前两位相同的 4 个分量恰好抵消，剩下 4 个振幅相同，概率各 1/4。</li>
+        <li><b>地形。</b>三维视图的地面是 (β, γ) 平面（β ∈ [0, π]，γ ∈ [0, 2π]），高度是 8 个振幅里最小的 |ψ(x)| 的对数；向下的尖刺就是零点，品红点是牛顿法收敛到的零点，标出那里的支撑大小。琥珀线是当前的 γ，琥珀点是当前的 (β, γ)。右上方的立方体是 8 个基态，柱高是概率。</li>
+        <li><b>别的能量。</b>三角形 MaxCut（e = 切边数）在 β = π/4、γ = π/2 处只剩 |000⟩、|111⟩（支撑 2，论文允许的情形），在 (0.3077, 0.6155) 附近消去这两个、剩下 6 个；没有对称性的能量只在孤立点让单个振幅为零（支撑 7）。这些都是页面数值，不是定理。</li>
+        <li><b>边界。</b>Lean 的命题去掉了“目标态是基态”的限制；论文在那种限制和 β 只取 π/4 奇数倍的假设下的结论，不在定理之内。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/streif-leib-2020-level-one-qaoa-genuine-superposition.md" target="_blank" rel="noopener">问题卷宗</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Dynamics/LevelOneQAOAGenuineSuperposition.lean" target="_blank" rel="noopener">LevelOneQAOAGenuineSuperposition.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Quantum/Dynamics/LevelOneQAOAGenuineSuperposition.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/QuadraticForms/streifleib2020forbidden.md" target="_blank" rel="noopener">文献笔记</a> · Streif、Leib，<a href="https://doi.org/10.1103/PhysRevA.102.042416" target="_blank" rel="noopener">Phys. Rev. A 102, 042416（2020）</a> · <a href="https://arxiv.org/abs/2007.13563" target="_blank" rel="noopener">arXiv:2007.13563</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">Level-one QAOA first multiplies each basis state |x⟩ by the phase e^(−iγ e(x)) and then rotates every qubit by 2β about the X axis. Which basis states end up with nonzero amplitude — the “support” of the output — depends on how these phases interfere. Streif and Leib asserted that the support cannot have between 3 and 2ⁿ − 1 basis states; this library gives a three-qubit counterexample with support 4 in Lean.</p>
+      <ol>
+        <li><b>Amplitudes.</b> ψ(x) = 2^(−3/2) Σ_y (cos β)^(3 − d) (−i sin β)^d e^(−iγ e(y)), where d is the number of bits in which x and y differ. Each ψ(x) is a complex function of (β, γ); a zero needs two real equations at once, so zeros are generically isolated points of the plane.</li>
+        <li><b>The frozen counterexample.</b> Lean’s energy only looks at whether the first two bits agree, so after the phase layer |+⟩⊗³ is a combination of the all-ones vector and the parity vector, eigenvectors of the mixer with eigenvalues 3 and −1. At β = π/8 and γ = 1 the 4 components with equal first two bits cancel exactly; the remaining 4 amplitudes are equal, each with probability 1/4.</li>
+        <li><b>The landscape.</b> The floor of the 3D view is the (β, γ) plane (β ∈ [0, π], γ ∈ [0, 2π]) and the height is the logarithm of the smallest of the 8 amplitudes |ψ(x)|; downward spikes are zeros, and the magenta points are zeros reached by Newton's method, labelled with the support size there. The amber line is the current γ and the amber point the current (β, γ). The cube at the upper right holds the 8 basis states, with bar heights equal to the probabilities.</li>
+        <li><b>Other energies.</b> The triangle MaxCut energy (e = the number of cut edges) keeps only |000⟩ and |111⟩ at β = π/4, γ = π/2 (support 2, a case the paper allows), and removes exactly these two near (0.3077, 0.6155), leaving 6; an energy without symmetry makes single amplitudes vanish at isolated points (support 7). These are page numbers, not theorems.</li>
+        <li><b>Limits.</b> Lean’s claim drops the requirement that the targets are ground states; the paper’s conclusion under that restriction and under the assumption that β is an odd multiple of π/4 is outside the theorem.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/streif-leib-2020-level-one-qaoa-genuine-superposition.md" target="_blank" rel="noopener">Problem dossier</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Dynamics/LevelOneQAOAGenuineSuperposition.lean" target="_blank" rel="noopener">LevelOneQAOAGenuineSuperposition.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Quantum/Dynamics/LevelOneQAOAGenuineSuperposition.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/QuadraticForms/streifleib2020forbidden.md" target="_blank" rel="noopener">literature note</a> · Streif, Leib, <a href="https://doi.org/10.1103/PhysRevA.102.042416" target="_blank" rel="noopener">Phys. Rev. A 102, 042416 (2020)</a> · <a href="https://arxiv.org/abs/2007.13563" target="_blank" rel="noopener">arXiv:2007.13563</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

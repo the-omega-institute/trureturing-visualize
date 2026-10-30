@@ -2,6 +2,50 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "qaoa-support",
+      "code": "QAOA//SUPPORT",
+      "path": "viz/qaoa-support/",
+      "thumbnail": "viz/qaoa-support/thumb.jpg",
+      "title": "一层 QAOA 的四态真叠加",
+      "title_en": "A genuine four-state superposition from level-one QAOA",
+      "summary": "一层 QAOA 先给每个基态乘上能量决定的相位，再让每个量子比特绕 X 轴转动。Streif 与 Leib（2020）断言输出态的支撑（振幅不为零的基态）不可能恰好介于 2 与 2ⁿ 之间；本库在 Lean 里给出 3 个量子比特的反例并已冻结：β = π/8、γ = 1 时恰好 4 个基态的振幅不为零。页面在 (β, γ) 平面上画出最小振幅的地形，用牛顿法定位每个振幅的零点，标出那里的支撑大小，并对照三角形 MaxCut（支撑 6）与无对称能量（支撑 7）。",
+      "summary_en": "Level-one QAOA multiplies each basis state by a phase set by the energy and then rotates every qubit about the X axis. Streif and Leib (2020) asserted that the support of the output (the basis states with nonzero amplitude) cannot lie strictly between 2 and 2ⁿ; this library gives a three-qubit counterexample in Lean, frozen: at β = π/8 and γ = 1 exactly 4 basis states have nonzero amplitude. The page draws the landscape of the smallest amplitude over the (β, γ) plane, locates the zeros of every amplitude by Newton’s method, labels the support size there, and compares the triangle MaxCut energy (support 6) and an energy without symmetry (support 7).",
+      "status": "live",
+      "added": "2026-10-30",
+      "tags": [
+        "量子计算",
+        "QAOA",
+        "干涉",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "quantum computing",
+        "QAOA",
+        "interference",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：一层 QAOA 在三个量子比特上的四态真叠加",
+          "label_en": "Problem dossier: level-one QAOA reaches a genuine four-state superposition on three qubits",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/streif-leib-2020-level-one-qaoa-genuine-superposition.md"
+        },
+        {
+          "label": "Blueprint：一层 QAOA 的四态真叠加",
+          "label_en": "Blueprint: a genuine four-state superposition from level-one QAOA",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Quantum/Dynamics/LevelOneQAOAGenuineSuperposition.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "LevelOneQAOAGenuineSuperposition.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Dynamics/LevelOneQAOAGenuineSuperposition.lean"
+        }
+      ]
+    },
+    {
       "id": "energy-game",
       "code": "ENERGY//GAME",
       "path": "viz/energy-game/",
