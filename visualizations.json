@@ -2,6 +2,50 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "ku-lines",
+      "code": "KU//LINES",
+      "path": "viz/ku-lines/",
+      "thumbnail": "viz/ku-lines/thumb.jpg",
+      "title": "Ku 的近线猜想：3×3×3 上的反例",
+      "title_en": "Ku’s near-line conjecture: a counterexample on 3×3×3",
+      "summary": "在 [k]^d 棋盘上选点，任何一条完整直线（横、竖、斜方向连续 k 格）上都不能有 k − 1 个选中点，并且再也加不进新点。Ku（2026）猜想这样的配置最大能占 1 − 2/k 的格子。本库在 Lean 里证明 3×3×3 上最多 8 个点，少于猜想要求的 9 个，已冻结：9 个点会迫使一个 3 阶 Latin 方阵，而它的对角线必有重复，重复的两点落在同一条面对角线上。页面画出棋盘的全部直线，完全枚举小棋盘的饱和配置（3×3×3 的最大值只有 6），并逐个摆出 12 个 Latin 方阵演示障碍。",
+      "summary_en": "Choose points on the board [k]^d so that no full line (k consecutive cells in an axis or diagonal direction) holds k − 1 chosen points and no further point can be added. Ku (2026) conjectured that such a configuration can fill 1 − 2/k of the board. This library proves in Lean that 3×3×3 allows at most 8 points, fewer than the 9 the conjecture needs, frozen: 9 points would force a Latin square of order 3, whose diagonals must repeat a value, putting two points on one face diagonal. The page draws every line of the board, enumerates the saturated configurations of the small boards completely (the maximum on 3×3×3 is only 6), and places the 12 Latin squares one by one to show the obstruction.",
+      "status": "live",
+      "added": "2026-10-30",
+      "tags": [
+        "组合几何",
+        "k 连棋",
+        "Latin 方阵",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "combinatorial geometry",
+        "k in a row",
+        "Latin squares",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：Ku 关于普通超立方体的最大密度猜想",
+          "label_en": "Problem dossier: Ku’s maximum-density conjecture for ordinary hypercubes",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/ku-2026-monochromatic-k-in-a-row-conjecture-5-6.md"
+        },
+        {
+          "label": "Blueprint：三维棋盘上的近线回避",
+          "label_en": "Blueprint: near-line avoidance on the three-dimensional board",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Combinatorics/Geometry/KuNearLineRefutation.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "KuGeometry.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Geometry/KuNearLineRefutation.lean"
+        }
+      ]
+    },
+    {
       "id": "lj-break",
       "code": "LJ//BREAK",
       "path": "viz/lj-break/",
