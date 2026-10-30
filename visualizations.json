@@ -2,6 +2,55 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "oqw-ruin",
+      "code": "OQW//RUIN",
+      "path": "viz/oqw-ruin/",
+      "thumbnail": "viz/oqw-ruin/thumb.jpg",
+      "title": "开放量子游走的赌徒破产：平均吸收时间需要 Im ρ₀₁",
+      "title_en": "Gambler’s ruin for open quantum walks: the mean absorption time needs Im ρ₀₁",
+      "summary": "Jacq 与 Lardizabal（2017）猜想：开放量子游走的赌徒破产问题里，从位置 k、内部态 ρ 出发的平均吸收时间总是 1 + h(M, M − k)ρ₀₀ + h(M, k)ρ₁₁ + j(M, k)·Re ρ₀₁，且 j(M, k) = −j(M, M − k)。本库在 Lean 里证明这对一般的复矩阵对不成立并已冻结：用 u = (1, i)、v = (1, −i) 搭出的一对 L、R，使 ρ 与 σ 的 ρ₀₀、ρ₁₁、Re ρ₀₁ 相同，平均吸收时间却是 1 与 2。页面画出游走在空间与时间里的展开、初始态 Bloch 球上的平均时间，并解出命中时间算子 A_k，画出猜想形式在每个 k 上要求为 0 的三个差。",
+      "summary_en": "Jacq and Lardizabal (2017) conjectured that in the gambler’s ruin of an open quantum walk the mean absorption time from site k with internal state ρ always equals 1 + h(M, M − k)ρ₀₀ + h(M, k)ρ₁₁ + j(M, k)·Re ρ₀₁ with j(M, k) = −j(M, M − k). This library proves in Lean that this fails for general complex pairs, frozen: a pair L, R built from u = (1, i) and v = (1, −i) gives two states ρ and σ with the same ρ₀₀, ρ₁₁ and Re ρ₀₁ but mean absorption times 1 and 2. The page shows the walk unfolding in space and time and the mean time over the Bloch ball of initial states, solves for the hitting-time operators A_k, and plots the three gaps the conjectured form needs to vanish at every k.",
+      "status": "live",
+      "added": "2026-10-30",
+      "tags": [
+        "量子游走",
+        "赌徒破产",
+        "Bloch 球",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "quantum walks",
+        "gambler’s ruin",
+        "Bloch ball",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：Jacq–Lardizabal 平均命中时间的形式",
+          "label_en": "Problem dossier: the Jacq–Lardizabal mean hitting time form",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/jacq-lardizabal-2017-oqw-gambler-mean-hitting-time-form.md"
+        },
+        {
+          "label": "Blueprint：开放量子游走赌徒破产命中时间的反驳",
+          "label_en": "Blueprint: refuting the open quantum walk gambler hitting time form",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Quantum/Walks/OpenQuantumWalkGamblerHittingTimeRefutation.md"
+        },
+        {
+          "label": "文献笔记：Jacq–Lardizabal 2017",
+          "label_en": "Literature note: Jacq–Lardizabal 2017",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Library/Observer/jacqlardizabal2017oqwhalfline.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "OpenQuantumWalkGamblerHittingTimeRefutation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Walks/OpenQuantumWalkGamblerHittingTimeRefutation.lean"
+        }
+      ]
+    },
+    {
       "id": "leggett-six",
       "code": "LG//SIX",
       "path": "viz/leggett-six/",
