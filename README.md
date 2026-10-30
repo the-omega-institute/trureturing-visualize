@@ -9,6 +9,7 @@ Every page is bilingual (中文 / English, switchable in the header) and states 
 
 | id | Page | Theory |
 | --- | --- | --- |
+| `ku-lines` | [KU//LINES Ku 的近线猜想：3×3×3 上的反例](https://the-omega-institute.github.io/trureturing-visualize/viz/ku-lines/) | 问题卷宗：Ku 关于普通超立方体的最大密度猜想 |
 | `lj-break` | [LJ//BREAK Lennard-Jones 链的断键与不稳定方向](https://the-omega-institute.github.io/trureturing-visualize/viz/lj-break/) | 问题卷宗：Rodrigues–Kevrekidis–Dobson 2019 的断键不稳定计数 |
 | `zeckendorf-chain` | [ZECKENDORF//CHAIN Zeckendorf 一项相同链：贪心序列是排列](https://the-omega-institute.github.io/trureturing-visualize/viz/zeckendorf-chain/) | 问题卷宗：一项相同的 Zeckendorf 贪心序列是排列 |
 | `qaoa-support` | [QAOA//SUPPORT 一层 QAOA 的四态真叠加](https://the-omega-institute.github.io/trureturing-visualize/viz/qaoa-support/) | 问题卷宗：一层 QAOA 在三个量子比特上的四态真叠加 |

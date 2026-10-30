@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="KU//LINES · Ku's near-line conjecture: a counterexample on 3×3×3">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KU//LINES Ku 的近线猜想：3×3×3 上的反例</title>
+<meta name="description" content="在 [k]^d 棋盘上选点，不允许任何一条完整直线上有 k − 1 个选中点，并且不能再多选（饱和）。Ku（2026）猜想这样的配置最大能占 1 − 2/k 的格子；本库在 Lean 里证明 3×3×3 上最多 8 个点，少于猜想要求的 9 个，已冻结。页面画出棋盘上的全部直线，枚举饱和配置，并演示证明的机制：9 个点会迫使一个 3 阶 Latin 方阵，而它的对角线必有重复。Choose points on the board [k]^d so that no full line contains k − 1 chosen points, and so that no further point can be added (saturation). Ku (2026) conjectured that such a configuration can fill at most a fraction 1 − 2/k of the board, and that this fraction is attained; this library proves in Lean that 3×3×3 allows at most 8 points, fewer than the 9 the conjecture requires, frozen. The page draws every line of the board, enumerates the saturated configurations, and shows the mechanism of the proof: 9 points would force a Latin square of order 3, whose diagonals must repeat a symbol.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="ku-lines">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="KU//LINES">KU<b>//</b>LINES</h1>
+      <div class="tagline">
+        <span class="zh">避开 k − 1 点共线的饱和配置 · <em>3×3×3 上最多 8 个点，猜想要 9 个（已冻结的反驳）</em></span>
+        <span class="en">Saturated configurations avoiding k − 1 points on a line · <em>3×3×3 allows at most 8 points, the conjecture needs 9 (frozen refutation)</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="lean" aria-pressed="true"><span class="code">[3]³ · 6 &lt; 9</span><span class="cn zh">3×3×3 的最大配置</span><span class="cn en">The largest on 3×3×3</span></button>
+        <button class="preset" data-preset="latin" aria-pressed="false"><span class="code">12 Latin</span><span class="cn zh">9 个点为何不行</span><span class="cn en">Why 9 points fail</span></button>
+        <button class="preset" data-preset="all" aria-pressed="false"><span class="code">305</span><span class="cn zh">全部饱和配置</span><span class="cn en">Every saturated one</span></button>
+        <button class="preset" data-preset="plane" aria-pressed="false"><span class="code">[3]² · 3 = 3</span><span class="cn zh">平面上猜想成立</span><span class="cn en">On the plane it holds</span></button>
+        <button class="preset" data-preset="k43" aria-pressed="false"><span class="code">[4]³ · 32 = 32</span><span class="cn zh">4×4×4 达到上界</span><span class="cn en">4×4×4 reaches the bound</span></button>
+        <button class="preset" data-preset="d4" aria-pressed="false"><span class="code">[3]⁴ · 11 &lt; 27</span><span class="cn zh">四维更远</span><span class="cn en">Further off in 4D</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">棋盘</span><span class="en">Board</span><span class="aside">[k]<sup>d</sup></span></h2>
+      <div class="chips" id="boardChips" role="group" aria-label="棋盘" data-aria-en="Board">
+        <button class="chip" data-board="3,2">3²</button>
+        <button class="chip" data-board="4,2">4²</button>
+        <button class="chip" data-board="5,2">5²</button>
+        <button class="chip" data-board="3,3">3³</button>
+        <button class="chip" data-board="4,3">4³</button>
+        <button class="chip" data-board="3,4">3⁴</button>
+      </div>
+      <div class="chips subchips" id="modeChips" role="group" aria-label="模式" data-aria-en="Mode">
+        <button class="chip" data-mode="configs"><span class="zh">饱和配置</span><span class="en">Saturated configurations</span></button>
+        <button class="chip" data-mode="latin"><span class="zh">Latin 方阵障碍</span><span class="en">Latin-square obstruction</span></button>
+      </div>
+      <p class="note" id="formula"></p>
+      <p class="note" id="modeNote"></p>
+    </section>
+  </aside>
+
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：棋盘、它的全部直线与一个配置；拖动旋转，滚轮缩放" data-aria-en="3D view: the board, all of its lines and a configuration; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="按切片展开的配置" data-aria-en="The configuration slice by slice"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="饱和配置的大小分布" data-aria-en="Sizes of the saturated configurations"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">D(k, [k]<sup>d</sup>)</span></h2>
+      <dl class="ro">
+        <div class="c"><dt id="ro1L"></dt><dd id="ro1">—</dd></div>
+        <div class="m"><dt id="ro2L"></dt><dd id="ro2">—</dd></div>
+        <div class="a w"><dt id="ro3L"></dt><dd id="ro3">—</dd></div>
+        <div><dt id="ro4L"></dt><dd id="ro4">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">棋盘 [k]^d = {1, …, k}^d；一条完整直线是 p + t·v（0 ≤ t &lt; k，v ∈ {−1, 0, 1}^d 非零）整个落在棋盘里的 k 个点。配置不得含任何直线的 k − 1 个点；饱和指不能再加点；D(k, [k]^d) 是饱和配置的最大点数除以 k^d。Ku 的猜想 5.6 说 D(k, [k]^d) = 1 − 2/k。本库证明在 k = 3、d = 3 时不成立：每个配置最多 8 个点，所以 D(3, [3]³) ≤ 8/27 &lt; 1/3。已冻结：</span><span class="en">The board is [k]^d = {1, …, k}^d; a full line is the k points p + t·v (0 ≤ t &lt; k, v ∈ {−1, 0, 1}^d nonzero) lying entirely in the board. A configuration may contain no k − 1 points of any line; it is saturated if no point can be added; D(k, [k]^d) is the largest size of a saturated configuration divided by k^d. Ku’s Conjecture 5.6 says D(k, [k]^d) = 1 − 2/k. This library proves it false at k = 3, d = 3: every configuration has at most 8 points, so D(3, [3]³) ≤ 8/27 &lt; 1/3. Frozen: </span><code>KuGeometry.result · exact_real_event · config_bound</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">证明的机制（同一模块里冻结的公开引理）：同一条轴线上的两点必共线，所以向前两个坐标的投影是单射；若有 9 个点，投影就是双射，第三个坐标构成一个 3 阶 Latin 方阵；任何 3 阶 Latin 方阵的主对角线或副对角线上必有重复的值；重复的两个点恰好落在同一条面对角线上，与配置条件矛盾。冻结：</span><span class="en">The mechanism of the proof (public lemmas frozen in the same module): two points on an axis line are collinear, so projecting to the first two coordinates is injective; with 9 points the projection is a bijection and the third coordinate forms a Latin square of order 3; every Latin square of order 3 repeats a value on its main or anti-diagonal; the two repeated points lie on one face diagonal, contradicting the configuration condition. Frozen: </span><code>axis_common · latin_diagonal · diag_common</code></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：3²、4²、3³ 的饱和配置由回溯完全枚举；5²、4³、3⁴ 用离线搜到的配置作证书，页面只核对它合法且饱和。页面观察到：3×3×3 的最大配置只有 6 个点（305 个饱和配置里有 8 个），即 D(3, [3]³) = 6/27——卷宗把精确值列为未决，这里是穷举结果，不是 Lean 定理；3⁴ 的穷举最大值是 11（猜想要 27，在测试里重跑核对）；3²、4²、5²、4³ 都达到 1 − 2/k。</span><span class="en">Numbers computed on the page, not theorems: the saturated configurations of 3², 4² and 3³ are enumerated completely by backtracking; for 5², 4³ and 3⁴ the page uses configurations found offline as certificates and only checks that they are valid and saturated. The page observes that the largest configuration on 3×3×3 has only 6 points (8 of the 305 saturated ones), so D(3, [3]³) = 6/27 — the dossier lists the exact value as open; this is an exhaustive computation, not a Lean theorem; that the exhaustive maximum on 3⁴ is 11 (the conjecture needs 27; re-run in the tests); and that 3², 4², 5² and 4³ all reach 1 − 2/k.</span></span></div>
+      <div class="lean theory"><span class="ok">ARGUED</span><span><span class="zh">上界的来源（论文里的论证）：沿某个坐标方向的 k^(d−1) 条轴线把棋盘分成不相交的组，每条至多 k − 2 个点，所以任何配置至多 (k − 2)k^(d−1) 个点，密度至多 1 − 2/k。猜想断言这个上界总能达到；3×3×3 说明不能。</span><span class="en">Where the upper bound comes from (the paper’s argument): the k^(d−1) axis lines in one coordinate direction partition the board, each holds at most k − 2 points, so every configuration has at most (k − 2)k^(d−1) points, a density of at most 1 − 2/k. The conjecture asserts that this bound is always attained; 3×3×3 shows that it is not.</span></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">定理之外：D(3, [3]³) 的精确值在 Lean 里未定（页面穷举给 6/27）；一般 (k, d) 的 D 值，以及哪些参数能达到上界 1 − 2/k；论文问题 5.7（最小密度）。</span><span class="en">Outside the theorem: the exact value of D(3, [3]³) is not settled in Lean (the page’s enumeration gives 6/27); D for general (k, d), and which parameters attain the bound 1 − 2/k; the paper’s Question 5.7 (minimum density).</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">Kuo-Han Ku，Monochromatic k in a row，arXiv:2606.12880（2026）：定义 2.1–2.6 给出棋盘、近线回避、饱和与最大密度；第 5.1.2 节的猜想 5.6 断言 D(k, [k]^d) = 1 − 2/k，并给出 d = 2 的构造，以及 k 为偶数、k/2 与 d! 互素时的构造（引理 4.1）。</span><span class="en">Kuo-Han Ku, Monochromatic k in a row, arXiv:2606.12880 (2026): Definitions 2.1–2.6 give the boards, near-line avoidance, saturation and maximum density; Conjecture 5.6 in section 5.1.2 asserts D(k, [k]^d) = 1 − 2/k, with a construction for d = 2 and one for even k with k/2 coprime to d! (Lemma 4.1).</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0001" value="0" aria-label="配置序号" data-aria-en="Configuration index">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 单步 · <kbd>E</kbd> 跳到末尾</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> step · <kbd>E</kbd> jump to the end</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">k 连棋（k in a row）推广到 d 维：在 [k]^d 上，一条“线”是横、竖、斜方向上连续的 k 个格子。Ku 研究这样的配置：任何一条线上选中的点都少于 k − 1 个，而且再加任何一点都会破坏这一点。他猜想这种配置最多能占 1 − 2/k 的格子。本库在 Lean 里证明 3×3×3 上做不到：最多 8 个点，而 1 − 2/3 要求 9 个。</p>
+      <ol>
+        <li><b>直线。</b>3×3×3 有 49 条完整直线：27 条轴线、18 条面对角线、4 条体对角线。k = 3 时条件是“每条线至多 1 个点”，即任意两个选中点都不共线。三维视图里灰色是全部直线，青色点是配置，品红线是违规的直线。</li>
+        <li><b>上界从哪来。</b>沿一个坐标方向的 9 条轴线互不相交、覆盖全部 27 格，每条至多 1 个点，所以至多 9 个点——这正是 1 − 2/3。猜想说 9 能达到。</li>
+        <li><b>为什么 9 不行（冻结）。</b>9 个点时三个轴向都恰好每条一个点，于是第三个坐标是前两个坐标的 3 阶 Latin 方阵。“Latin 方阵障碍”模式把 12 个 3 阶 Latin 方阵逐个摆上去：每一个的主对角线或副对角线都有重复，重复的两个点落在同一条面对角线上（品红）。</li>
+        <li><b>真正的最大值（页面数值）。</b>“饱和配置”模式逐个展示回溯枚举出的全部饱和配置，按大小排序；3×3×3 一共 305 个，最大的只有 6 个点。右下图是大小分布，琥珀线是猜想的值，绿线是 Lean 证明的上界 8。</li>
+        <li><b>别的棋盘。</b>3×3、4×4、5×5 与 4×4×4 都能达到 1 − 2/k；3×3×3×3 的最大值只有 11，而猜想要 27。这些是页面与测试的计算，不是定理。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/ku-2026-monochromatic-k-in-a-row-conjecture-5-6.md" target="_blank" rel="noopener">问题卷宗</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Geometry/KuNearLineRefutation.lean" target="_blank" rel="noopener">KuNearLineRefutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Combinatorics/Geometry/KuNearLineRefutation.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/FiniteGeometry/ku2026monochromatic.md" target="_blank" rel="noopener">文献笔记</a> · Ku，<a href="https://arxiv.org/abs/2606.12880" target="_blank" rel="noopener">arXiv:2606.12880</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">k in a row generalised to d dimensions: on [k]^d a “line” is k consecutive cells in an axis, diagonal or space-diagonal direction. Ku studies configurations in which every line has fewer than k − 1 chosen points and adding any point would break this. He conjectured that such a configuration can fill a fraction 1 − 2/k of the board. This library proves in Lean that 3×3×3 cannot: at most 8 points, whereas 1 − 2/3 asks for 9.</p>
+      <ol>
+        <li><b>Lines.</b> 3×3×3 has 49 full lines: 27 axis lines, 18 face diagonals and 4 space diagonals. For k = 3 the condition is “at most 1 point per line”, i.e. no two chosen points are collinear. In the 3D view grey shows every line, cyan points form the configuration, and magenta lines are violated.</li>
+        <li><b>Where the bound comes from.</b> The 9 axis lines in one coordinate direction are disjoint and cover all 27 cells, each holds at most 1 point, so there are at most 9 points — exactly 1 − 2/3. The conjecture says 9 is attained.</li>
+        <li><b>Why 9 fails (frozen).</b> With 9 points every axis line in all three directions holds exactly one point, so the third coordinate is a Latin square of order 3 in the first two. The “Latin-square obstruction” mode places the 12 Latin squares of order 3 one by one: each repeats a value on its main or anti-diagonal, and the two repeated points lie on one face diagonal (magenta).</li>
+        <li><b>The true maximum (page numbers).</b> The “saturated configurations” mode shows every saturated configuration found by backtracking, sorted by size; 3×3×3 has 305 of them and the largest has only 6 points. The lower right chart is the size distribution, the amber line the conjectured value and the green line the bound 8 proved in Lean.</li>
+        <li><b>Other boards.</b> 3×3, 4×4, 5×5 and 4×4×4 all reach 1 − 2/k; the maximum on 3×3×3×3 is only 11, while the conjecture asks for 27. These are computations of the page and the tests, not theorems.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/ku-2026-monochromatic-k-in-a-row-conjecture-5-6.md" target="_blank" rel="noopener">Problem dossier</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Geometry/KuNearLineRefutation.lean" target="_blank" rel="noopener">KuNearLineRefutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Combinatorics/Geometry/KuNearLineRefutation.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/FiniteGeometry/ku2026monochromatic.md" target="_blank" rel="noopener">literature note</a> · Ku, <a href="https://arxiv.org/abs/2606.12880" target="_blank" rel="noopener">arXiv:2606.12880</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
