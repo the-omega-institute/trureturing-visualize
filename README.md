@@ -9,6 +9,7 @@ Every page is bilingual (中文 / English, switchable in the header) and states 
 
 | id | Page | Theory |
 | --- | --- | --- |
+| `leggett-six` | [LG//SIX 六时刻 Leggett–Garg 不等式不足以保证联合分布](https://the-omega-institute.github.io/trureturing-visualize/viz/leggett-six/) | 问题卷宗：Halliwell–Mawby 六时刻充分性猜想 |
 | `carryless-pairs` | [CARRYLESS//PAIRS 普通乘法对无进位乘法：四个 OEIS 猜想](https://the-omega-institute.github.io/trureturing-visualize/viz/carryless-pairs/) | 问题卷宗：A115801、A115770、A115803、A115809 |
 | `cyclic-arrange` | [CYCLIC//ARRANGE Javaheri 的循环排列猜想在 (6, 1) 不成立](https://the-omega-institute.github.io/trureturing-visualize/viz/cyclic-arrange/) | 问题卷宗：Javaheri 循环排列维数猜想的反驳 |
 | `lindblad-zero` | [LINDBLAD//ZERO 格点 Lindblad 生成元的谱含 0](https://the-omega-institute.github.io/trureturing-visualize/viz/lindblad-zero/) | 问题卷宗：有限力程平移不变格点 Lindblad 生成元的谱含 0 |

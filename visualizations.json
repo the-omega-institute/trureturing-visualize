@@ -2,6 +2,55 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "leggett-six",
+      "code": "LG//SIX",
+      "path": "viz/leggett-six/",
+      "thumbnail": "viz/leggett-six/thumb.jpg",
+      "title": "六时刻 Leggett–Garg 不等式不足以保证联合分布",
+      "title_en": "Six-time Leggett–Garg inequalities do not suffice",
+      "summary": "Halliwell 与 Mawby（2019）猜想：n 个二值量的成对概率表只要满足完整的 n 边形不等式与全部三时刻 Leggett–Garg 不等式，就有一个联合分布与之匹配。本库在 Lean 里证明 n = 6 时不成立并已冻结：时刻 6 与 1–4 的关联为 1/2、与 5 为 −1/2、其余为 0，条件全部成立，可权重 b = (1, 1, 1, 1, −1, −2) 让每个符号向量都有 W² ≥ 1，任何联合分布对 W² 的平均却必须是 −1。页面把关联乘以 t，画出各条件在哪里成立，并对 t ≤ 0.8 给出一个精确的联合分布。",
+      "summary_en": "Halliwell and Mawby (2019) conjectured that pair tables of n two-valued quantities have a matching joint law as soon as the full n-gon inequality and every three-time Leggett–Garg inequality hold. This library proves in Lean that this fails at n = 6, frozen: with time 6 correlated 1/2 with times 1–4, −1/2 with time 5 and all other correlations 0, every condition holds, yet the weights b = (1, 1, 1, 1, −1, −2) give W² ≥ 1 for every sign vector while any joint law would average W² to −1. The page scales the correlations by t, shows where each condition holds, and gives an exact joint law for t ≤ 0.8.",
+      "status": "live",
+      "added": "2026-10-30",
+      "tags": [
+        "量子基础",
+        "Leggett–Garg",
+        "联合分布",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "quantum foundations",
+        "Leggett–Garg",
+        "joint distributions",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：Halliwell–Mawby 六时刻充分性猜想",
+          "label_en": "Problem dossier: the Halliwell–Mawby six-time sufficiency conjecture",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/halliwell-mawby-2019-leggett-garg-six-time-sufficiency.md"
+        },
+        {
+          "label": "Blueprint：六时刻 Leggett–Garg 充分性的反驳",
+          "label_en": "Blueprint: refuting six-time Leggett–Garg sufficiency",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Quantum/Contextuality/LeggettGargSixTimeSufficiencyRefutation.md"
+        },
+        {
+          "label": "文献笔记：Halliwell–Mawby 2019",
+          "label_en": "Literature note: Halliwell–Mawby 2019",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Library/Observer/halliwellmawby2019finentimes.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "LeggettGargSixTimeSufficiencyRefutation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Contextuality/LeggettGargSixTimeSufficiencyRefutation.lean"
+        }
+      ]
+    },
+    {
       "id": "carryless-pairs",
       "code": "CARRYLESS//PAIRS",
       "path": "viz/carryless-pairs/",
