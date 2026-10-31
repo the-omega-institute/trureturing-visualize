@@ -2,6 +2,55 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "exit-disk",
+      "code": "EXIT//DISK",
+      "path": "viz/exit-disk/",
+      "thumbnail": "viz/exit-disk/thumb.jpg",
+      "title": "格点圆盘比正方形更难走出：正方形不是平均出逃时间的最大者",
+      "title_en": "A lattice disk outlasts the square: squares do not maximize the mean exit time",
+      "summary": "Rognone 与 Nicosia（2023）用随机游走的平均出逃时间衡量方格点阵上团簇的紧凑程度，并猜想格子数为 m² 的连通团簇中 m × m 正方形让它最大。本库在 Lean 里用整数证书反驳并已冻结：圆盘 x² + y² ≤ 37 有 121 个格子，平均出逃时间 198008236169/8338377773 = 23.7466…，大于 11 × 11 正方形的 2811118983/119333830 = 23.5568…。页面把每个起点的期望步数画成穹顶，放行人在上面走，画出面积等于平均出逃时间的生存曲线，读者可以自己移动格子或让页面爬山；页面还找到一个 49 格的形状胜过 7 × 7 正方形（页面数值）。",
+      "summary_en": "Rognone and Nicosia (2023) measure the compactness of clusters of the square lattice by the mean exit time of a random walk, and conjecture that among connected clusters of m² cells the m × m square maximizes it. This library refutes it in Lean with integer certificates, frozen: the disk x² + y² ≤ 37 has 121 cells and mean exit time 198008236169/8338377773 = 23.7466…, more than 2811118983/119333830 = 23.5568… for the 11 × 11 square. The page draws the expected number of steps from each start as a dome, lets walkers run on it, plots the survival curve whose area is the mean exit time, and lets the reader move cells or hill-climb; it also finds a 49-cell shape that beats the 7 × 7 square (page numbers).",
+      "status": "live",
+      "added": "2026-10-31",
+      "tags": [
+        "随机游走",
+        "出逃时间",
+        "格点团簇",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "random walks",
+        "exit times",
+        "lattice clusters",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：正方形不是平均出逃时间的最大者",
+          "label_en": "Problem dossier: squares do not maximize the mean exit time",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/rognone-nicosia-2023-square-cluster-exit-time-refutation.md"
+        },
+        {
+          "label": "Blueprint：121 格的圆盘反例",
+          "label_en": "Blueprint: the 121-cell disk counterexample",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/StatisticalMechanics/RandomWalks/SquareClusterExitTimeRefutation.md"
+        },
+        {
+          "label": "文献笔记：Rognone、Nicosia 2023",
+          "label_en": "Literature note: Rognone and Nicosia 2023",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Library/StatisticalMechanics/rognonenicosia2023clusters.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "SquareClusterExitTimeRefutation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/RandomWalks/SquareClusterExitTimeRefutation.lean"
+        }
+      ]
+    },
+    {
       "id": "perm-complement",
       "code": "PERM//COMPLEMENT",
       "path": "viz/perm-complement/",
