@@ -2,6 +2,55 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "perm-complement",
+      "code": "PERM//COMPLEMENT",
+      "path": "viz/perm-complement/",
+      "thumbnail": "viz/perm-complement/thumb.jpg",
+      "title": "两两强互补的置换矩阵最多 2^v₂(n) 个",
+      "title_en": "At most 2^v₂(n) pairwise strongly complementary permutation matrices",
+      "summary": "Rajchel、Gąsiorowski 与 Życzkowski（2018）定义了强互补的置换矩阵（四指标条件加上支撑不相交），知道族的大小 k ≤ n，却无法确定最大值怎样依赖 n。本库在 Lean 里证明并已冻结：最大值是 2^v₂(n)。强互补等价于相对置换是无不动点的对合；把族平移到含恒等后，成员生成一个 2 群，族的大小不超过一个轨道，而最小轨道整除 n；对前 a 位二进制异或的平移族达到上界。页面把族里的置换矩阵一层层叠在格子上，n 为 2 的幂时铺满成拉丁方，并对 n ≤ 10 穷举核对。",
+      "summary_en": "Rajchel, Gąsiorowski and Życzkowski (2018) defined strongly complementary permutation matrices (a four-index condition plus disjoint supports), knew that a family has k ≤ n members, but could not determine how the maximum depends on n. This library proves in Lean, frozen, that the maximum is 2^v₂(n). Strong complementarity means the relative permutation is a fixed-point-free involution; after shifting the family to contain the identity its members generate a 2-group, a family is no larger than an orbit, and the smallest orbit divides n; the XOR translations of the first a binary digits attain the bound. The page stacks the family’s matrices layer by layer over the grid, which they tile into a Latin square when n is a power of two, and checks n ≤ 10 exhaustively.",
+      "status": "live",
+      "added": "2026-10-31",
+      "tags": [
+        "置换矩阵",
+        "Birkhoff 多面体",
+        "2 群",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "permutation matrices",
+        "Birkhoff polytope",
+        "2-groups",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：两两强互补的置换矩阵的最大个数",
+          "label_en": "Problem dossier: the maximum number of pairwise strongly complementary permutation matrices",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/rajchel-gasiorowski-zyczkowski-2018-strongly-complementary-permutations.md"
+        },
+        {
+          "label": "Blueprint：最大值 2^v₂(n)",
+          "label_en": "Blueprint: the maximum 2^v₂(n)",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Combinatorics/Permutation/StronglyComplementaryPermutationMaximum.md"
+        },
+        {
+          "label": "文献笔记：Rajchel、Gąsiorowski、Życzkowski 2018",
+          "label_en": "Literature note: Rajchel, Gąsiorowski and Życzkowski 2018",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Library/FiniteGroups/rajchelgasiorowskizyczkowski2018robust.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "StronglyComplementaryPermutationMaximum.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Permutation/StronglyComplementaryPermutationMaximum.lean"
+        }
+      ]
+    },
+    {
       "id": "modes-eighteen",
       "code": "MODES//EIGHTEEN",
       "path": "viz/modes-eighteen/",
