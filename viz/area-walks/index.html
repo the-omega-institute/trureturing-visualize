@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="AREA//WALKS · Walks of near-maximal algebraic area are counted by theta coefficients">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AREA//WALKS 面积接近最大的格点游走由 theta 系数计数</title>
+<meta name="description" content="OEIS A385672（Zabolotskii，2025）按代数面积 ∫ y dx 给方格点阵上的游走计数：往右一步加上当时的高度，往左一步减去它。条目的 FORMULA 行猜测：k &lt; n 时 T(2n, n² − k) = 2·A029552(k)，T(2n + 1, n² + n − k) = 4·A098613(k)，右边是 theta 级数除以 ∏(1 − xⁱ) 的系数。本库在 Lean 里证明并已冻结：面积这么大的游走只能一直往右、往上（或一直往左、往下），而 u 次向上、r 次向右的单调游走面积等于 u·r 减去它的逆序数，逆序由划分计数。页面列出给定面积的全部游走，画出每条游走在它的 u × r 盒子里留下的杨图，并把计数与公式比到边界 k = n 之外。OEIS A385672 (Zabolotskii, 2025) counts walks on the square lattice by their algebraic area ∫ y dx: a right step adds the current height and a left step subtracts it. Its FORMULA line conjectures T(2n, n² − k) = 2·A029552(k) and T(2n + 1, n² + n − k) = 4·A098613(k) for k &lt; n, with theta series over ∏(1 − xⁱ) on the right. This library proves it in Lean, frozen: walks of such large area only go right and up (or only left and down), and a monotone walk with u ups and r rights has area u·r minus its inversions, which are counted by partitions. The page lists every walk of the chosen area, draws the Young diagram each one leaves in its u × r box, and compares the counts with the formula up to and past the boundary k = n.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="area-walks">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="AREA//WALKS">AREA<b>//</b>WALKS</h1>
+      <div class="tagline">
+        <span class="zh">按面积数格点游走 · <em>接近最大面积的计数是 theta 系数（已冻结的证明）</em></span>
+        <span class="en">Lattice walks by area · <em>near the maximum they are counted by theta coefficients (frozen proof)</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="lean" aria-pressed="true"><span class="code">L = 12 · k = 3</span><span class="cn zh">十四条游走</span><span class="cn en">Fourteen walks</span></button>
+        <button class="preset" data-preset="top" aria-pressed="false"><span class="code">k = 0</span><span class="cn zh">最大面积</span><span class="cn en">The largest area</span></button>
+        <button class="preset" data-preset="odd" aria-pressed="false"><span class="code">L = 13</span><span class="cn zh">奇数步</span><span class="cn en">An odd length</span></button>
+        <button class="preset" data-preset="edge" aria-pressed="false"><span class="code">k = n</span><span class="cn zh">边界之外</span><span class="cn en">Past the boundary</span></button>
+        <button class="preset" data-preset="small" aria-pressed="false"><span class="code">L = 4 · k = 1</span><span class="cn zh">最小的例子</span><span class="cn en">The smallest case</span></button>
+        <button class="preset" data-preset="big" aria-pressed="false"><span class="code">L = 24 · k = 11</span><span class="cn zh">348 条</span><span class="cn en">348 walks</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">参数</span><span class="en">Parameters</span><span class="aside">L · k</span></h2>
+      <div class="slider-row"><label for="lIn"><span class="zh">步数 L</span><span class="en">Steps L</span></label><input type="range" id="lIn" min="2" max="24" step="1" value="12"><b id="lOut">12</b></div>
+      <div class="slider-row"><label for="kIn"><span class="zh">面积差 k</span><span class="en">Area gap k</span></label><input type="range" id="kIn" min="0" max="7" step="1" value="3"><b id="kOut">3</b></div>
+      <p class="note" id="sysNote"></p>
+    </section>
+  </aside>
+
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：一条格点游走、它下面计入面积的格子，以及单调游走在盒子里留下的杨图；拖动旋转，滚轮缩放" data-aria-en="3D view: a lattice walk, the cells beneath it that count towards its area, and the Young diagram a monotone walk leaves in its box; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="side" aria-pressed="false"><span class="zh">侧视</span><span class="en">Side</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="按面积的游走数" data-aria-en="Walks by area"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="计数与公式" data-aria-en="Counts against the formula"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">T = 2·A029552</span></h2>
+      <dl class="ro">
+        <div class="c w"><dt id="ro1L"></dt><dd id="ro1" class="ftab">—</dd></div>
+        <div class="m w"><dt id="ro2L"></dt><dd id="ro2" class="ftab">—</dd></div>
+        <div class="a w"><dt id="ro3L"></dt><dd id="ro3" class="ftab">—</dd></div>
+        <div class="w"><dt id="ro4L"></dt><dd id="ro4" class="ftab">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5" class="ftab">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">定义：Step 是右、左、上、下四种步；areaFrom 从高度 y 出发累计 ∫ y dx（右步加 y、左步减 y、上下改变高度）；area 从原点算起；walkCount n k 是面积为 k 的 n 步游走数（A385672）；partitionCount 是划分数（A000041）；a029552 k = p(k) + 2 Σ_{j ≥ 1, j² ≤ k} p(k − j²)；a098613 k = Σ_{j ≥ 1, j² − j ≤ k} p(k − (j² − j))。猜想 claim：对 k &lt; n，walkCount (2n) (n² − k) = 2·a029552 k 且 walkCount (2n + 1) (n² + n − k) = 4·a098613 k。本库证明 claim。已冻结：</span><span class="en">Definitions: Step, the four steps right, left, up, down; areaFrom accumulates ∫ y dx from height y (a right step adds y, a left step subtracts y, up and down change the height); area starts at the origin; walkCount n k, the number of n-step walks of area k (A385672); partitionCount, the partition numbers (A000041); a029552 k = p(k) + 2 Σ_{j ≥ 1, j² ≤ k} p(k − j²); a098613 k = Σ_{j ≥ 1, j² − j ≤ k} p(k − (j² − j)). The statement claim: for k &lt; n, walkCount (2n) (n² − k) = 2·a029552 k and walkCount (2n + 1) (n² + n − k) = 4·a098613 k. This library proves claim. Frozen: </span><code>LatticeWalkNearMaximalArea.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">证明的步骤（result 证明里的 have，与同一冻结模块的辅助定义）：面积不超过 r·u + l·d（bound）；面积在给定范围之上的游走只用右、上或只用左、下（mono）；右左互换、上下互换保持面积（area_flip，flipStep）；u 次向上、r 次向右的单调词面积为 u·r 减逆序数（area_bool，toStep，用到冻结的 ListInversions.inv）；逆序数为 m 的词满足划分递推（word_rec、boxed_rec，经 Nat.Partition）；u + m ≤ L 且 m ≤ u 时它们由 p(m) 计数（core，wordCount，boxedCount）；对 u 求和得两个 theta 系数（summand）。冻结：</span><span class="en">The steps of the proof (have-steps inside result, and helper definitions of the same frozen module): the area is at most r·u + l·d (bound); a walk whose area is above the range uses only right and up, or only left and down (mono); swapping right with left and up with down keeps the area (area_flip, flipStep); a monotone word with u ups and r rights has area u·r minus its inversions (area_bool, toStep, using the frozen ListInversions.inv); words with m inversions satisfy the partition recurrence (word_rec, boxed_rec, through Nat.Partition); for u + m ≤ L and m ≤ u they are counted by p(m) (core, wordCount, boxedCount); summing over u gives the two theta coefficients (summand). Frozen: </span><code>flipStep · toStep · wordCount · boxedCount · summand · result</code></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：页面用对 (高度, 面积) 的动态规划算 A385672 的第 L 行（L ≤ 24），用带上界剪枝的深度优先搜索列出给定面积的全部游走，划分数用五边形数递推。k = n 时计数比公式多：L ≥ 4 的偶数多 8 条（L = 2 多 6 条），L ≥ 3 的奇数多 4 条（L ≤ 24 内）。</span><span class="en">Numbers computed on the page, not theorems: the page computes row L of A385672 (L ≤ 24) by dynamic programming over (height, area), lists every walk of a given area by a depth-first search pruned with an upper bound, and gets partition numbers from the pentagonal recurrence. At k = n the counts exceed the formula: by 8 for even L ≥ 4 (by 6 for L = 2) and by 4 for odd L ≥ 3 (within L ≤ 24).</span></span></div>
+      <div class="lean theory"><span class="ok">ARGUED</span><span><span class="zh">问题卷宗里的计算与动机（未形式化）：对 (高度, 面积) 的动态规划复现了 A385672 的前几行，并对 L ≤ 40、k &lt; ⌊L/2⌋ 的全部 400 对验证两个等式；把左步的贡献改成 −(y + 1) 会让 400 对全部失败，边界 k = n 时等式对 L = 2 … 13 都不成立。按面积给游走计数是磁场中方格点阵上 Hofstadter 模型的组合一面（Ouvry 与 Polychronakos 研究闭合游走）。</span><span class="en">Computations and motivation in the problem dossier (not formalized): a dynamic programme over (height, area) reproduces the first rows of A385672 and confirms both identities for all 400 pairs with L ≤ 40 and k &lt; ⌊L/2⌋; changing a left step’s contribution to −(y + 1) breaks all 400, and at the boundary k = n the identities fail for every L = 2 … 13. Counting walks by area is the combinatorial side of the Hofstadter model on the square lattice in a magnetic field (Ouvry and Polychronakos study closed walks).</span></span></div>
+      <div class="lean page"><span class="ok">ARGUED</span><span><span class="zh">页面自己的论证（未形式化，未经评审）：u 次向上、r 次向右的单调游走里，每一次向右后面还剩几次向上，路径上方就缺几格；这些列高从左到右不增，正是 m 的一个划分（部分不超过 u、个数不超过 r）。所以三维视图里品红方框组成的就是这个划分的杨图。</span><span class="en">The page’s own argument (not formalized, not reviewed): in a monotone walk with u ups and r rights, each right step misses as many cells above the path as there are ups still to come; these column heights do not increase from left to right and form a partition of m (parts at most u, at most r parts). So the magenta squares in the 3D view form the Young diagram of that partition.</span></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">卷宗标为未核实：FORMULA 行没有署名，把它归给条目作者是一个假设；用划分数读 A029552 与 A098613 依赖 Euler 乘积，这一点没有写进形式陈述；有限范围的文献检索不能排除已有独立证明。</span><span class="en">Marked unverified in the dossier: the FORMULA line is unsigned, so attributing it to the entry’s author is an assumption; reading A029552 and A098613 through partition numbers relies on Euler’s product, which is not restated in the formal claim; the bounded literature search cannot rule out an independent proof.</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">A. Zabolotskii，OEIS A385672（2025）：按代数面积给 n 步格点游走计数的三角形，以及 FORMULA 行的两条“It appears that”；A029552、A098613：phi(x)/f(−x) 与 psi(x²)/f(−x) 的系数。</span><span class="en">A. Zabolotskii, OEIS A385672 (2025): the triangle counting n-step lattice walks by algebraic area, and the two “It appears that” lines of its FORMULA section; A029552 and A098613: the coefficients of phi(x)/f(−x) and psi(x²)/f(−x).</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0001" value="0" aria-label="第几条游走" data-aria-en="Which walk">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 一条 · <kbd>E</kbd> 最后一条</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> one walk · <kbd>E</kbd> last walk</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">从原点出发，在方格纸上走 L 步，每步往右、左、上、下之一。往右走一步时加上当时的高度，往左走一步时减去它，这就是“代数面积”——路径与横轴之间的有向面积。A385672 把所有游走按面积分组计数。L = 2n 时面积最多是 n²（先上 n 步再右 n 步）。条目猜测：面积比最大值少 k（k &lt; n）的游走恰有 2·A029552(k) 条。</p>
+      <ol>
+        <li><b>答案。</b>Lean 证明了偶数和奇数两条公式。</li>
+        <li><b>为什么只剩单调游走。</b>右步时高度最多是总的向上次数 u，左步时最多是总的向下次数 d，所以面积不超过 r·u + l·d。如果一条游走既有向右或向上、又有向左或向下，这个界就不超过 n² − n，而 k &lt; n 时目标面积 n² − k 比它大。于是面积这么大的游走只能一直往右上、或一直往左下；后者翻转后就是前者，所以乘 2。</li>
+        <li><b>为什么是划分。</b>u 次向上、r 次向右的游走被包在 u × r 的盒子里，面积等于盒子面积减去路径上方缺的格子数 m。缺的格子从左到右越来越少，组成一个划分的杨图——三维视图里的品红方框。只要 m 足够小，这样的路径就和 m 的划分一一对应。</li>
+        <li><b>边界。</b>把 k 推到 n，混合方向的游走就能挤进来，计数比公式多（3 ≤ L ≤ 24 时偶数步多 8 条，奇数步多 4 条，这是页面数出来的）。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/zabolotskii-2025-a385672-near-maximal-area-walks.md" target="_blank" rel="noopener">问题卷宗</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/LatticeWalkNearMaximalArea.lean" target="_blank" rel="noopener">LatticeWalkNearMaximalArea.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Combinatorics/LatticeWalkNearMaximalArea.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/Combinatorics/zabolotskii2025a385672.md" target="_blank" rel="noopener">文献笔记</a> · <a href="https://oeis.org/A385672" target="_blank" rel="noopener">OEIS A385672</a> · <a href="https://oeis.org/A029552" target="_blank" rel="noopener">A029552</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">Start at the origin and take L steps on squared paper, each right, left, up or down. A right step adds the current height and a left step subtracts it: this is the algebraic area, the signed area between the path and the horizontal axis. A385672 counts all walks by their area. For L = 2n the area is at most n² (n ups, then n rights). The entry conjectures that the walks whose area falls short of the maximum by k (k &lt; n) number exactly 2·A029552(k).</p>
+      <ol>
+        <li><b>The answer.</b> Lean proves both formulas, for even and for odd lengths.</li>
+        <li><b>Why only monotone walks remain.</b> At a right step the height is at most the total number u of up steps, and at a left step at least minus the number d of down steps, so the area is at most r·u + l·d. If a walk has a right or up step and also a left or down step, this bound is at most n² − n, while for k &lt; n the target area n² − k is larger. So walks of such large area go only right and up, or only left and down; flipping the latter gives the former, hence the factor 2.</li>
+        <li><b>Why partitions.</b> A walk with u ups and r rights fits in a u × r box, and its area is the box’s area minus the number m of missing cells above the path. The missing cells shrink from left to right and form the Young diagram of a partition — the magenta squares in the 3D view. When m is small enough, such paths correspond one-to-one to the partitions of m.</li>
+        <li><b>The boundary.</b> Push k up to n and walks with mixed directions squeeze in; the count exceeds the formula (by 8 walks for even lengths and 4 for odd ones, as the page counts for 3 ≤ L ≤ 24).</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/zabolotskii-2025-a385672-near-maximal-area-walks.md" target="_blank" rel="noopener">Problem dossier</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/LatticeWalkNearMaximalArea.lean" target="_blank" rel="noopener">LatticeWalkNearMaximalArea.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Combinatorics/LatticeWalkNearMaximalArea.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/Combinatorics/zabolotskii2025a385672.md" target="_blank" rel="noopener">literature note</a> · <a href="https://oeis.org/A385672" target="_blank" rel="noopener">OEIS A385672</a> · <a href="https://oeis.org/A029552" target="_blank" rel="noopener">A029552</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
