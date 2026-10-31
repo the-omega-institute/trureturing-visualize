@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="SANDPILE//TORUS · The n × 1 torus sandpile topples A023855(n − 1) times in every order">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SANDPILE//TORUS n × 1 环面沙堆无论顺序都推倒 A023855(n − 1) 次</title>
+<meta name="description" content="OEIS A293452（Arndt，2017）统计 A249872 的沙堆在 n × k 环面上的推倒次数：除 c[0,0] 外每格放 4 粒，c[0,0] 只吞不吐；只要有格子不少于 4 粒，就推倒它，减 4 粒、四个邻居各加 1。条目猜想第一列 T(n,1) = A023855(n)。印出的下标差了一位；本库在 Lean 里证明改正后的等式并已冻结：n ≥ 2 时终态可达，并且每个以终态结束的合法推倒顺序都恰好推倒 A023855(n − 1) = Σ_{1 ≤ j ≤ ⌊n/2⌋} j(n − j) 次。页面把 n 个格子排成一圈，按不同顺序一粒一粒地推倒，里圈的柱子记录每个格子推倒的次数，最后都停在同一条抛物线 u(x) 上。OEIS A293452 (Arndt, 2017) counts the topplings of the sandpile of A249872 on the n × k torus: 4 grains on every cell except c[0,0], which only swallows grains; while some cell holds at least 4 grains, topple it, removing 4 and adding 1 to each of its four neighbours. The entry conjectures T(n,1) = A023855(n) for the first column. The printed index is off by one; this library proves the corrected identity in Lean, frozen: for n ≥ 2 a final state is reachable, and every legal toppling order that ends in one topples exactly A023855(n − 1) = Σ_{1 ≤ j ≤ ⌊n/2⌋} j(n − j) times. The page puts the n cells on a ring and topples them grain by grain in different orders; inner bars count the topplings of each cell, which always end on the same parabola u(x).">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="sandpile-torus">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="SANDPILE//TORUS">SANDPILE<b>//</b>TORUS</h1>
+      <div class="tagline">
+        <span class="zh">环面沙堆的第一列 · <em>无论顺序，推倒次数都是 A023855(n − 1)（已冻结的证明）</em></span>
+        <span class="en">The first column of the torus sandpile · <em>in every order it topples A023855(n − 1) times (frozen proof)</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="lean" aria-pressed="true"><span class="code">n = 10 · 95</span><span class="cn zh">第十个数据项</span><span class="cn en">The tenth data term</span></button>
+        <button class="preset" data-preset="shuffle" aria-pressed="false"><span class="code">n = 10 · RANDOM</span><span class="cn zh">换个顺序</span><span class="cn en">Another order</span></button>
+        <button class="preset" data-preset="odd" aria-pressed="false"><span class="code">n = 9 · 60</span><span class="cn zh">奇数个格子</span><span class="cn en">Odd n</span></button>
+        <button class="preset" data-preset="even" aria-pressed="false"><span class="code">n = 8 · 50</span><span class="cn zh">偶数：中间 2 粒</span><span class="cn en">Even n: 2 in the middle</span></button>
+        <button class="preset" data-preset="printed" aria-pressed="false"><span class="code">10 ≠ 22</span><span class="cn zh">印出的下标</span><span class="cn en">The printed index</span></button>
+        <button class="preset" data-preset="big" aria-pressed="false"><span class="code">n = 40 · 5530</span><span class="cn zh">按轮推倒</span><span class="cn en">In rounds</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">环与推倒顺序</span><span class="en">Ring and toppling order</span><span class="aside">n × 1</span></h2>
+      <div class="slider-row"><label for="nIn"><span class="zh">格子数 n</span><span class="en">Cells n</span></label><input type="range" id="nIn" min="2" max="80" step="1" value="10"><b id="nOut">10</b></div>
+      <div class="chips" id="orderChips" role="group" aria-label="推倒顺序" data-aria-en="Toppling order">
+        <button class="chip" data-order="left"><span class="zh">最左</span><span class="en">Leftmost</span></button><button class="chip" data-order="right"><span class="zh">最右</span><span class="en">Rightmost</span></button><button class="chip" data-order="max"><span class="zh">最高</span><span class="en">Highest</span></button><button class="chip" data-order="random"><span class="zh">随机</span><span class="en">Random</span></button><button class="chip" data-order="parallel"><span class="zh">按轮</span><span class="en">In rounds</span></button>
+      </div>
+      <div class="btn-row"><button class="chip" id="reseed"><span class="zh">换一个随机顺序</span><span class="en">Another random order</span></button></div>
+      <p class="note" id="sysNote"></p>
+    </section>
+  </aside>
+
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：n 个格子排成一圈，每一粒沙是一个点，里圈的柱子记录每个格子推倒的次数；拖动旋转，滚轮缩放" data-aria-en="3D view: the n cells on a ring with one dot per grain, and inner bars counting the topplings of each cell; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="side" aria-pressed="false"><span class="zh">侧视</span><span class="en">Side</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="每个格子推倒的次数与目标 u(x)" data-aria-en="Topplings per cell against the target u(x)"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="第一列 T(n,1) 与 A023855" data-aria-en="The first column T(n,1) against A023855"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">T(n,1)</span></h2>
+      <dl class="ro">
+        <div class="c w"><dt id="ro1L"></dt><dd id="ro1" class="ftab">—</dd></div>
+        <div class="m w"><dt id="ro2L"></dt><dd id="ro2" class="ftab">—</dd></div>
+        <div class="a w"><dt id="ro3L"></dt><dd id="ro3" class="ftab">—</dd></div>
+        <div class="w"><dt id="ro4L"></dt><dd id="ro4" class="ftab">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5" class="ftab">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">定义：n × k 环面的格子 Cell = ZMod n × ZMod k；初态 initial（c[0,0] 为 0，其余 4 粒）；四个邻居 neighbours；推倒 topple（减 4，邻居各加 1，c[0,0] 不加）；按序推倒 run；合法 Legal（每次推倒时那一格至少 4 粒）；稳定 Stable（每格少于 4 粒）；a023855。猜想 claim：对每个 n ≥ 2，存在以稳定态结束的合法序列，并且每个这样的序列长度都是 a023855(n − 1)。本库证明 claim。已冻结：</span><span class="en">Definitions: cells of the n × k torus, Cell = ZMod n × ZMod k; the initial configuration initial (0 at c[0,0], 4 elsewhere); the four neighbours neighbours; toppling topple (minus 4, plus 1 at each neighbour, never at c[0,0]); running a sequence run; legality Legal (every toppled cell holds at least 4 grains at its turn); stability Stable (every cell below 4); a023855. The conjecture, claim: for every n ≥ 2 some legal sequence ends in a stable state, and every such sequence has length a023855(n − 1). This library proves claim. Frozen: </span><code>TorusColumnToppling.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">证明的结构（result 证明里的步骤，与模块一起冻结）：目标里程表 u(x) = (x(n − x) + [n 偶]·min(x, n − x))/2（私有定义 g、f、ustar）；最小作用（least_action：任何合法序列里，每格推倒的次数都不超过 u）；离散极大值原理（odometer_eq：以稳定态结束的合法序列恰好推倒每格 u(x) 次，比较缺额 u − v 最左与最右的极大值）；求和（sum_f：Σ u = a023855(n − 1)）。冻结：</span><span class="en">The structure of the proof (steps inside the proof of result, frozen with the module): the target odometer u(x) = (x(n − x) + [n even]·min(x, n − x))/2 (the private definitions g, f, ustar); least action (least_action: in every legal sequence each cell topples at most u times); a discrete maximum principle (odometer_eq: a legal sequence ending in a stable state topples every cell exactly u(x) times, by comparing the leftmost and the rightmost maximum of the defect u − v); and the sum (sum_f: Σ u = a023855(n − 1)). Frozen: </span><code>g · f · ustar · cnt · result</code></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：页面按五种规则（最左、最右、最高、随机、按轮）模拟 n = 2 … 80 的全部推倒，每个序列都合法、以稳定态结束，长度都等于 A023855(n − 1)，每格推倒次数都等于 u(x)。页面还观察到落入汇点的沙粒数是 n − 1 + [n 偶]。</span><span class="en">Numbers computed on the page, not theorems: the page simulates every toppling for n = 2 … 80 under five rules (leftmost, rightmost, highest, random, in rounds); every sequence is legal, ends in a stable state, has length A023855(n − 1), and topples every cell exactly u(x) times. The page also sees n − 1 + [n even] grains lost into the sink.</span></span></div>
+      <div class="lean page"><span class="ok">ARGUED</span><span><span class="zh">页面自己的论证（未形式化，未经评审）：每次推倒保留沙粒总数，只有送进 c[0,0] 的那 1 粒丢失；终态每格 3 粒、偶数 n 时 x = n/2 为 2 粒，所以丢失 4(n − 1) − 3(n − 1) + [n 偶] = n − 1 + [n 偶] 粒。</span><span class="en">The page’s own argument (not formalized, not reviewed): a toppling keeps the number of grains except for the single grain sent into c[0,0]; the final state has 3 grains per cell, 2 at x = n/2 for even n, so 4(n − 1) − 3(n − 1) + [n even] = n − 1 + [n even] grains are lost.</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">OEIS A293452（J. Arndt，2017）：三角形 T(n,k) 与猜想 T(n,1) = A023855(n)；规则来自 A249872（L. Blomberg，2014），其中引述 Knuth：先推倒哪个格子不影响结果。与顺序无关是沙堆与筹码游戏的一般性质：D. Dhar，Self-organized critical state of sandpile automaton models，Phys. Rev. Lett. 64，1613（1990），doi:10.1103/PhysRevLett.64.1613；A. Björner、L. Lovász、P. W. Shor，Chip-firing games on graphs，European J. Combin. 12，283–291（1991），doi:10.1016/S0195-6698(13)80111-4。</span><span class="en">OEIS A293452 (J. Arndt, 2017): the triangle T(n,k) and the conjecture T(n,1) = A023855(n); the rules come from A249872 (L. Blomberg, 2014), which quotes Knuth: the order of the topplings does not change the result. Order independence is a general property of sandpiles and chip-firing games: D. Dhar, Self-organized critical state of sandpile automaton models, Phys. Rev. Lett. 64, 1613 (1990), doi:10.1103/PhysRevLett.64.1613; A. Björner, L. Lovász and P. W. Shor, Chip-firing games on graphs, European J. Combin. 12, 283–291 (1991), doi:10.1016/S0195-6698(13)80111-4.</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0001" value="0" aria-label="已推倒的次数" data-aria-en="Topplings so far">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 一次推倒 · <kbd>E</kbd> 跳到终态</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> one toppling · <kbd>E</kbd> jump to the final state</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">n × 1 的环面就是一圈 n 个格子。起初除 c[0,0] 外每格 4 粒沙；只要有格子不少于 4 粒，就推倒它：拿走 4 粒，给四个邻居各 1 粒。在 n × 1 的环面上，上下两个邻居就是它自己，所以推倒一次留下 2 粒、左右各送 1 粒；送进 c[0,0] 的沙粒从此丢失。OEIS A293452 记录了推倒的总次数，并猜想第一列等于 A023855(n)。</p>
+      <ol>
+        <li><b>下标。</b>印出的等式在每个 n 都不成立（n = 1 时 0 ≠ 1）：数据项 0, 1, 2, 7, 10, 22, … 是 A023855 右移一位。Lean 证明的是 T(n,1) = A023855(n − 1)，n ≥ 2。</li>
+        <li><b>与顺序无关。</b>证明不假设“顺序无关”，而是证出来：任何合法序列里格子 x 推倒的次数不超过 u(x)（最小作用）；以终态结束时恰好等于 u(x)（离散极大值原理）；Σ u(x) = A023855(n − 1)。</li>
+        <li><b>三维视图。</b>外圈每一粒沙是一个点，琥珀色的格子不稳定，品红的弧线是下一次推倒送出的两粒沙。里圈的柱子是已推倒的次数 v(x)，琥珀短线是终点 u(x)：无论换哪种顺序，柱子最后都正好碰到短线。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/arndt-2017-a293452-torus-column-sandpile.md" target="_blank" rel="noopener">问题卷宗</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/Sandpiles/TorusColumnToppling.lean" target="_blank" rel="noopener">TorusColumnToppling.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/StatisticalMechanics/Sandpiles/TorusColumnToppling.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/Combinatorics/arndt2017a293452.md" target="_blank" rel="noopener">文献笔记</a> · <a href="https://oeis.org/A293452" target="_blank" rel="noopener">OEIS A293452</a> · <a href="https://oeis.org/A023855" target="_blank" rel="noopener">OEIS A023855</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">The n × 1 torus is a ring of n cells. At the start every cell except c[0,0] holds 4 grains; while some cell holds at least 4, topple it: take 4 grains away and give 1 to each of its four neighbours. On the n × 1 torus the upper and lower neighbours are the cell itself, so a toppling keeps 2 grains and sends 1 to each side; grains sent to c[0,0] are lost. OEIS A293452 records the number of topplings and conjectures that the first column equals A023855(n).</p>
+      <ol>
+        <li><b>The index.</b> The printed identity fails at every n (at n = 1, 0 ≠ 1): the data terms 0, 1, 2, 7, 10, 22, … are A023855 shifted by one place. Lean proves T(n,1) = A023855(n − 1) for n ≥ 2.</li>
+        <li><b>Order independence.</b> The proof does not assume it but derives it: in every legal sequence cell x topples at most u(x) times (least action); when the sequence ends in a final state it topples exactly u(x) times (a discrete maximum principle); and Σ u(x) = A023855(n − 1).</li>
+        <li><b>3D view.</b> Each grain on the outer ring is a dot, amber cells are unstable, and the magenta arcs carry the two grains of the next toppling. The inner bars count the topplings v(x) so far and the amber ticks mark the end values u(x): whatever the order, the bars end exactly at the ticks.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/arndt-2017-a293452-torus-column-sandpile.md" target="_blank" rel="noopener">Problem dossier</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/Sandpiles/TorusColumnToppling.lean" target="_blank" rel="noopener">TorusColumnToppling.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/StatisticalMechanics/Sandpiles/TorusColumnToppling.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/Combinatorics/arndt2017a293452.md" target="_blank" rel="noopener">literature note</a> · <a href="https://oeis.org/A293452" target="_blank" rel="noopener">OEIS A293452</a> · <a href="https://oeis.org/A023855" target="_blank" rel="noopener">OEIS A023855</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
