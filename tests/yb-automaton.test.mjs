@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 // Browser regression suite for viz/yb-automaton (Playwright + Chromium with software WebGL).
-//   node tests/error-disturbance.test.mjs
-// Reads page state through the read-only window.YB_DEBUG probe and checks it against an independent implementation: exact
-// rational arithmetic (BigInt fractions) for the Lean instance — orthogonality, the 36 certificates by principal minors and the
-// witness states — and, along the paths, quaternion rotations with eigenvalues from the closed-form cubic.
+//   node tests/yb-automaton.test.mjs
+// Reads page state through the read-only window.YB_DEBUG probe and checks it against an independent implementation: all
+// solutions for q = 4 and 8 by Heap's algorithm, the test's own transcription of Lean's rmat, carry and step, step^q = id on
+// every small state, and exhaustive period counts for every preset.
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { createServer, BASE } from '../scripts/serve.mjs';

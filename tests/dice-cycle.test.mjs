@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 // Browser regression suite for viz/dice-cycle (Playwright + Chromium with software WebGL).
-//   node tests/error-disturbance.test.mjs
-// Reads page state through the read-only window.DC_DEBUG probe and checks it against an independent implementation: exact
-// rational arithmetic (BigInt fractions) for the Lean instance — orthogonality, the 36 certificates by principal minors and the
-// witness states — and, along the paths, quaternion rotations with eigenvalues from the closed-form cubic.
+//   node tests/dice-cycle.test.mjs
+// Reads page state through the read-only window.DC_DEBUG probe and checks it against an independent implementation: the dice
+// enumerated by stars and bars, the dominance graph from direct win counts, strongly connected components by Kosaraju's
+// algorithm (the page uses Tarjan's), longest cycles by brute force over orderings, and the cycle lengths stated in Lean.
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { createServer, BASE } from '../scripts/serve.mjs';

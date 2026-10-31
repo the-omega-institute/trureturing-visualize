@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 // Browser regression suite for viz/mpemba-four (Playwright + Chromium with software WebGL).
-//   node tests/error-disturbance.test.mjs
+//   node tests/mpemba-four.test.mjs
 // Reads page state through the read-only window.MF_DEBUG probe and checks it against an independent implementation: exact
-// rational arithmetic (BigInt fractions) for the Lean instance — orthogonality, the 36 certificates by principal minors and the
-// witness states — and, along the paths, quaternion rotations with eigenvalues from the closed-form cubic.
+// rational arithmetic (BigInt fractions) for the Lean witness — rates, detailed balance, triplet margins, eigenvector identities
+// and Gibbs overlaps — the dossier's 2 × 2 block for the eigenvalues, RK4 integration for the relaxation and central
+// differences for the slope at infinite temperature.
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { createServer, BASE } from '../scripts/serve.mjs';

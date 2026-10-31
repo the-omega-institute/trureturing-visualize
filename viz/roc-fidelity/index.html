@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="ROC//FIDELITY · The fidelity measurement need not give optimal ROC points">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ROC//FIDELITY 保真度测量的累积点不一定在最优 ROC 曲线上</title>
+<meta name="description" content="区分两个量子态 ρ 与 σ 时，每个二元效应 0 ≤ F ≤ I 给出一个 ROC 点（假阳性 tr Fρ，真阳性 tr Fσ）。Bodor 与 Koniorczyk（2017）注意到 Fuchs–Caves 保真度观测量 M = ρ^{−1/2}(ρ^{1/2}σρ^{1/2})^{1/2}ρ^{−1/2} 的测量按似然比排序后给出 d + 1 个累积点，并问这些点是否在最优 ROC 曲线上。本库在 Lean 里给出三维反例并已冻结：ρ = (1/20)[[2,1,1],[1,10,1],[1,1,8]]，σ = DρD，D = diag(2, 1, ½)；效应 F = vv†/1382，v = (37, 2, −3) 的假阳性等于第一个累积点的 1/10，真阳性 5539/13820 却大于 2/5。页面画出最优 ROC 曲线、保真度折线、二者的差距，以及方向球面上的最优效应。When discriminating two quantum states ρ and σ, every binary effect 0 ≤ F ≤ I gives an ROC point (false positive tr Fρ, true positive tr Fσ). Bodor and Koniorczyk (2017) noted that measuring the Fuchs–Caves fidelity observable M = ρ^{−1/2}(ρ^{1/2}σρ^{1/2})^{1/2}ρ^{−1/2}, ordered by likelihood ratio, gives d + 1 cumulative points, and asked whether they lie on the optimal ROC curve. This library proves a three-dimensional counterexample in Lean, frozen: ρ = (1/20)[[2,1,1],[1,10,1],[1,1,8]], σ = DρD, D = diag(2, 1, ½); the effect F = vv†/1382 with v = (37, 2, −3) has the first cumulative false-positive rate 1/10 but true-positive rate 5539/13820 > 2/5. The page draws the optimal ROC curve, the fidelity polyline, the gap between them, and the optimal effects on the sphere of directions.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="roc-fidelity">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="ROC//FIDELITY">ROC<b>//</b>FIDELITY</h1>
+      <div class="tagline">
+        <span class="zh">量子态区分的 ROC · <em>保真度测量的累积点不一定最优（已冻结的反例）</em></span>
+        <span class="en">ROC of quantum state discrimination · <em>the fidelity measurement’s cumulative points need not be optimal (frozen counterexample)</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="lean" aria-pressed="true"><span class="code">x = Q₁ · LEAN</span><span class="cn zh">Lean 的反例</span><span class="cn en">Lean’s counterexample</span></button>
+        <button class="preset" data-preset="second" aria-pressed="false"><span class="code">x = Q₂</span><span class="cn zh">第二个累积点</span><span class="cn en">The second point</span></button>
+        <button class="preset" data-preset="commute" aria-pressed="false"><span class="code">ε = 0</span><span class="cn zh">对易的一对</span><span class="cn en">A commuting pair</span></button>
+        <button class="preset" data-preset="small" aria-pressed="false"><span class="code">ε = 1/4</span><span class="cn zh">差距 ∝ ε²？</span><span class="cn en">Gap ∝ ε²?</span></button>
+        <button class="preset" data-preset="strong" aria-pressed="false"><span class="code">ε = 3</span><span class="cn zh">看得见的差距</span><span class="cn en">A visible gap</span></button>
+        <button class="preset" data-preset="reversed" aria-pressed="false"><span class="code">D = (½, 1, 2)</span><span class="cn zh">顺序反过来</span><span class="cn en">Reversed order</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">这一对态</span><span class="en">The pair of states</span><span class="aside">ρ, σ</span></h2>
+      <div class="slider-row"><label for="epsIn"><span class="zh">非对角耦合 ε</span><span class="en">Off-diagonal coupling ε</span></label><input type="range" id="epsIn" min="0" max="3" step="0.05" value="1"><b id="epsOut">1</b></div>
+      <div class="slider-row"><label for="d0In"><span class="zh">D 的第一项 d₀</span><span class="en">First entry of D, d₀</span></label><input type="range" id="d0In" min="-2" max="2" step="0.05" value="1"><b id="d0Out">2</b></div>
+      <div class="slider-row"><label for="d2In"><span class="zh">D 的第三项 d₂</span><span class="en">Third entry of D, d₂</span></label><input type="range" id="d2In" min="-2" max="2" step="0.05" value="-1"><b id="d2Out">0.5</b></div>
+      <div class="chips" id="jumpChips" role="group" aria-label="跳到累积点" data-aria-en="Jump to a cumulative point">
+        <button class="chip" data-k="1"><span class="zh">x = Q₁</span><span class="en">x = Q₁</span></button><button class="chip" data-k="2"><span class="zh">x = Q₂</span><span class="en">x = Q₂</span></button>
+      </div>
+      <p class="note" id="sysNote"></p>
+    </section>
+  </aside>
+
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：方向的球面，按 σ − t*ρ 的二次型着色，白轴是保真度测量的本征基，环是假阳性为 x 的投影；拖动旋转，滚轮缩放" data-aria-en="3D view: the sphere of directions coloured by the quadratic form of σ − t*ρ, with the fidelity eigenbasis as white axes and the ring of projectors with false-positive rate x; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">全景</span><span class="en">Overview</span></button>
+        <button class="chip" data-cam="focus" aria-pressed="false"><span class="zh">对准 x 环</span><span class="en">At the x-ring</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="ROC 平面：最优曲线与保真度折线" data-aria-en="The ROC plane: optimal curve and fidelity polyline"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="最优曲线与折线的差距" data-aria-en="Gap between the optimal curve and the polyline"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">ROC</span></h2>
+      <dl class="ro">
+        <div class="c w"><dt id="ro1L"></dt><dd id="ro1" class="ftab">—</dd></div>
+        <div class="m w"><dt id="ro2L"></dt><dd id="ro2" class="ftab">—</dd></div>
+        <div class="a w"><dt id="ro3L"></dt><dd id="ro3" class="ftab">—</dd></div>
+        <div class="w"><dt id="ro4L"></dt><dd id="ro4" class="ftab">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5" class="ftab">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">定义：最优 ROC（onOptimalROC：假阳性 Re tr(Fρ) = x 的所有效应 0 ≤ F ≤ I 的真阳性都 ≤ y）；保真度观测量 M = (√ρ)⁻¹ √(√ρ σ √ρ) (√ρ)⁻¹（fidelityObservable）；按似然比交叉相乘排序的正交归一本征基（isOrderedFidelityEigenbasis）与累积和（cumulative）。猜想 claim：对每个维数、每对正定迹一的 ρ、σ、每个这样的有序本征基与每个 k，累积点都在最优 ROC 上。本库证明 ¬claim。已冻结：</span><span class="en">Definitions: the optimal ROC (onOptimalROC: every effect 0 ≤ F ≤ I with false-positive rate Re tr(Fρ) = x has true-positive rate ≤ y); the fidelity observable M = (√ρ)⁻¹ √(√ρ σ √ρ) (√ρ)⁻¹ (fidelityObservable); an orthonormal eigenbasis ordered by cross-multiplied likelihood ratios (isOrderedFidelityEigenbasis) and its cumulative sums (cumulative). The conjecture, claim: for every dimension, every pair of positive-definite trace-one ρ, σ, every such ordered eigenbasis and every k, the cumulative point lies on the optimal ROC. This library proves ¬claim. Frozen: </span><code>FidelityMeasurementROCRefutation.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">反例的每一步（同一模块里一起冻结）：20ρ = J + diag(1, 9, 7) 正定（rho_posDef）；σ = DρD（sigma_eq），σ 正定（sigma_posDef），两者迹为一（rho_trace、sigma_trace）；由 Riccati 方程 YρY = σ 正定解的唯一性，保真度观测量就是 D（sqrt_observable）；坐标基是有序本征基（coordinate_basis_ordered），第一个累积点是 (1/10, 2/5)（cumulative_first_rho、cumulative_first_sigma）；F = vv†/1382（competitor_eq），0 ≤ F ≤ I（competitor_binary），tr Fρ = 1/10，tr Fσ = 5539/13820（competitor_rho_trace、competitor_sigma_trace）。冻结：</span><span class="en">Every step of the counterexample (frozen in the same module): 20ρ = J + diag(1, 9, 7) is positive definite (rho_posDef); σ = DρD (sigma_eq) is positive definite (sigma_posDef), both have trace one (rho_trace, sigma_trace); by uniqueness of the positive solution of the Riccati equation YρY = σ, the fidelity observable is D (sqrt_observable); the coordinate basis is an ordered eigenbasis (coordinate_basis_ordered) with first cumulative point (1/10, 2/5) (cumulative_first_rho, cumulative_first_sigma); F = vv†/1382 (competitor_eq), 0 ≤ F ≤ I (competitor_binary), tr Fρ = 1/10 and tr Fσ = 5539/13820 (competitor_rho_trace, competitor_sigma_trace). Frozen: </span><code>sqrt_observable · coordinate_basis_ordered · competitor_binary · competitor_sigma_trace · result</code></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：最优曲线由支撑线对偶 y*(x) = min_t [λ₊(σ − tρ) + t x] 算出（λ₊ 是正本征值之和，黄金分割求最小）；保真度观测量按定义用本征分解算出。反例的最优值约为 y*(1/10) = 0.402031、y*(3/5) = 0.900880；ε 这一族里差距在 ε = 0 时为 0，小 ε 时大致按 ε² 增长。累积点之间的折线是相邻两个累积测试的随机混合；最优曲线从原点出发的斜率是 ρ⁻¹σ 的最大本征值（反例里约 4.216，大于 P₁/Q₁ = 4），所以在 0 与 Q₁ 之间的线段上差距更大（反例里约 0.019）。问题问的是累积点本身；右图用平方根刻度，让累积点处较小的差距与线段上较大的差距同时看得见。</span><span class="en">Numbers computed on the page, not theorems: the optimal curve comes from the supporting-line dual y*(x) = min_t [λ₊(σ − tρ) + t x] (λ₊ is the sum of the positive eigenvalues, minimized by golden section); the fidelity observable is computed from its definition by eigendecomposition. For the counterexample the optimal values are about y*(1/10) = 0.402031 and y*(3/5) = 0.900880; in the ε family the gap vanishes at ε = 0 and grows roughly like ε² for small ε. Between the cumulative points the polyline is a random mixture of two neighbouring cumulative tests; the optimal curve leaves the origin with slope equal to the largest eigenvalue of ρ⁻¹σ (about 4.216 for the counterexample, above P₁/Q₁ = 4), so on the segment between 0 and Q₁ the gap is larger (about 0.019 for the counterexample). The question concerns the cumulative points themselves; the right chart uses a square-root scale so that the smaller gaps at the cumulative points stay visible next to the larger gaps on the segments.</span></span></div>
+      <div class="lean theory"><span class="ok">ARGUED</span><span><span class="zh">问题卷宗里的论证（未形式化）：对任意 t ≥ 0，使 tr(F(σ − tρ)) 最大的效应（σ − tρ 正谱子空间上的投影）在自己的假阳性处是 ROC 最优的；保真度本征基不保证每个累积投影都与某个 σ − tρ 的符号子空间对齐——这个反例里 σ − tρ 的 (0,1)、(0,2) 元是 (2 − t)/20 与 (1 − t)/20，没有一个 t 让它在坐标基里对角。ρ 与 σ 对易时，经典的阈值论证说明所有累积点都最优。</span><span class="en">Arguments in the problem dossier (not formalized): for any t ≥ 0, an effect maximizing tr(F(σ − tρ)) (the projector on the positive spectral subspace of σ − tρ) is ROC-optimal at its own false-positive rate; the fidelity eigenbasis does not force every cumulative projector to align with a sign subspace of some σ − tρ — in this counterexample the (0,1) and (0,2) entries of σ − tρ are (2 − t)/20 and (1 − t)/20, so no t makes it diagonal in the coordinate basis. When ρ and σ commute, the classical threshold argument makes every cumulative point optimal.</span></span></div>
+      <div class="lean page"><span class="ok">ARGUED</span><span><span class="zh">页面自己的论证（未形式化，未经评审）：页面的 ε 族里 σ = (D/c) ρ (D/c)，c = √tr(DρD)，所以按 Lean 用到的同一条 Riccati 唯一性，保真度观测量对每个 ε 都是 D/c，本征基始终是坐标基；ε = 0 时两者对易，由上面的阈值论证差距为 0。</span><span class="en">The page’s own argument (not formalized, not reviewed): in the page’s ε family σ = (D/c) ρ (D/c) with c = √tr(DρD), so by the same Riccati uniqueness that Lean uses, the fidelity observable is D/c for every ε and its eigenbasis is always the coordinate basis; at ε = 0 the pair commutes and the threshold argument above makes the gap 0.</span></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">卷宗列为未决：不对易的一对里哪些累积点最优（分类）；反例的最小维数；这个反例的精确 ROC 最优值（页面的数值不是证明）。</span><span class="en">Left open in the dossier: which cumulative points are optimal for noncommuting pairs (a classification); the smallest dimension of a counterexample; the exact ROC optimum of this witness (the page’s numbers are not a proof).</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">A. Bodor、M. Koniorczyk，Receiver Operation Characteristics of Quantum State Discrimination，Journal of Russian Laser Research 38(2)，150–163（2017），doi:10.1007/s10946-017-9629-5，arXiv:1603.06801：ROC 区域的凸性与最优 ROC 曲线、累积点，以及这里被否定的开放问题（v1 TeX 第 940–944 行）。</span><span class="en">A. Bodor and M. Koniorczyk, Receiver Operation Characteristics of Quantum State Discrimination, Journal of Russian Laser Research 38(2), 150–163 (2017), doi:10.1007/s10946-017-9629-5, arXiv:1603.06801: convexity of the ROC domain, the optimal ROC curve, the cumulative points, and the open question refuted here (v1 TeX, lines 940–944).</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="false">▶</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0001" value="0" aria-label="假阳性 x" data-aria-en="False-positive rate x">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 扫过 x · <kbd>←</kbd><kbd>→</kbd> x ± 0.005 · <kbd>E</kbd> 跳到 x = 1</span>
+      <span class="en"><kbd>Space</kbd> sweep x · <kbd>←</kbd><kbd>→</kbd> x ± 0.005 · <kbd>E</kbd> jump to x = 1</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">要判断一个量子系统处在 ρ（“阴性”）还是 σ（“阳性”），一个二元测量由效应 0 ≤ F ≤ I 给出：报“阳性”的概率在 ρ 下是假阳性 x = tr Fρ，在 σ 下是真阳性 y = tr Fσ。所有效应的 (x, y) 组成一个凸区域，它的上边界就是最优 ROC 曲线。Bodor 与 Koniorczyk 取 Fuchs–Caves 保真度观测量 M 的本征基做测量，按似然比 p/q 从大到小把结果依次并入“阳性”，得到 d + 1 个累积点，并问它们是否都在最优曲线上。</p>
+      <ol>
+        <li><b>反例。</b>Lean 证明答案是否定的：在三维里取 ρ = (1/20)[[2,1,1],[1,10,1],[1,1,8]]、σ = DρD、D = diag(2, 1, ½)，保真度观测量正是 D，第一个累积点是 (1/10, 2/5)；而 F = vv†/1382、v = (37, 2, −3) 的假阳性同为 1/10，真阳性 5539/13820 比 2/5 多 11/13820。</li>
+        <li><b>三维视图。</b>球面上每个点是一个方向。在假阳性 x 处，最优效应由对偶斜率 t* 决定：它取 σ − t*ρ 为正的方向（青色）。白轴是保真度测量的本征基，琥珀轴是 σ − t*ρ 的本征向量；只有两组轴对齐时，累积点才可能最优。环是假阳性正好为 x 的投影，琥珀段比保真度折线更好。</li>
+        <li><b>两张图。</b>左图是 ROC 平面：青色是最优曲线，白色是保真度折线。差距很小，右图把它放大：y*(x) − L(x)。ε = 0 时两者对易，差距处处为 0。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/bodor-koniorczyk-2017-fidelity-measurement-roc-refutation.md" target="_blank" rel="noopener">问题卷宗</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Measurement/FidelityMeasurementROCRefutation.lean" target="_blank" rel="noopener">FidelityMeasurementROCRefutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Quantum/Measurement/FidelityMeasurementROCRefutation.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/Observer/bodorkoniorczyk2017quantumroc.md" target="_blank" rel="noopener">文献笔记</a> · <a href="https://doi.org/10.1007/s10946-017-9629-5" target="_blank" rel="noopener">doi:10.1007/s10946-017-9629-5</a> · <a href="https://arxiv.org/abs/1603.06801" target="_blank" rel="noopener">arXiv:1603.06801</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">To decide whether a quantum system is in ρ (“negative”) or σ (“positive”), a binary measurement is given by an effect 0 ≤ F ≤ I: the probability of answering “positive” is the false-positive rate x = tr Fρ under ρ and the true-positive rate y = tr Fσ under σ. The points (x, y) of all effects form a convex region whose upper boundary is the optimal ROC curve. Bodor and Koniorczyk measure in the eigenbasis of the Fuchs–Caves fidelity observable M, add the outcomes to “positive” in order of decreasing likelihood ratio p/q, obtain d + 1 cumulative points, and ask whether they all lie on the optimal curve.</p>
+      <ol>
+        <li><b>The counterexample.</b> Lean proves the answer is no: in three dimensions take ρ = (1/20)[[2,1,1],[1,10,1],[1,1,8]], σ = DρD, D = diag(2, 1, ½). The fidelity observable is D itself and the first cumulative point is (1/10, 2/5), while F = vv†/1382 with v = (37, 2, −3) has the same false-positive rate 1/10 and true-positive rate 5539/13820, which exceeds 2/5 by 11/13820.</li>
+        <li><b>3D view.</b> Each point of the sphere is a direction. At false-positive rate x the optimal effect is fixed by the dual slope t*: it takes the directions where σ − t*ρ is positive (cyan). White axes are the eigenbasis of the fidelity measurement, amber axes the eigenvectors of σ − t*ρ; a cumulative point can be optimal only when the two align. The ring holds the projectors with false-positive rate exactly x, amber where they beat the fidelity polyline.</li>
+        <li><b>The charts.</b> The left chart is the ROC plane: cyan is the optimal curve, white the fidelity polyline. The gap is small, so the right chart magnifies it: y*(x) − L(x). At ε = 0 the pair commutes and the gap is 0 everywhere.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/bodor-koniorczyk-2017-fidelity-measurement-roc-refutation.md" target="_blank" rel="noopener">Problem dossier</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Measurement/FidelityMeasurementROCRefutation.lean" target="_blank" rel="noopener">FidelityMeasurementROCRefutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Quantum/Measurement/FidelityMeasurementROCRefutation.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/Observer/bodorkoniorczyk2017quantumroc.md" target="_blank" rel="noopener">literature note</a> · <a href="https://doi.org/10.1007/s10946-017-9629-5" target="_blank" rel="noopener">doi:10.1007/s10946-017-9629-5</a> · <a href="https://arxiv.org/abs/1603.06801" target="_blank" rel="noopener">arXiv:1603.06801</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
