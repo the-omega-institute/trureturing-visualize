@@ -2,6 +2,55 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "sandpile-torus",
+      "code": "SANDPILE//TORUS",
+      "path": "viz/sandpile-torus/",
+      "thumbnail": "viz/sandpile-torus/thumb.jpg",
+      "title": "n × 1 环面沙堆无论顺序都推倒 A023855(n − 1) 次",
+      "title_en": "The n × 1 torus sandpile topples A023855(n − 1) times in every order",
+      "summary": "OEIS A293452（Arndt，2017）统计环面沙堆的推倒次数：除 c[0,0] 外每格 4 粒，c[0,0] 只吞不吐，不少于 4 粒的格子减 4、四个邻居各加 1。条目猜想第一列 T(n,1) = A023855(n)，但印出的下标差了一位。本库在 Lean 里证明改正后的等式并已冻结：n ≥ 2 时，每个以终态结束的合法顺序都恰好推倒 A023855(n − 1) = Σ j(n − j) 次，每个格子恰好推倒 u(x) = (x(n − x) + [n 偶]·min(x, n − x))/2 次（最小作用与离散极大值原理）。页面把格子排成一圈，按五种规则一粒一粒地推倒，里圈的柱子总会停在同一条抛物线上。",
+      "summary_en": "OEIS A293452 (Arndt, 2017) counts the topplings of a torus sandpile: 4 grains on every cell except c[0,0], which only swallows grains, and a cell with at least 4 grains loses 4 and gives 1 to each of its four neighbours. The entry conjectures T(n,1) = A023855(n) for the first column, but the printed index is off by one. This library proves the corrected identity in Lean, frozen: for n ≥ 2 every legal order that ends in a final state topples exactly A023855(n − 1) = Σ j(n − j) times, and each cell exactly u(x) = (x(n − x) + [n even]·min(x, n − x))/2 times (least action and a discrete maximum principle). The page puts the cells on a ring and topples them grain by grain under five rules; the inner bars always end on the same parabola.",
+      "status": "live",
+      "added": "2026-10-31",
+      "tags": [
+        "沙堆模型",
+        "筹码游戏",
+        "OEIS",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "sandpile model",
+        "chip-firing",
+        "OEIS",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：n × 1 环面沙堆的推倒次数",
+          "label_en": "Problem dossier: the toppling count of the n × 1 torus sandpile",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/arndt-2017-a293452-torus-column-sandpile.md"
+        },
+        {
+          "label": "Blueprint：环面第一列",
+          "label_en": "Blueprint: the first torus column",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/StatisticalMechanics/Sandpiles/TorusColumnToppling.md"
+        },
+        {
+          "label": "文献笔记：OEIS A293452",
+          "label_en": "Literature note: OEIS A293452",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Library/Combinatorics/arndt2017a293452.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "TorusColumnToppling.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/Sandpiles/TorusColumnToppling.lean"
+        }
+      ]
+    },
+    {
       "id": "roc-fidelity",
       "code": "ROC//FIDELITY",
       "path": "viz/roc-fidelity/",

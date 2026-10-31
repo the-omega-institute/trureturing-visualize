@@ -9,6 +9,7 @@ Every page is bilingual (中文 / English, switchable in the header) and states 
 
 | id | Page | Theory |
 | --- | --- | --- |
+| `sandpile-torus` | [SANDPILE//TORUS n × 1 环面沙堆无论顺序都推倒 A023855(n − 1) 次](https://the-omega-institute.github.io/trureturing-visualize/viz/sandpile-torus/) | 问题卷宗：n × 1 环面沙堆的推倒次数 |
 | `roc-fidelity` | [ROC//FIDELITY 保真度测量的累积点不一定在最优 ROC 曲线上](https://the-omega-institute.github.io/trureturing-visualize/viz/roc-fidelity/) | 问题卷宗：保真度测量与最优 ROC |
 | `yb-automaton` | [YB//AUTOMATON 2ⁿ 元域上的杨–巴克斯特元胞自动机周期整除 2ⁿ](https://the-omega-institute.github.io/trureturing-visualize/viz/yb-automaton/) | 问题卷宗：杨–巴克斯特自动机的周期 |
 | `mpemba-four` | [MPEMBA//FOUR 每个三能级都不满足条件，四能级仍有姆潘巴效应](https://the-omega-institute.github.io/trureturing-visualize/viz/mpemba-four/) | 问题卷宗：姆潘巴三元组猜想 |
