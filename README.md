@@ -9,6 +9,7 @@ Every page is bilingual (中文 / English, switchable in the header) and states 
 
 | id | Page | Theory |
 | --- | --- | --- |
+| `exit-disk` | [EXIT//DISK 格点圆盘比正方形更难走出：正方形不是平均出逃时间的最大者](https://the-omega-institute.github.io/trureturing-visualize/viz/exit-disk/) | 问题卷宗：正方形不是平均出逃时间的最大者 |
 | `perm-complement` | [PERM//COMPLEMENT 两两强互补的置换矩阵最多 2^v₂(n) 个](https://the-omega-institute.github.io/trureturing-visualize/viz/perm-complement/) | 问题卷宗：两两强互补的置换矩阵的最大个数 |
 | `modes-eighteen` | [MODES//EIGHTEEN 十八模式的玻色子占据数恰在粒子数为偶数时可以非语境地分配](https://the-omega-institute.github.io/trureturing-visualize/viz/modes-eighteen/) | 问题卷宗：十八模式玻色子分配的奇偶 |
 | `sandpile-torus` | [SANDPILE//TORUS n × 1 环面沙堆无论顺序都推倒 A023855(n − 1) 次](https://the-omega-institute.github.io/trureturing-visualize/viz/sandpile-torus/) | 问题卷宗：n × 1 环面沙堆的推倒次数 |

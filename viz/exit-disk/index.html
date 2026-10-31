@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="EXIT//DISK · A lattice disk outlasts the square: squares do not maximize the mean exit time">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>EXIT//DISK 格点圆盘比正方形更难走出：正方形不是平均出逃时间的最大者</title>
+<meta name="description" content="Rognone 与 Nicosia（2023）定义了方格点阵上团簇的平均出逃时间：在团簇里均匀选一个起点做简单随机游走，数到第一次走出团簇的步数，再取平均。他们猜想在 N = m² 个格子的连通团簇中，m × m 正方形让这个时间最大。本库在 Lean 里反驳了它并已冻结：圆盘 x² + y² ≤ 37 有 121 个格子，平均要走 198008236169/8338377773 = 23.7466… 步，而 11 × 11 正方形只要 2811118983/119333830 = 23.5568… 步。页面把每个起点的期望出逃步数画成穹顶，放行人在上面走，画出面积等于平均出逃时间的生存曲线，并让读者自己移动格子；页面还找到一个 49 格的形状胜过 7 × 7 正方形（页面数值）。Rognone and Nicosia (2023) define the mean exit time of a cluster of the square lattice: start a simple random walk at a uniformly chosen cell and count the steps until it first stands outside. They conjecture that among connected clusters of N = m² cells the m × m square maximizes it. This library refutes it in Lean, frozen: the disk x² + y² ≤ 37 has 121 cells and mean exit time 198008236169/8338377773 = 23.7466…, while the 11 × 11 square has 2811118983/119333830 = 23.5568…. The page draws the expected exit time from each start as a dome, lets walkers run on it, plots the survival curve whose area is the mean exit time, and lets the reader move cells; it also finds a 49-cell shape that beats the 7 × 7 square (page numbers).">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="exit-disk">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="EXIT//DISK">EXIT<b>//</b>DISK</h1>
+      <div class="tagline">
+        <span class="zh">团簇的平均出逃时间 · <em>121 格的圆盘胜过 11 × 11 正方形（已冻结的反驳）</em></span>
+        <span class="en">Mean exit time of lattice clusters · <em>a 121-cell disk beats the 11 × 11 square (frozen refutation)</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="lean" aria-pressed="true"><span class="code">N = 121 · LEAN</span><span class="cn zh">圆盘胜过正方形</span><span class="cn en">The disk wins</span></button>
+        <button class="preset" data-preset="m7" aria-pressed="false"><span class="code">N = 49</span><span class="cn zh">更小的反例</span><span class="cn en">A smaller counterexample</span></button>
+        <button class="preset" data-preset="m15" aria-pressed="false"><span class="code">N = 225</span><span class="cn zh">原文抽样的规模</span><span class="cn en">The sampled size</span></button>
+        <button class="preset" data-preset="m6" aria-pressed="false"><span class="code">N = 36</span><span class="cn zh">正方形仍领先</span><span class="cn en">The square still leads</span></button>
+        <button class="preset" data-preset="local" aria-pressed="false"><span class="code">N = 121 · 1 MOVE</span><span class="cn zh">正方形是局部最大</span><span class="cn en">A local maximum</span></button>
+        <button class="preset" data-preset="eden" aria-pressed="false"><span class="code">N = 121 · EDEN</span><span class="cn zh">原文的随机团簇</span><span class="cn en">The source’s samples</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">规模</span><span class="en">Size</span><span class="aside">N = m²</span></h2>
+      <div class="slider-row"><label for="mIn"><span class="zh">边长 m</span><span class="en">Side m</span></label><input type="range" id="mIn" min="4" max="24" step="1" value="11"><b id="mOut">11²</b></div>
+      <p class="note" id="sysNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">移动格子</span><span class="en">Move cells</span><span class="aside">EDIT</span></h2>
+      <div class="btn-row">
+        <button class="chip" id="climbBtn"><span class="zh">爬一步</span><span class="en">Climb one step</span></button>
+        <button class="chip" id="squareBtn"><span class="zh">从正方形开始</span><span class="en">Start from the square</span></button>
+      </div>
+      <p class="note" id="editNote"></p>
+    </section>
+  </aside>
+
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：左边是挑战者团簇、右边是同样多格子的正方形，每个格子的柱高是从那里出发离开所需的期望步数，白点是随机行人；拖动旋转，滚轮缩放" data-aria-en="3D view: the challenger cluster on the left and the square with as many cells on the right; each cell’s column rises to the expected number of steps to leave from there, and white dots are random walkers; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="side" aria-pressed="false"><span class="zh">侧视</span><span class="en">Side</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="俯视热图：左边可点击移动格子" data-aria-en="Top-view heat maps; click the left one to move cells"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="生存曲线" data-aria-en="Survival curves"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">τ = Σ S(k)</span></h2>
+      <dl class="ro">
+        <div class="c w"><dt id="ro1L"></dt><dd id="ro1" class="ftab">—</dd></div>
+        <div class="m w"><dt id="ro2L"></dt><dd id="ro2" class="ftab">—</dd></div>
+        <div class="a w"><dt id="ro3L"></dt><dd id="ro3" class="ftab">—</dd></div>
+        <div class="w"><dt id="ro4L"></dt><dd id="ro4" class="ftab">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5" class="ftab">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">定义：四个方向的单位步 step；方向词给出的位置 position；exits S p w：词的每个中间位置都在 S 里、最后一个位置不在；exitProb S p n：长度为 n 的 4ⁿ 个方向词里恰在第 n 步第一次离开的比例；expectedExit S p = Σ n · exitProb S p n；meanExit S 是它在 S 上的平均；connected S：S 里任意两点能用 S 内的步连起来；square m = {0, …, m − 1}²。猜想 claim：对每个 m ≥ 1，每个连通、恰有 m² 个格子的 S 都满足 meanExit S ≤ meanExit (square m)。本库反驳 claim。已冻结：</span><span class="en">Definitions: the four unit steps step; the positions along a direction word, position; exits S p w: every intermediate position of the word lies in S and the last one does not; exitProb S p n: the fraction of the 4ⁿ direction words of length n that leave for the first time at step n; expectedExit S p = Σ n · exitProb S p n; meanExit S, its average over S; connected S: any two points of S are joined by steps inside S; square m = {0, …, m − 1}². The statement claim: for every m ≥ 1, every connected S with exactly m² cells satisfies meanExit S ≤ meanExit (square m). This library refutes claim. Frozen: </span><code>SquareClusterExitTimeRefutation.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">反驳的步骤（同一个冻结模块）：圆盘 x² + y² ≤ 37 有 121 个格子且连通（disk_data、disk_connected）；整数证书 diskA / 68912213 与 squareA / 1972460 在二面体群的轨道上取常值，满足 4A = 4D + Σ 邻居的 A 与 1 ≤ t ≤ 43，因此它们就是期望出逃时间（integer_certificate 经 expected_of_certificate：由 t ≤ 43 得 Pⁿt ≤ (42/43)ⁿ t，于是 t = Σ Pᵏ1）；取平均得 τ(C) = 198008236169/8338377773 = 23.7466… &gt; τ(Q) = 2811118983/119333830 = 23.5568…。冻结：</span><span class="en">The steps of the refutation (in the same frozen module): the disk x² + y² ≤ 37 has 121 cells and is connected (disk_data, disk_connected); the integer certificates diskA / 68912213 and squareA / 1972460 are constant on the orbits of the dihedral group, satisfy 4A = 4D + Σ of A over the neighbours and 1 ≤ t ≤ 43, and are therefore the expected exit times (integer_certificate via expected_of_certificate: t ≤ 43 gives Pⁿt ≤ (42/43)ⁿ t, so t = Σ Pᵏ1); averaging gives τ(C) = 198008236169/8338377773 = 23.7466… &gt; τ(Q) = 2811118983/119333830 = 23.5568…. Frozen: </span><code>disk_data · disk_connected · integer_certificate · result</code></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：页面用共轭梯度解 (I − P)t = 1，用 Pᵏ1 算生存曲线，每个形状放 4000 个随机行人估计 τ（显示其中 160 个，种子固定）。滑块的圆盘取离圆心最近的 m² 个格点，圆心在间隔 0.05 的网格上：这样的圆盘从 m = 8 起都胜过正方形（m = 8：13.8817 &gt; 13.8499；m = 11：24.4803，比 Lean 的圆盘还大）。把 11 × 11 正方形的两个上角搬到下边中点之外（(0, 10) → (5, −1)、(10, 10) → (6, −1)）就得到 23.6668 &gt; 23.5568：两次单格移动已经胜过正方形；49 格的形状 11.2324 &gt; 11.1756 由单格爬山得到，是页面找到的最小反例；m = 6 的形状来自为页面离线做的爬山搜索。</span><span class="en">Numbers computed on the page, not theorems: the page solves (I − P)t = 1 by conjugate gradients, computes the survival curve from Pᵏ1, and estimates τ with 4000 random walkers per shape (160 of them shown, fixed seed). The slider’s disks take the m² lattice points nearest to a centre on the 0.05 grid: such disks beat the square for every m ≥ 8 (m = 8: 13.8817 &gt; 13.8499; m = 11: 24.4803, larger even than Lean’s disk). Moving the two top corners of the 11 × 11 square below the middle of the bottom edge ((0, 10) → (5, −1), (10, 10) → (6, −1)) gives 23.6668 &gt; 23.5568: two single-cell moves already beat the square. The 49-cell shape, 11.2324 &gt; 11.1756, comes from single-cell hill climbing and is the smallest counterexample the page has found; the m = 6 shape comes from an offline hill-climbing search made for this page.</span></span></div>
+      <div class="lean theory"><span class="ok">ARGUED</span><span><span class="zh">问题卷宗里的计算与论证（未形式化）：恰有 m² 个格子的格点圆盘在 m = 11、13、14、15、16、18、20–24 时胜过正方形，m ≤ 10 时不胜（页面用圆心 (0,0)、(½,0)、(½,½) 复算得到同一张表）；m ≤ 11 时从正方形出发的任何单格移动都不提高 τ——正方形是局部最大，被整体重排打败；机理：τ 是离散扭转刚度除以格子数，连续情形下等面积区域中圆盘的扭转刚度最大（Saint-Venant 不等式），格点圆盘随 N 增大逼近圆。</span><span class="en">Computations and arguments in the problem dossier (not formalized): lattice disks with exactly m² cells beat the square for m = 11, 13, 14, 15, 16, 18 and 20–24, and for no m ≤ 10 (the page reproduces this table with centres (0,0), (½,0), (½,½)); for m ≤ 11 no single-cell move from the square raises τ — the square is a local maximum beaten by a global rearrangement; mechanism: τ is the discrete torsional rigidity divided by the number of cells, and in the continuum the disk has the largest torsional rigidity among domains of given area (the Saint-Venant inequality), which lattice disks approach as N grows.</span></span></div>
+      <div class="lean page"><span class="ok">ARGUED</span><span><span class="zh">页面自己的论证（未形式化，未经评审）：出逃步数 T 满足 E T = Σ_{k≥0} P(T &gt; k)，而对均匀起点平均后 P(T &gt; k) 就是 S(k) = Pᵏ1 的平均，所以 τ 正是生存曲线下的面积——这是 Lean 证明里 t = Σ Pᵏ1 取平均后的形式。</span><span class="en">The page’s own argument (not formalized, not reviewed): the exit step T satisfies E T = Σ_{k≥0} P(T &gt; k), and averaged over a uniform start P(T &gt; k) is S(k), the mean of Pᵏ1; so τ is exactly the area under the survival curve — the averaged form of t = Σ Pᵏ1 in the Lean proof.</span></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">卷宗标为未核实：反例最少要多少个格子。页面在 49 = 7² 找到一个；m ≤ 6 只是没找到，没有穷举。固定 m² 个格子时 τ 真正的最大者是什么形状也没有定论——卷宗只建议用接近圆的团簇作新的基准。</span><span class="en">Marked unverified in the dossier: the smallest number of cells of a counterexample. The page finds one at 49 = 7²; for m ≤ 6 it only found none, without an exhaustive search. Which shape truly maximizes τ for m² cells is also unsettled — the dossier only suggests a near-circular cluster as the new benchmark.</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">S. Rognone、V. Nicosia，Clusters in randomly-coloured spatial networks，Journal of Physics: Complexity（2026），doi:10.1088/2632-072X/aeb36a，arXiv:2308.07880：平均出逃时间的定义、直线形四格骨牌的一步方程，以及“N 个格子的团簇中正方形的出逃时间最大”的猜想。</span><span class="en">S. Rognone and V. Nicosia, Clusters in randomly-coloured spatial networks, Journal of Physics: Complexity (2026), doi:10.1088/2632-072X/aeb36a, arXiv:2308.07880: the definition of the mean exit time, the first-step equations for the straight tetromino, and the conjecture that among clusters of N cells the square has the largest exit time.</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0001" value="0" aria-label="步数 k" data-aria-en="Step k">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 一步 · <kbd>E</kbd> 最后一步</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> one step · <kbd>E</kbd> last step</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">在方格纸上涂出一块连通的格子。在其中随便选一格放一个行人，让它每一步往上下左右之一随机走一格，数它第一次走出这块格子用了几步；对所有起点取平均，就是平均出逃时间 τ。Rognone 与 Nicosia 把 τ 当作团簇“紧不紧凑”的指标，并猜想格子数相同时正方形最难走出。</p>
+      <ol>
+        <li><b>反例。</b>Lean 给出了精确值：121 格的圆盘 x² + y² ≤ 37 要走 23.7466… 步，11 × 11 正方形只要 23.5568… 步。证明用整数证书：每个格子的期望步数 t 满足 t = 1 + 四个邻居 t 的平均（外面算 0）；证书满足这个方程，又夹在 1 和 43 之间，Lean 由此证明它就是期望步数。</li>
+        <li><b>穹顶。</b>三维视图里每根柱子的高度就是 t：中心最高，边上最低。正方形的四个角很低——从角上出发，两个方向一步就能出去。圆盘没有角，同样多的格子堆得更高，平均高度 τ 更大。</li>
+        <li><b>生存曲线。</b>下方右图是 k 步后还在里面的行人比例 S(k)。τ 恰好等于这条曲线下的面积，所以哪条曲线衰减得慢，哪个形状的 τ 就大。白点行人的走出过程是对这条曲线的一次随机抽样。</li>
+        <li><b>自己试。</b>在下方左图里拿起一格、放到别处，或按「爬一步」让页面找最好的单格移动。从正方形出发，任何一次单格移动都让 τ 变小；但连走两步——把两个上角都搬到底边中间——就已经超过正方形（页面数值）。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/rognone-nicosia-2023-square-cluster-exit-time-refutation.md" target="_blank" rel="noopener">问题卷宗</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/RandomWalks/SquareClusterExitTimeRefutation.lean" target="_blank" rel="noopener">SquareClusterExitTimeRefutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/StatisticalMechanics/RandomWalks/SquareClusterExitTimeRefutation.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/StatisticalMechanics/rognonenicosia2023clusters.md" target="_blank" rel="noopener">文献笔记</a> · <a href="https://doi.org/10.1088/2632-072X/aeb36a" target="_blank" rel="noopener">doi:10.1088/2632-072X/aeb36a</a> · <a href="https://arxiv.org/abs/2308.07880" target="_blank" rel="noopener">arXiv:2308.07880</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">Shade a connected patch of cells on squared paper. Put a walker on a random cell, let it step up, down, left or right at random, and count the steps until it first stands outside the patch; the average over all starting cells is the mean exit time τ. Rognone and Nicosia use τ as a measure of how compact a cluster is, and conjecture that for a given number of cells the square is the hardest to leave.</p>
+      <ol>
+        <li><b>The counterexample.</b> Lean gives exact values: the 121-cell disk x² + y² ≤ 37 needs 23.7466… steps, the 11 × 11 square only 23.5568…. The proof uses integer certificates: the expected number of steps t from each cell satisfies t = 1 + the average of t over the four neighbours (0 outside); the certificates satisfy this equation and lie between 1 and 43, and from this Lean proves that they are the expected numbers of steps.</li>
+        <li><b>The domes.</b> In the 3D view each column rises to t: highest in the middle, lowest at the edge. The four corners of the square sit low — from a corner, two directions lead out in one step. The disk has no corners, so the same number of cells piles up higher and the mean height τ is larger.</li>
+        <li><b>The survival curve.</b> The lower-right chart shows the fraction S(k) of walkers still inside after k steps. τ is exactly the area under this curve, so the shape whose curve decays more slowly has the larger τ. The white walkers leaving the domes are one random sample of this curve.</li>
+        <li><b>Try it.</b> In the lower-left map, pick up a cell and put it somewhere else, or press “Climb one step” to let the page find the best single-cell move. From the square every single move lowers τ; but two moves in a row — both top corners to the middle of the bottom edge — already beat it (page numbers).</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/rognone-nicosia-2023-square-cluster-exit-time-refutation.md" target="_blank" rel="noopener">Problem dossier</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/RandomWalks/SquareClusterExitTimeRefutation.lean" target="_blank" rel="noopener">SquareClusterExitTimeRefutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/StatisticalMechanics/RandomWalks/SquareClusterExitTimeRefutation.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/StatisticalMechanics/rognonenicosia2023clusters.md" target="_blank" rel="noopener">literature note</a> · <a href="https://doi.org/10.1088/2632-072X/aeb36a" target="_blank" rel="noopener">doi:10.1088/2632-072X/aeb36a</a> · <a href="https://arxiv.org/abs/2308.07880" target="_blank" rel="noopener">arXiv:2308.07880</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
