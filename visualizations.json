@@ -2,6 +2,55 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "granular-two",
+      "code": "GRANULAR//TWO",
+      "path": "viz/granular-two/",
+      "thumbnail": "viz/granular-two/thumb.jpg",
+      "title": "同一组正速率，颗粒堆积有两个物理稳态",
+      "title_en": "One set of positive rates, two physical steady states of a granular packing",
+      "summary": "Myhill 与 Blumenfeld（J. Phys. A，2023）研究二维颗粒堆积里各阶胞的比例 Q₃ … Q_C 的合并—分裂动力学，猜测对任何常数速率物理稳态只有一个。本库在 Lean 里给出反例并已冻结：C = 10、16 个正速率下，X = (3,2,5,1,2,1,1,1)/16 与 Y = (12,6,5,4,4,1,1,1)/34 都是稳态，而 X₃ ≠ Y₃。页面用精确有理数重算两个证书，用刚性积分器画出轨道，找到卷宗里的第三个稳态 Z，并显示 Y 是 X 与 Z 两个吸引域之间的鞍点。",
+      "summary_en": "Myhill and Blumenfeld (J. Phys. A, 2023) study the merge–split dynamics of the fractions Q₃ … Q_C of cells of each order in a two-dimensional granular packing, and conjecture that for any constant rates the physical steady state is unique. This library refutes it in Lean, frozen: for C = 10 and sixteen positive rates, X = (3,2,5,1,2,1,1,1)/16 and Y = (12,6,5,4,4,1,1,1)/34 are both steady states, and X₃ ≠ Y₃. The page recomputes both certificates in exact rationals, draws trajectories with a stiff integrator, finds the dossier's third steady state Z, and shows Y as the saddle between the basins of X and Z.",
+      "status": "live",
+      "added": "2026-10-31",
+      "tags": [
+        "颗粒物质",
+        "稳态",
+        "反例",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "granular matter",
+        "steady states",
+        "counterexamples",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：颗粒系统稳态唯一性的反例",
+          "label_en": "Problem dossier: a counterexample to the uniqueness of granular steady states",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/myhill-blumenfeld-2023-granular-steady-state-uniqueness-refutation.md"
+        },
+        {
+          "label": "Blueprint：C = 10 的两个物理稳态",
+          "label_en": "Blueprint: two physical steady states at C = 10",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/StatisticalMechanics/GranularCellOrderSteadyStateRefutation.md"
+        },
+        {
+          "label": "文献笔记：Myhill–Blumenfeld 2023",
+          "label_en": "Literature note: Myhill–Blumenfeld 2023",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Library/StatisticalMechanics/myhill2023granularsteadystates.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "GranularCellOrderSteadyStateRefutation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/GranularCellOrderSteadyStateRefutation.lean"
+        }
+      ]
+    },
+    {
       "id": "area-walks",
       "code": "AREA//WALKS",
       "path": "viz/area-walks/",

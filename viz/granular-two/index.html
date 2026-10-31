@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="GRANULAR//TWO · One set of positive rates, two physical steady states of a granular packing">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GRANULAR//TWO 同一组正速率，颗粒堆积有两个物理稳态</title>
+<meta name="description" content="Myhill 与 Blumenfeld（J. Phys. A 56, 345001, 2023）研究二维颗粒堆积里各阶胞的比例 Q₃ … Q_C：i 阶与 j 阶胞以速率 p 合并成 i + j − 2 阶，再以速率 q 分开。他们猜测对任何常数速率，物理稳态只有一个。本库在 Lean 里给出反例并已冻结：C = 10、16 个正速率下，X = (3,2,5,1,2,1,1,1)/16 与 Y = (12,6,5,4,4,1,1,1)/34 都是稳态，且 X₃ ≠ Y₃。页面用精确有理数重算两个证书，用刚性积分器画出轨道，找到卷宗里的第三个稳态 Z，并显示 Y 是 X 与 Z 两个吸引域之间的鞍点。Myhill and Blumenfeld (J. Phys. A 56, 345001, 2023) study the fractions Q₃ … Q_C of cells of each order in a two-dimensional granular packing: cells of orders i and j merge into one of order i + j − 2 at rate p and split back at rate q. They conjecture that for any constant rates the physical steady state is unique. This library refutes it in Lean, frozen: for C = 10 and sixteen positive rates, X = (3,2,5,1,2,1,1,1)/16 and Y = (12,6,5,4,4,1,1,1)/34 are both steady states, and X₃ ≠ Y₃. The page recomputes both certificates in exact rationals, draws trajectories with a stiff integrator, finds the dossier's third steady state Z, and shows Y as the saddle between the basins of X and Z.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="granular-two">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="GRANULAR//TWO">GRANULAR<b>//</b>TWO</h1>
+      <div class="tagline">
+        <span class="zh">颗粒堆积的胞阶动力学 · <em>同一组正速率有两个物理稳态（已冻结的反例）</em></span>
+        <span class="en">Granular cell orders · <em>one set of positive rates, two steady states (frozen counterexample)</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="lean" aria-pressed="true"><span class="code">Y − 10⁻³·v</span><span class="cn zh">从 Y 到 X</span><span class="cn en">From Y to X</span></button>
+        <button class="preset" data-preset="toz" aria-pressed="false"><span class="code">Y + 10⁻³·v</span><span class="cn zh">从 Y 到 Z</span><span class="cn en">From Y to Z</span></button>
+        <button class="preset" data-preset="sweep" aria-pressed="false"><span class="code">Q₃ × Q₄</span><span class="cn zh">45 个起点</span><span class="cn en">45 starts</span></button>
+        <button class="preset" data-preset="corner" aria-pressed="false"><span class="code">Q₃ + Q₄ = 0.9</span><span class="cn zh">直奔 Z</span><span class="cn en">Straight to Z</span></button>
+        <button class="preset" data-preset="nearx" aria-pressed="false"><span class="code">X ± 0.02</span><span class="cn zh">回到 X</span><span class="cn en">Back to X</span></button>
+        <button class="preset" data-preset="slow" aria-pressed="false"><span class="code">ε = 10⁻⁶</span><span class="cn zh">在 Y 旁停留</span><span class="cn en">Lingering at Y</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">参数</span><span class="en">Parameters</span><span class="aside">ε · v</span></h2>
+      <div class="slider-row"><label for="epsIn"><span class="zh">推离 Y 的距离 ε</span><span class="en">Push off Y, ε</span></label><input type="range" id="epsIn" min="-6" max="-1" step="0.5" value="-3"><b id="epsOut">10⁻³</b></div>
+      <div class="chips" id="sideChips" role="group" aria-label="推的方向" data-aria-en="Direction of the push">
+        <button class="chip" data-side="-1" aria-pressed="true"><span class="zh">沿 −v（向 X）</span><span class="en">Along −v (to X)</span></button>
+        <button class="chip" data-side="1" aria-pressed="false"><span class="zh">沿 +v（向 Z）</span><span class="en">Along +v (to Z)</span></button>
+      </div>
+      <div class="chips" id="certChips" role="group" aria-label="通量图显示哪个稳态" data-aria-en="Which steady state the flux chart shows" style="margin-top:8px">
+        <button class="chip" data-cert="X" aria-pressed="true"><span class="zh">通量：X</span><span class="en">Fluxes: X</span></button>
+        <button class="chip" data-cert="Y" aria-pressed="false"><span class="zh">通量：Y</span><span class="en">Fluxes: Y</span></button>
+      </div>
+      <p class="note" id="sysNote"></p>
+    </section>
+  </aside>
+
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：胞阶比例投影到 (Q₃, Q₄, Q₅)，三个稳态、Y 的不稳定流形与轨道；拖动旋转，滚轮缩放" data-aria-en="3D view: the cell-order fractions projected to (Q₃, Q₄, Q₅), the three steady states, Y's unstable manifold and trajectories; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="side" aria-pressed="false"><span class="zh">侧视</span><span class="en">Side</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="到三个稳态的距离" data-aria-en="Distance to the three steady states"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="16 个净通量" data-aria-en="The 16 net fluxes"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">C = 10</span></h2>
+      <dl class="ro">
+        <div class="c w"><dt id="ro1L"></dt><dd id="ro1" class="ftab">—</dd></div>
+        <div class="m w"><dt id="ro2L"></dt><dd id="ro2" class="ftab">—</dd></div>
+        <div class="a w"><dt id="ro3L"></dt><dd id="ro3" class="ftab">—</dd></div>
+        <div class="w"><dt id="ro4L"></dt><dd id="ro4" class="ftab">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5" class="ftab">—</dd></div>
+        <div class="w"><dt id="ro6L"></dt><dd id="ro6" class="ftab">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">定义：J C 是满足 3 ≤ i ≤ j、i + j − 2 ≤ C 的过程；flux 是净通量 η = p Q_i Q_j − q Q_{i+j−2}；rhs 是方程 (1) 的右端：生成 k 阶胞的增益减去消耗 k 阶胞的损失（带 δ 因子），再加 Q_k Σ η；PositiveRates 要求每个过程的 p、q 都为正；Physical 要求每个 Q_k &gt; 0 且 Σ Q_k = 1；Stationary 要求每一行右端为 0。猜想 claim：对每个 C ≥ 3 与每组正速率，任意两个物理稳态处处相等。本库证明 ¬ claim。已冻结：</span><span class="en">Definitions: J C, the processes 3 ≤ i ≤ j with i + j − 2 ≤ C; flux, the net flux η = p Q_i Q_j − q Q_{i+j−2}; rhs, the right-hand side of Eq. (1): the gain from processes making k-cells minus the loss from those using them (with the δ-factors), plus Q_k Σ η; PositiveRates, every process has p, q &gt; 0; Physical, every Q_k &gt; 0 and Σ Q_k = 1; Stationary, every row of the right-hand side vanishes. The statement claim: for every C ≥ 3 and positive rates, any two physical steady states agree everywhere. This library proves ¬ claim. Frozen: </span><code>GranularCellOrderSteadyStateRefutation.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">C = 10 的反例（同一冻结模块的辅助定义与定理）：16 个正速率 p10、q10（rates10_positive）；X = (3,2,5,1,2,1,1,1)/16 与 Y = (12,6,5,4,4,1,1,1)/34 是物理状态（X_physical、Y_physical）；一般的 rhs 在 C = 10 时对任意速率与状态展开为平衡行加 Q_k 乘总通量（rhs10、J10、sum_J10）；两处的总通量与 8 个平衡行都为 0（X_sum_zero、X_balance_zero 及 Y 的对应定理），所以两者都是稳态（X_stationary、Y_stationary），而 X₃ ≠ Y₃（X3_ne_Y3）。冻结：</span><span class="en">The C = 10 counterexample (helper definitions and theorems of the same frozen module): sixteen positive rates p10, q10 (rates10_positive); X = (3,2,5,1,2,1,1,1)/16 and Y = (12,6,5,4,4,1,1,1)/34 are physical (X_physical, Y_physical); for arbitrary rates and states the general rhs at C = 10 expands into a balance row plus Q_k times the total flux (rhs10, J10, sum_J10); at both states the total flux and all eight balance rows vanish (X_sum_zero, X_balance_zero and the same for Y), so both are steady states (X_stationary, Y_stationary), and X₃ ≠ Y₃ (X3_ne_Y3). Frozen: </span><code>p10 · q10 · X · Y · rhs10 · X_stationary · Y_stationary · X3_ne_Y3</code></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：页面用精确有理数重算两个证书（每一行的增益、损失与 Q_k Σ η）；轨道用二阶 Rosenbrock 格式（ROS2，步长 0.004，网格起点 0.01）积到 t = 14；Z 从卷宗的五位数字出发，用单纯形上的牛顿法求精；Jacobian 在单纯形上离 1/2 最近的特征值用反幂迭代求出：X 处 −2.613，Y 处 +2.350，Z 处 −6.768。45 个网格起点中 20 个停在 X，25 个停在 Z。</span><span class="en">Numbers computed on the page, not theorems: the page recomputes both certificates in exact rationals (each row's gain, loss and Q_k Σ η); trajectories use the second-order Rosenbrock scheme ROS2 (step 0.004, 0.01 for the grid starts) up to t = 14; Z is refined from the dossier's five-digit values by Newton's method on the simplex; the Jacobian's eigenvalue nearest 1/2 on the simplex comes from inverse iteration: −2.613 at X, +2.350 at Y, −6.768 at Z. Of the 45 grid starts, 20 settle at X and 25 at Z.</span></span></div>
+      <div class="lean theory"><span class="ok">ARGUED</span><span><span class="zh">卷宗里的计算与论证（未形式化）：同一组速率下，多起点求根加 50 位牛顿精化找到第三个物理稳态 Z ≈ (0.43995, 0.50554, 0.0050850, 0.044208, …)；在原文数值检验的最大阶 C = 8，速率在 [10⁻³, 10³] 中对数均匀抽取时，800 个随机系统里有 4 个有两个或三个物理稳态，C = 6、7 各 1,500 个系统没有发现多解。机理是过程的循环（例如 4 + 4 → 6 → 3 + 5 → 6）：C ≥ 6 时稳态方程定不住通量，非细致平衡态带着循环通量，速率跨几个数量级时同一个多项式方程组可以有几个正解。</span><span class="en">Computations and arguments in the dossier (not formalized): for the same rates, multistart root finding with 50-digit Newton refinement finds a third physical steady state Z ≈ (0.43995, 0.50554, 0.0050850, 0.044208, …); at C = 8, the largest order of the paper's tests, rates drawn log-uniformly from [10⁻³, 10³] give two or three physical steady states in 4 of 800 random systems, and none of 1,500 systems each at C = 6 and 7 did. The mechanism is the cycles among the processes (for example 4 + 4 → 6 → 3 + 5 → 6): for C ≥ 6 the steady-state equations leave the fluxes undetermined, a non-detailed-balance state carries circulating fluxes, and with rates spread over several orders of magnitude one polynomial system can have several positive solutions.</span></span></div>
+      <div class="lean page"><span class="ok">ARGUED</span><span><span class="zh">页面自己的论证（未形式化，未经评审）：Y 是 X 与 Z 两个吸引域之间的鞍点——沿它的正特征方向 ±v 出发的两条轨道分别落到 X 和 Z，网格起点也按 Q₃ 的大小分成两群。所以同一组速率下，动力学停在哪个稳态取决于从哪里出发。</span><span class="en">The page's own argument (not formalized, not reviewed): Y is the saddle between the basins of X and Z — the two trajectories leaving along its positive eigendirection ±v land at X and at Z, and the grid starts split into two groups by the size of Q₃. So with the same rates, which steady state the dynamics reaches depends on where it starts.</span></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">卷宗列为未决：C ≤ 7 的系统是否总只有一个物理稳态；速率在原文 30 倍以内时能否出现多解，以及从给定初始条件出发动力学选哪一个稳态。有限范围的文献检索不能排除已有独立结果。</span><span class="en">Open in the dossier: whether every system with C ≤ 7 has a unique physical steady state; whether multiplicity can occur for rates within the paper's factor-30 range, and which steady state the dynamics selects from a given initial condition. The bounded literature search cannot rule out an independent result.</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">A. D. C. Myhill 与 R. Blumenfeld，Steady states of two-dimensional granular systems are unique, stable, and sometimes satisfy detailed balance，J. Phys. A: Math. Theor. 56, 345001（2023），doi:10.1088/1751-8121/ace56d（经 Crossref 核对）：细致平衡态存在时唯一，C = 6、7 有细致平衡态时没有别的稳态；§I.D 与 §III 猜测对任何常数速率物理稳态只有一个。</span><span class="en">A. D. C. Myhill and R. Blumenfeld, Steady states of two-dimensional granular systems are unique, stable, and sometimes satisfy detailed balance, J. Phys. A: Math. Theor. 56, 345001 (2023), doi:10.1088/1751-8121/ace56d (checked on Crossref): a detailed-balance steady state is unique when it exists, and for C = 6, 7 no other steady state exists when one does; §I.D and §III conjecture that for any constant rates the physical steady state is unique.</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0001" value="0" aria-label="时间 t" data-aria-en="Time t">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> Δt = 1 · <kbd>E</kbd> 终点</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> Δt = 1 · <kbd>E</kbd> end</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">把二维颗粒堆积看成由多边形“胞”拼成的网，Q_k 是 k 边胞所占的比例（k = 3 … C）。堆积在剪切下重排时，i 阶与 j 阶的两个胞可以合并成一个 i + j − 2 阶胞，也可以反过来分开；速率分别是 p 与 q，净通量 η = p Q_i Q_j − q Q_{i+j−2}。Myhill 与 Blumenfeld 写出 Q 的演化方程，猜测：只要速率是正常数，物理稳态（每个 Q_k &gt; 0，总和为 1）就只有一个。</p>
+      <ol>
+        <li><b>答案。</b>不成立。C = 10 时，对一组具体的正速率，X = (3,2,5,1,2,1,1,1)/16 与 Y = (12,6,5,4,4,1,1,1)/34 都是物理稳态，Lean 用精确有理数验证了全部 8 行方程。</li>
+        <li><b>为什么原文的定理不受影响。</b>原文证明的是：细致平衡态（每个 η 都为 0）存在时它唯一。这组速率根本没有细致平衡态：θ = p/q 满足 θ₃₃θ₄₄ = 100/423，而 θ₃₄θ₃₅ = 2/9。X、Y 处的 16 个净通量都不为 0，只是每一阶的流入与流出恰好抵消。</li>
+        <li><b>动力学选哪一个。</b>页面从 Y 沿它唯一的不稳定方向推一点点：一侧落到 X，另一侧落到第三个稳态 Z。X 与 Z 都吸引附近的轨道，Y 是它们之间的鞍点。</li>
+        <li><b>还没有回答的。</b>原文测试的速率相差不超过 30 倍；这里的速率跨了四个多数量级。在那个范围内是否也会有多个稳态，卷宗列为未决。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/myhill-blumenfeld-2023-granular-steady-state-uniqueness-refutation.md" target="_blank" rel="noopener">问题卷宗</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/GranularCellOrderSteadyStateRefutation.lean" target="_blank" rel="noopener">GranularCellOrderSteadyStateRefutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/StatisticalMechanics/GranularCellOrderSteadyStateRefutation.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/StatisticalMechanics/myhill2023granularsteadystates.md" target="_blank" rel="noopener">文献笔记</a> · <a href="https://doi.org/10.1088/1751-8121/ace56d" target="_blank" rel="noopener">J. Phys. A 论文</a> · <a href="https://arxiv.org/abs/2306.10526v2" target="_blank" rel="noopener">arXiv:2306.10526</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">Think of a two-dimensional granular packing as a network of polygonal cells, and let Q_k be the fraction of cells with k sides (k = 3 … C). As the packing rearranges under shear, two cells of orders i and j can merge into one of order i + j − 2, or split back; the rates are p and q, and the net flux is η = p Q_i Q_j − q Q_{i+j−2}. Myhill and Blumenfeld write the evolution equations for Q and conjecture that for positive constant rates there is only one physical steady state (every Q_k &gt; 0, summing to 1).</p>
+      <ol>
+        <li><b>The answer.</b> It fails. For C = 10 and one explicit set of positive rates, X = (3,2,5,1,2,1,1,1)/16 and Y = (12,6,5,4,4,1,1,1)/34 are both physical steady states; Lean checks all eight equations in exact rationals.</li>
+        <li><b>Why the paper's theorems stand.</b> The paper proves that a detailed-balance steady state (every η zero) is unique when it exists. These rates have no detailed-balance state at all: with θ = p/q, θ₃₃θ₄₄ = 100/423 while θ₃₄θ₃₅ = 2/9. At X and Y all sixteen net fluxes are nonzero; only the inflow and outflow of each order cancel.</li>
+        <li><b>Which one the dynamics picks.</b> The page pushes Y slightly along its single unstable direction: one side lands at X, the other at a third steady state Z. X and Z both attract nearby trajectories, and Y is the saddle between them.</li>
+        <li><b>What is still open.</b> The paper tested rates within a factor of 30 of each other; the rates here span more than four orders of magnitude. Whether several steady states can occur within that range is open in the dossier.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/myhill-blumenfeld-2023-granular-steady-state-uniqueness-refutation.md" target="_blank" rel="noopener">Problem dossier</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/GranularCellOrderSteadyStateRefutation.lean" target="_blank" rel="noopener">GranularCellOrderSteadyStateRefutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/StatisticalMechanics/GranularCellOrderSteadyStateRefutation.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/StatisticalMechanics/myhill2023granularsteadystates.md" target="_blank" rel="noopener">literature note</a> · <a href="https://doi.org/10.1088/1751-8121/ace56d" target="_blank" rel="noopener">J. Phys. A paper</a> · <a href="https://arxiv.org/abs/2306.10526v2" target="_blank" rel="noopener">arXiv:2306.10526</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
