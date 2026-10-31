@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="MPEMBA//FOUR · Every triplet fails the test, yet four levels show the Mpemba effect">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MPEMBA//FOUR 每个三能级都不满足条件，四能级仍有姆潘巴效应</title>
+<meta name="description" content="Avitan、Factor、Gelbwaser-Klimovsky（2026）对马尔可夫姆潘巴效应给出三能级系统的必要条件 (3)，并猜想：若一个 N 能级系统的每个三能级子系统都不满足 (3)，它就没有姆潘巴效应。本库在 Lean 里给出四能级反例并已冻结：能量 (0, 1, 2, 64)·ln 16，四个三能级子系统都不满足 (3)，最慢的非零本征值 −1 是单的，而更热的初态的慢模系数反而更小。页面让两个初态同时弛豫，画出慢模系数随初始温度的驼峰与两条距离曲线的交叉。Avitan, Factor and Gelbwaser-Klimovsky (2026) gave a necessary condition (3) for the Markovian Mpemba effect in three-level systems and conjectured that an N-level system whose every triplet violates (3) shows no Mpemba effect. This library gives a four-level counterexample in Lean, frozen: energies (0, 1, 2, 64)·ln 16, every triplet violates (3), the slowest nonzero eigenvalue −1 is simple, and a hotter initial state has the smaller slow-mode coefficient. The page relaxes two initial states side by side and draws the hump of the slow-mode coefficient and the crossing of the two distance curves.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="mpemba-four">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="MPEMBA//FOUR">MPEMBA<b>//</b>FOUR</h1>
+      <div class="tagline">
+        <span class="zh">马尔可夫姆潘巴效应 · <em>三能级检验全都不过，四能级照样“热的先冷”（已冻结的反驳）</em></span>
+        <span class="en">The Markovian Mpemba effect · <em>every triplet test fails, yet hot cools first (frozen refutation)</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="lean" aria-pressed="true"><span class="code">n = 64 · x = 1023/1024</span><span class="cn zh">Lean 里的反例</span><span class="cn en">The counterexample in Lean</span></button>
+        <button class="preset" data-preset="race" aria-pressed="false"><span class="code">t = 0 → 12</span><span class="cn zh">两个初态赛跑</span><span class="cn en">The race to equilibrium</span></button>
+        <button class="preset" data-preset="hump" aria-pressed="false"><span class="code">β₂ = β*</span><span class="cn zh">驼峰的顶点</span><span class="cn en">Top of the hump</span></button>
+        <button class="preset" data-preset="n41" aria-pressed="false"><span class="code">n = 41</span><span class="cn zh">还没有驼峰</span><span class="cn en">No hump yet</span></button>
+        <button class="preset" data-preset="n42" aria-pressed="false"><span class="code">n = 42</span><span class="cn zh">驼峰刚出现</span><span class="cn en">The hump appears</span></button>
+        <button class="preset" data-preset="n100" aria-pressed="false"><span class="code">n = 100</span><span class="cn zh">更高的顶层</span><span class="cn en">A higher top level</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">系统与初态</span><span class="en">System and starts</span><span class="aside">β_b = 1</span></h2>
+      <div class="slider-row"><label for="nIn"><span class="zh">顶层能级 n</span><span class="en">Top level n</span></label><input type="range" id="nIn" min="3" max="120" step="1" value="64"><b id="nOut">64</b></div>
+      <div class="slider-row"><label for="b1In"><span class="zh">热 log₁₀ β₁</span><span class="en">Hot log₁₀ β₁</span></label><input type="range" id="b1In" min="-6" max="-0.05" step="0.001" value="-3.453"><b id="b1Out">—</b></div>
+      <div class="slider-row"><label for="b2In"><span class="zh">温 log₁₀ β₂</span><span class="en">Warm log₁₀ β₂</span></label><input type="range" id="b2In" min="-6" max="-0.05" step="0.001" value="-2.548"><b id="b2Out">—</b></div>
+      <p class="note" id="sysNote"></p>
+    </section>
+  </aside>
+
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：四个能级上的粒子，左边从热的初态出发、右边从温的初态出发，一起向浴温弛豫；拖动旋转，滚轮缩放" data-aria-en="3D view: particles on four energy levels, the left column starting hot and the right column warm, both relaxing to the bath; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="慢模系数随初始温度的变化" data-aria-en="The slow-mode coefficient against the initial temperature"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="两个初态到平衡的距离之比" data-aria-en="Ratio of the two distances to equilibrium"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">Fine</span></h2>
+      <dl class="ro">
+        <div class="c w"><dt id="ro1L"></dt><dd id="ro1">—</dd></div>
+        <div class="m w"><dt id="ro2L"></dt><dd id="ro2">—</dd></div>
+        <div class="a w"><dt id="ro3L"></dt><dd id="ro3">—</dd></div>
+        <div class="w"><dt id="ro4L"></dt><dd id="ro4">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">生成元 M 的非对角元是速率 a_ij（从 j 到 i），对角元使每列和为零（generator）；细致平衡 a_jk = a_kj·e^(−β_b(E_j − E_k))（DetailedBalance）；三能级条件 (3)：κ ≥ 1 时的不等式或 κ ≤ 1 时的不等式之一成立（TripletCondition）；慢模：最慢的非零本征值 λ &lt; 0，它的左本征向量 ℓ 张成一维本征空间，其余实本征值为 0 或 ≤ λ（IsSlowMode）；姆潘巴效应：浴温同一侧的两个初始温度，离浴温更远的那个的 |ℓ·Π(β)| 更小（MpembaEffect）。猜想 claim：N ≥ 3、能量严格递增、速率为正且细致平衡、每个三能级子系统都不满足 (3) 时，没有姆潘巴效应。本库证明 ¬claim。已冻结：</span><span class="en">The generator M has the rates a_ij (from j to i) off the diagonal and columns summing to zero (generator); detailed balance a_jk = a_kj·e^(−β_b(E_j − E_k)) (DetailedBalance); the three-level condition (3): either the κ ≥ 1 inequality or the κ ≤ 1 inequality holds (TripletCondition); the slow mode: the slowest nonzero eigenvalue λ &lt; 0 with a left eigenvector ℓ spanning a one-dimensional eigenspace, every other real eigenvalue 0 or ≤ λ (IsSlowMode); the Mpemba effect: of two initial temperatures on the same side of the bath, the one farther from it has the smaller |ℓ·Π(β)| (MpembaEffect). The conjecture, claim: for N ≥ 3, strictly increasing energies, positive detailed-balance rates and every triplet violating (3), there is no Mpemba effect. This library proves ¬claim. Frozen: </span><code>MarkovMpembaTripletRefutation.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">反例（同一模块里一起冻结）：能量 (0, 1, 2, 64)·ln 16，β_b = 1，权重 (1, 1/16, 1/256, r)，r = 16⁻⁶⁴；速率表全为正（rates_positive）且细致平衡（balance_weights、reversible）；四个三能级子系统的两条不等式都不成立（triplet_margins、no_triplets）；f = g − μ，g = (0, 1, 2/3, 8/15)，满足 fᵀM = −fᵀ，其余实本征值在 −2 以下，所以 −1 是单的慢模（eigen_identities、block_bounds、real_spectrum、simple_mode、slow_mode）；x = 16^(−β) 取 1023/1024 与 127/128 时 f·Π 分别约为 0.4890371 与 0.4892979，更热的那个更小（gibbs_evaluation、temperature_order、overlap_comparisons、effect）。冻结：</span><span class="en">The counterexample (frozen in the same module): energies (0, 1, 2, 64)·ln 16, β_b = 1, weights (1, 1/16, 1/256, r) with r = 16⁻⁶⁴; the rate table is positive (rates_positive) and in detailed balance (balance_weights, reversible); in each of the four triplets both inequalities fail (triplet_margins, no_triplets); f = g − μ with g = (0, 1, 2/3, 8/15) satisfies fᵀM = −fᵀ and every other real eigenvalue lies below −2, so −1 is a simple slow mode (eigen_identities, block_bounds, real_spectrum, simple_mode, slow_mode); at x = 16^(−β) = 1023/1024 and 127/128, f·Π is about 0.4890371 and 0.4892979, the hotter one smaller (gibbs_evaluation, temperature_order, overlap_comparisons, effect). Frozen: </span><code>rates_positive · reversible · no_triplets · simple_mode · slow_mode · overlap_comparisons · effect</code></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：页面对任意顶层 n 用同一张速率表（r = 16⁻ⁿ），用 Jacobi 旋转求对称化生成元的本征值，用缩放平方的矩阵指数计算 p(t)，距离是 L1 距离 Σ|p_i(t) − π_i|。n = 64 时本征值约为 0、−1、−2.1355、−2.4519；从 Lean 的两个温度出发，两条距离曲线在 t ≈ 4.28 交叉。n 从 3 扫到 120，只有 n ≥ 42 时慢模系数有驼峰。</span><span class="en">Numbers computed on the page, not theorems: for any top level n the page uses the same rate table (r = 16⁻ⁿ), finds the eigenvalues of the symmetrized generator by Jacobi rotations, computes p(t) with a scaling-and-squaring matrix exponential, and measures the L1 distance Σ|p_i(t) − π_i|. For n = 64 the eigenvalues are about 0, −1, −2.1355 and −2.4519; from Lean’s two temperatures the two distance curves cross at t ≈ 4.28. Scanning n from 3 to 120, the slow-mode coefficient has a hump only for n ≥ 42.</span></span></div>
+      <div class="lean theory"><span class="ok">ARGUED</span><span><span class="zh">卷宗里的论证（未形式化）：b₂ 除常数 μ 外就是 g 的吉布斯平均。初始温度升高时，下面三个能级先拉平，g 的平均趋向 (0 + 1 + 2/3)/3 = 5/9；顶层要到高得多的温度才被填上，它的分量 8/15 小于 5/9，把平均拉向 11/20。所以 b₂ 先升后降，中间有最大值。三能级条件只看到本三元组的速率与能隙，而效应来自四个能级共同的慢模。</span><span class="en">The dossier’s argument (not formalized): up to the constant μ, b₂ is the Gibbs mean of g. As the initial temperature rises, the three lower levels equalize first and the mean of g approaches (0 + 1 + 2/3)/3 = 5/9; the top level fills only at a much higher temperature, and its component 8/15 lies below 5/9, pulling the mean toward 11/20. So b₂ rises and then falls, with an interior maximum. Condition (3) on a triplet sees only that triplet’s rates and gaps, while the effect comes from the joint slow mode of all four levels.</span></span></div>
+      <div class="lean page"><span class="ok">ARGUED</span><span><span class="zh">本页的论证（未形式化、未经评审）：在 β = 0 处，db₂/dβ = −ln 16 · Cov(g, ℓ)，协方差取四个能级上的均匀分布，ℓ = (0, 1, 2, n) 是能级编号；算出来 Cov = (41 − n)/240。所以 n ≥ 42 时 b₂ 从无穷高温往下先上升，而 b₂(0) = 11/20 − μ &gt; 0、b₂(β_b) = 0，中间必有最大值：比最大点更热的初态慢模系数更小，姆潘巴效应出现。n ≤ 41 时这个斜率不为正；页面扫描没有看到驼峰。</span><span class="en">The page’s argument (not formalized, not reviewed): at β = 0, db₂/dβ = −ln 16 · Cov(g, ℓ), the covariance taken over the uniform distribution on the four levels with level numbers ℓ = (0, 1, 2, n); it equals (41 − n)/240. So for n ≥ 42, b₂ first rises as the temperature drops from infinity, while b₂(0) = 11/20 − μ &gt; 0 and b₂(β_b) = 0, so there is an interior maximum: states hotter than the maximum have the smaller slow-mode coefficient, and the Mpemba effect appears. For n ≤ 41 the slope is not positive, and the page’s scan sees no hump.</span></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">定理之外：重新计算等效速率之后，某种局部的三能级条件是否是效应的必要条件；在附加假设（例如能级间距有界）下猜想是否成立。</span><span class="en">Outside the theorem: whether some local triplet condition with recomputed effective rates is necessary for the effect; whether the conjecture holds under additional hypotheses, for example bounded level spacing.</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">I. Avitan、R. Factor、D. Gelbwaser-Klimovsky，Necessary conditions for the Markovian Mpemba effect，arXiv:2603.04567（2026），doi:10.48550/arXiv.2603.04567：式 (1)–(3) 与第 4 页的猜想。后续文章 D. Gelbwaser-Klimovsky，Efficient protocol for the Markovian Mpemba effect in N-level systems，arXiv:2609.09988（2026），doi:10.48550/arXiv.2609.09988，§II 复述了这个猜想。</span><span class="en">I. Avitan, R. Factor and D. Gelbwaser-Klimovsky, Necessary conditions for the Markovian Mpemba effect, arXiv:2603.04567 (2026), doi:10.48550/arXiv.2603.04567: Eqs. (1)–(3) and the conjecture on p. 4. The follow-up D. Gelbwaser-Klimovsky, Efficient protocol for the Markovian Mpemba effect in N-level systems, arXiv:2609.09988 (2026), doi:10.48550/arXiv.2609.09988, restates the conjecture in §II.</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0001" value="0" aria-label="弛豫时间 t" data-aria-en="Relaxation time t">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> t ± 0.5 · <kbd>E</kbd> 跳到末尾</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> t ± 0.5 · <kbd>E</kbd> jump to the end</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">姆潘巴效应：两杯水放进同一个冰箱，热的那杯反而先结冰。在马尔可夫模型里，一个 N 能级系统按速率矩阵向浴温 β_b 弛豫；从温度 β 的平衡态出发，长时间后离平衡的距离主要由慢模系数 b₂ = ℓ·Π(β) 决定。更热的初态 b₂ 更小，就会后来居上，先到平衡附近。Avitan 等人对三能级系统给出了必要条件 (3)，并猜想：如果 N 能级系统的每个三能级子系统都不满足 (3)，就不会有姆潘巴效应。</p>
+      <ol>
+        <li><b>反例。</b>四个能级，能量 0、ln 16、2 ln 16 与 64 ln 16，浴温 β_b = 1。四个三能级子系统都不满足 (3)，最慢的模是 −1 且是单的；可是 x = 16^(−β) 取 1023/1024（更热）时 b₂ ≈ 0.4890371，取 127/128 时 b₂ ≈ 0.4892979——更热的反而更小。</li>
+        <li><b>为什么。</b>升温时下面三个能级先拉平，顶层到很高的温度才被填上，而顶层的分量把 b₂ 往下拉，于是 b₂ 随温度先升后降。三能级检验看不到四个能级共同的慢模。</li>
+        <li><b>三维视图。</b>左边一列从热的初态出发，右边一列从温的初态出发，每个圆盘是一个能级，上面的粒子数正比于占据概率；顶层画在折断的能量轴上方。时间轴推进弛豫，下方左图是 b₂ 随初始温度的驼峰，右图是两个距离之比，过零就是两条曲线交叉。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/avitan-factor-gelbwaser-klimovsky-2026-mpemba-triplet-conjecture.md" target="_blank" rel="noopener">问题卷宗</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/MarkovMpembaTripletRefutation.lean" target="_blank" rel="noopener">MarkovMpembaTripletRefutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/StatisticalMechanics/MarkovMpembaTripletRefutation.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/StatisticalMechanics/avitanfactorgelbwaserklimovsky2026mpembatriplets.md" target="_blank" rel="noopener">文献笔记</a> · <a href="https://doi.org/10.48550/arXiv.2603.04567" target="_blank" rel="noopener">doi:10.48550/arXiv.2603.04567</a> · <a href="https://arxiv.org/abs/2603.04567" target="_blank" rel="noopener">arXiv:2603.04567</a> · <a href="https://arxiv.org/abs/2609.09988" target="_blank" rel="noopener">arXiv:2609.09988</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">The Mpemba effect: put two cups of water in the same freezer and the hotter one freezes first. In a Markov model, an N-level system relaxes to the bath β_b under a rate matrix; starting from equilibrium at temperature β, its distance from equilibrium at long times is governed by the slow-mode coefficient b₂ = ℓ·Π(β). If the hotter start has the smaller b₂, it overtakes and gets close to equilibrium first. Avitan et al. gave a necessary condition (3) for three-level systems and conjectured that an N-level system whose every triplet violates (3) shows no Mpemba effect.</p>
+      <ol>
+        <li><b>The counterexample.</b> Four levels with energies 0, ln 16, 2 ln 16 and 64 ln 16, bath β_b = 1. Every triplet violates (3) and the slow mode −1 is simple; yet at x = 16^(−β) = 1023/1024 (hotter) b₂ ≈ 0.4890371, and at 127/128 b₂ ≈ 0.4892979 — the hotter start has the smaller coefficient.</li>
+        <li><b>Why.</b> As the temperature rises the lower three levels equalize first, the top level fills only at a much higher temperature, and the top level’s component pulls b₂ down, so b₂ first rises and then falls. A triplet test cannot see the slow mode shared by all four levels.</li>
+        <li><b>3D view.</b> The left column starts hot and the right column warm; each disc is an energy level, with a number of particles proportional to its occupation, and the top level sits above a broken energy axis. The time rail advances the relaxation; the left chart below is the hump of b₂ against the initial temperature, and the right chart is the ratio of the two distances, whose sign change is the crossing of the curves.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/avitan-factor-gelbwaser-klimovsky-2026-mpemba-triplet-conjecture.md" target="_blank" rel="noopener">Problem dossier</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/MarkovMpembaTripletRefutation.lean" target="_blank" rel="noopener">MarkovMpembaTripletRefutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/StatisticalMechanics/MarkovMpembaTripletRefutation.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/StatisticalMechanics/avitanfactorgelbwaserklimovsky2026mpembatriplets.md" target="_blank" rel="noopener">literature note</a> · <a href="https://doi.org/10.48550/arXiv.2603.04567" target="_blank" rel="noopener">doi:10.48550/arXiv.2603.04567</a> · <a href="https://arxiv.org/abs/2603.04567" target="_blank" rel="noopener">arXiv:2603.04567</a> · <a href="https://arxiv.org/abs/2609.09988" target="_blank" rel="noopener">arXiv:2609.09988</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

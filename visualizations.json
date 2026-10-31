@@ -2,6 +2,55 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "mpemba-four",
+      "code": "MPEMBA//FOUR",
+      "path": "viz/mpemba-four/",
+      "thumbnail": "viz/mpemba-four/thumb.jpg",
+      "title": "每个三能级都不满足条件，四能级仍有姆潘巴效应",
+      "title_en": "Every triplet fails the test, yet four levels show the Mpemba effect",
+      "summary": "Avitan、Factor、Gelbwaser-Klimovsky（2026）对马尔可夫姆潘巴效应给出三能级系统的必要条件 (3)，并猜想：若 N 能级系统的每个三能级子系统都不满足 (3)，它就没有姆潘巴效应。本库在 Lean 里给出四能级反例并已冻结：能量 (0, 1, 2, 64)·ln 16、浴温 β_b = 1，四个三能级子系统都不满足 (3)，−1 是单的慢模，而 x = 16^(−β) 取 1023/1024 的更热初态的慢模系数比 127/128 的更小。页面让两个初态同时弛豫，画出慢模系数随温度的驼峰与两条距离曲线在 t ≈ 4.28 的交叉，并让顶层能级 n 可调：只有 n ≥ 42 才有驼峰（页面数值与本页的论证）。",
+      "summary_en": "Avitan, Factor and Gelbwaser-Klimovsky (2026) gave a necessary condition (3) for the Markovian Mpemba effect in three-level systems and conjectured that an N-level system whose every triplet violates (3) shows no Mpemba effect. This library gives a four-level counterexample in Lean, frozen: energies (0, 1, 2, 64)·ln 16 and bath β_b = 1, every triplet violates (3), −1 is a simple slow mode, and the hotter start x = 16^(−β) = 1023/1024 has a smaller slow-mode coefficient than 127/128. The page relaxes the two starts side by side, draws the hump of the slow-mode coefficient against temperature and the crossing of the two distance curves at t ≈ 4.28, and lets the top level n vary: the hump exists only for n ≥ 42 (page numbers and the page’s argument).",
+      "status": "live",
+      "added": "2026-10-31",
+      "tags": [
+        "统计力学",
+        "马尔可夫链",
+        "姆潘巴效应",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "statistical mechanics",
+        "Markov chains",
+        "Mpemba effect",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：姆潘巴三元组猜想",
+          "label_en": "Problem dossier: the Mpemba triplet conjecture",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/avitan-factor-gelbwaser-klimovsky-2026-mpemba-triplet-conjecture.md"
+        },
+        {
+          "label": "Blueprint：三元组猜想的反驳",
+          "label_en": "Blueprint: refuting the triplet conjecture",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/StatisticalMechanics/MarkovMpembaTripletRefutation.md"
+        },
+        {
+          "label": "文献笔记：Avitan、Factor、Gelbwaser-Klimovsky 2026",
+          "label_en": "Literature note: Avitan, Factor and Gelbwaser-Klimovsky 2026",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Library/StatisticalMechanics/avitanfactorgelbwaserklimovsky2026mpembatriplets.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "MarkovMpembaTripletRefutation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/MarkovMpembaTripletRefutation.lean"
+        }
+      ]
+    },
+    {
       "id": "dice-cycle",
       "code": "DICE//CYCLE",
       "path": "viz/dice-cycle/",

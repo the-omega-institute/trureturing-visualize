@@ -9,6 +9,7 @@ Every page is bilingual (中文 / English, switchable in the header) and states 
 
 | id | Page | Theory |
 | --- | --- | --- |
+| `mpemba-four` | [MPEMBA//FOUR 每个三能级都不满足条件，四能级仍有姆潘巴效应](https://the-omega-institute.github.io/trureturing-visualize/viz/mpemba-four/) | 问题卷宗：姆潘巴三元组猜想 |
 | `dice-cycle` | [DICE//CYCLE 最小优势骰子循环只在六面时刚好等于面数](https://the-omega-institute.github.io/trureturing-visualize/viz/dice-cycle/) | 问题卷宗：Easlick 的最小优势循环猜想 |
 | `error-disturbance` | [ERROR//DISTURB 中间的测量比两个端点都好](https://the-omega-institute.github.io/trureturing-visualize/viz/error-disturbance/) | 问题卷宗：Zhou–Wu–Chau 端点下界 |
 | `book-roots` | [BOOK//ROOTS 书图支配多项式根的猜想在正方形上不成立](https://the-omega-institute.github.io/trureturing-visualize/viz/book-roots/) | 问题卷宗：书图支配多项式根的猜想 |
