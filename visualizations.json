@@ -2,6 +2,55 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "roc-fidelity",
+      "code": "ROC//FIDELITY",
+      "path": "viz/roc-fidelity/",
+      "thumbnail": "viz/roc-fidelity/thumb.jpg",
+      "title": "保真度测量的累积点不一定在最优 ROC 曲线上",
+      "title_en": "The fidelity measurement need not give optimal ROC points",
+      "summary": "Bodor 与 Koniorczyk（2017）问：在 Fuchs–Caves 保真度观测量的本征基里测量，按似然比依次累积得到的 d + 1 个 ROC 点，是否都在最优 ROC 曲线上？本库在 Lean 里给出三维反例并已冻结：ρ = (1/20)[[2,1,1],[1,10,1],[1,1,8]]，σ = DρD，D = diag(2, 1, ½)，效应 F = vv†/1382、v = (37, 2, −3) 在假阳性 1/10 处的真阳性 5539/13820 大于 2/5。页面用支撑线对偶算出最优曲线，画出它与保真度折线的差距，并在方向球面上显示最优效应与保真度本征基的偏离；非对角耦合 ε 为 0 时两态对易，差距消失。",
+      "summary_en": "Bodor and Koniorczyk (2017) asked whether the d + 1 ROC points obtained by measuring in the eigenbasis of the Fuchs–Caves fidelity observable and accumulating outcomes by likelihood ratio all lie on the optimal ROC curve. This library proves a three-dimensional counterexample in Lean, frozen: ρ = (1/20)[[2,1,1],[1,10,1],[1,1,8]], σ = DρD, D = diag(2, 1, ½), and the effect F = vv†/1382 with v = (37, 2, −3) has true-positive rate 5539/13820 > 2/5 at false-positive rate 1/10. The page computes the optimal curve by the supporting-line dual, draws its gap to the fidelity polyline, and shows on the sphere of directions how the optimal effect tilts away from the fidelity eigenbasis; at zero off-diagonal coupling ε the states commute and the gap vanishes.",
+      "status": "live",
+      "added": "2026-10-31",
+      "tags": [
+        "量子态区分",
+        "ROC 曲线",
+        "保真度",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "quantum state discrimination",
+        "ROC curves",
+        "fidelity",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：保真度测量与最优 ROC",
+          "label_en": "Problem dossier: the fidelity measurement and the optimal ROC",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/bodor-koniorczyk-2017-fidelity-measurement-roc-refutation.md"
+        },
+        {
+          "label": "Blueprint：三维反例",
+          "label_en": "Blueprint: the three-dimensional counterexample",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Quantum/Measurement/FidelityMeasurementROCRefutation.md"
+        },
+        {
+          "label": "文献笔记：Bodor、Koniorczyk 2017",
+          "label_en": "Literature note: Bodor and Koniorczyk 2017",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Library/Observer/bodorkoniorczyk2017quantumroc.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "FidelityMeasurementROCRefutation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Measurement/FidelityMeasurementROCRefutation.lean"
+        }
+      ]
+    },
+    {
       "id": "yb-automaton",
       "code": "YB//AUTOMATON",
       "path": "viz/yb-automaton/",
