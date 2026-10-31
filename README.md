@@ -9,6 +9,7 @@ Every page is bilingual (中文 / English, switchable in the header) and states 
 
 | id | Page | Theory |
 | --- | --- | --- |
+| `perm-complement` | [PERM//COMPLEMENT 两两强互补的置换矩阵最多 2^v₂(n) 个](https://the-omega-institute.github.io/trureturing-visualize/viz/perm-complement/) | 问题卷宗：两两强互补的置换矩阵的最大个数 |
 | `modes-eighteen` | [MODES//EIGHTEEN 十八模式的玻色子占据数恰在粒子数为偶数时可以非语境地分配](https://the-omega-institute.github.io/trureturing-visualize/viz/modes-eighteen/) | 问题卷宗：十八模式玻色子分配的奇偶 |
 | `sandpile-torus` | [SANDPILE//TORUS n × 1 环面沙堆无论顺序都推倒 A023855(n − 1) 次](https://the-omega-institute.github.io/trureturing-visualize/viz/sandpile-torus/) | 问题卷宗：n × 1 环面沙堆的推倒次数 |
 | `roc-fidelity` | [ROC//FIDELITY 保真度测量的累积点不一定在最优 ROC 曲线上](https://the-omega-institute.github.io/trureturing-visualize/viz/roc-fidelity/) | 问题卷宗：保真度测量与最优 ROC |

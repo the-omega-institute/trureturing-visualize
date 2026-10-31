@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="PERM//COMPLEMENT · At most 2^v₂(n) pairwise strongly complementary permutation matrices">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PERM//COMPLEMENT 两两强互补的置换矩阵最多 2^v₂(n) 个</title>
+<meta name="description" content="Rajchel、Gąsiorowski 与 Życzkowski（2018）把置换矩阵 P、Q 称为互补：P_ij = P_hk = Q_ik = 1 推出 Q_hj = 1；若再加上支撑不相交，就是强互补。支撑不相交给出 k ≤ n，他们问两两强互补的族最多有几个。本库在 Lean 里证明并已冻结：最大值是 2^v₂(n)，v₂(n) 是 n 中 2 的指数。用置换来说，σ、τ 强互补当且仅当 σ⁻¹τ 是没有不动点的对合；n = 2^a·m 时，对前 a 位二进制做异或平移的 2^a 个置换达到上界。页面把族里的置换矩阵一层层叠在 n × n 格子上，画出相对置换的配对，并对 n ≤ 10 穷举验证。Rajchel, Gąsiorowski and Życzkowski (2018) call permutation matrices P, Q complementary when P_ij = P_hk = Q_ik = 1 forces Q_hj = 1, and strongly complementary when their supports are also disjoint. Disjoint supports give k ≤ n, and they ask how many matrices a pairwise strongly complementary family can have. This library proves in Lean, frozen, that the maximum is 2^v₂(n), where v₂(n) is the exponent of 2 in n. In permutation terms σ, τ are strongly complementary exactly when σ⁻¹τ is a fixed-point-free involution; for n = 2^a·m, the 2^a XOR translations of the first a binary digits attain the bound. The page stacks the family's permutation matrices layer by layer over the n × n grid, draws the pairing of the relative permutation, and checks n ≤ 10 exhaustively.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="perm-complement">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="PERM//COMPLEMENT">PERM<b>//</b>COMPLEMENT</h1>
+      <div class="tagline">
+        <span class="zh">强互补的置换矩阵 · <em>最大族恰有 2^v₂(n) 个（已冻结的证明）</em></span>
+        <span class="en">Strongly complementary permutation matrices · <em>the largest family has exactly 2^v₂(n) members (frozen proof)</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="lean" aria-pressed="true"><span class="code">n = 8 · k = 8</span><span class="cn zh">铺满：拉丁方</span><span class="cn en">A full tiling</span></button>
+        <button class="preset" data-preset="twelve" aria-pressed="false"><span class="code">n = 12 · k = 4</span><span class="cn zh">三块各四点</span><span class="cn en">Three blocks of four</span></button>
+        <button class="preset" data-preset="six" aria-pressed="false"><span class="code">n = 6 · k = 2</span><span class="cn zh">穷举验证</span><span class="cn en">Checked exhaustively</span></button>
+        <button class="preset" data-preset="odd" aria-pressed="false"><span class="code">n = 9 · k = 1</span><span class="cn zh">奇数只剩一个</span><span class="cn en">Odd: only one</span></button>
+        <button class="preset" data-preset="sixteen" aria-pressed="false"><span class="code">n = 16 · k = 16</span><span class="cn zh">2 的幂</span><span class="cn en">A power of two</span></button>
+        <button class="preset" data-preset="mixed" aria-pressed="false"><span class="code">n = 24 · k = 8</span><span class="cn zh">奇数因子不帮忙</span><span class="cn en">Odd factors do not help</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">维数</span><span class="en">Dimension</span><span class="aside">n × n</span></h2>
+      <div class="slider-row"><label for="nIn"><span class="zh">维数 n</span><span class="en">Dimension n</span></label><input type="range" id="nIn" min="1" max="32" step="1" value="8"><b id="nOut">8</b></div>
+      <p class="note" id="sysNote"></p>
+    </section>
+  </aside>
+
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：n × n 的格子，族里的每个置换矩阵是一层，地面上是它们的投影；拖动旋转，滚轮缩放" data-aria-en="3D view: the n × n grid with one layer per permutation matrix of the family and their shadows on the floor; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">侧视</span><span class="en">Side</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="最大族的大小 k(n)" data-aria-en="Largest family size k(n)"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="相对置换的配对" data-aria-en="The pairing of the relative permutation"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">2^v₂(n)</span></h2>
+      <dl class="ro">
+        <div class="c w"><dt id="ro1L"></dt><dd id="ro1" class="ftab">—</dd></div>
+        <div class="m w"><dt id="ro2L"></dt><dd id="ro2" class="ftab">—</dd></div>
+        <div class="a w"><dt id="ro3L"></dt><dd id="ro3" class="ftab">—</dd></div>
+        <div class="w"><dt id="ro4L"></dt><dd id="ro4" class="ftab">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5" class="ftab">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">定义：互补 IsComplementary（P_ij = P_hk = Q_ik = 1 ⇒ Q_hj = 1，原文定义 4.1）；强互补 IsStronglyComplementary（再加支撑不相交，定义 4.3）；置换矩阵 IsPermutationMatrix；maxStronglyComplementary n 是两两强互补的有限置换矩阵族的大小之上确界。猜想 claim：对每个 n ≥ 1，它等于 2^v₂(n)。本库证明 claim。已冻结：</span><span class="en">Definitions: complementarity IsComplementary (P_ij = P_hk = Q_ik = 1 ⇒ Q_hj = 1, Definition 4.1 of the source); strong complementarity IsStronglyComplementary (with disjoint supports, Definition 4.3); permutation matrices IsPermutationMatrix; maxStronglyComplementary n, the supremum of the sizes of finite pairwise strongly complementary families of permutation matrices. The statement claim: for every n ≥ 1 it equals 2^v₂(n). This library proves claim. Frozen: </span><code>StronglyComplementaryPermutationMaximum.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">证明的步骤（同一模块里一起冻结）：强互补 ⇔ 相对置换 σ⁻¹τ 是无不动点的对合（complementary_iff、strong_iff）；右乘同一个置换不改变强互补（row_relabelling），所以族可以包含恒等（normalize_family）；此时成员都是两两交换的对合（normalized_involutions），生成 2 群——复用 YB//AUTOMATON 页面那个模块里冻结的 isPGroup_closure_of_commuting_involutions；族的大小不超过一个轨道（orbit_evaluation_bound），而最小的轨道大小 2^a 整除 n（least_orbit_divisor），得上界（permutation_family_upper、matrix_family_upper）；平移族给出下界（elementary_translation_family、matrix_family_lower，用到冻结的 valuation_decomposition）。冻结：</span><span class="en">The steps of the proof (frozen in the same module): strong complementarity ⇔ the relative permutation σ⁻¹τ is a fixed-point-free involution (complementary_iff, strong_iff); right multiplication by one permutation preserves it (row_relabelling), so the family can contain the identity (normalize_family); then the members are pairwise commuting involutions (normalized_involutions) and generate a 2-group — reusing isPGroup_closure_of_commuting_involutions, frozen in the module of the YB//AUTOMATON page; a family is no larger than an orbit (orbit_evaluation_bound), and the smallest orbit size 2^a divides n (least_orbit_divisor), giving the upper bound (permutation_family_upper, matrix_family_upper); the translation family gives the lower bound (elementary_translation_family, matrix_family_lower, using the frozen valuation_decomposition). Frozen: </span><code>strong_iff · normalized_involutions · orbit_evaluation_bound · least_orbit_divisor · elementary_translation_family · result</code></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：页面对 n ≤ 10 穷举含恒等的族（其余成员是无不动点的对合，候选数 1、3、15、105、945），最大值为 1、2、1、4、1、2、1、8、1、2，与 2^v₂(n) 一致。</span><span class="en">Numbers computed on the page, not theorems: for n ≤ 10 the page searches every family containing the identity (the other members are fixed-point-free involutions; 1, 3, 15, 105, 945 candidates), and the maxima 1, 2, 1, 4, 1, 2, 1, 8, 1, 2 agree with 2^v₂(n).</span></span></div>
+      <div class="lean theory"><span class="ok">ARGUED</span><span><span class="zh">问题卷宗里的论证（未形式化）：n = 2^a·m 时 n/k(n) = m，所以支撑计数的上界 k ≤ n 只在 n 为 2 的幂时达到，奇数 n 时最大值为 1；n = 2^a 时极大族都是 F₂^a 上的全体平移（在选定基与基点之下）；换一个有限指标集结论不变。</span><span class="en">Arguments in the problem dossier (not formalized): for n = 2^a·m, n/k(n) = m, so the support bound k ≤ n is attained exactly when n is a power of two, and for odd n the maximum is one; for n = 2^a every largest family is the full translation family of F₂^a (after choosing a basis and a point); relabelling to any finite index set changes nothing.</span></span></div>
+      <div class="lean page"><span class="ok">ARGUED</span><span><span class="zh">页面自己的论证（未形式化，未经评审）：n = 2^a 时 2^a 个支撑互不相交、各有 n 个格子，合起来正好是全部 n² 个格子，所以族排成一个拉丁方；平移族给出的是 F₂^a 的异或表。</span><span class="en">The page’s own argument (not formalized, not reviewed): for n = 2^a the 2^a supports are disjoint with n cells each, so together they are all n² cells and the family forms a Latin square; the translation family gives the XOR table of F₂^a.</span></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">卷宗列为未决：n 有大于 1 的奇数因子时极大族的分类；原文结尾的问题——全体两两强互补的置换矩阵与平矩阵 W_n 的凸包是否单随机（unistochastic）。</span><span class="en">Open per the dossier: the classification of largest families when n has an odd factor greater than one; the source’s closing question — whether the convex hull of all mutually strongly complementary permutation matrices and the flat matrix W_n is unistochastic.</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">G. Rajchel、A. Gąsiorowski、K. Życzkowski，Robust Hadamard matrices, unistochastic rays in Birkhoff polytope and equi-entangled bases in composite spaces，Mathematics in Computer Science 12，473–490（2018），doi:10.1007/s11786-018-0384-y，arXiv:1804.10715：定义 4.1、4.3，k ≤ n 与这里回答的问题（v2 TeX 第 686–690 行）。</span><span class="en">G. Rajchel, A. Gąsiorowski and K. Życzkowski, Robust Hadamard matrices, unistochastic rays in Birkhoff polytope and equi-entangled bases in composite spaces, Mathematics in Computer Science 12, 473–490 (2018), doi:10.1007/s11786-018-0384-y, arXiv:1804.10715: Definitions 4.1 and 4.3, k ≤ n, and the question answered here (v2 TeX, lines 686–690).</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0001" value="1" aria-label="族里的成员数" data-aria-en="Members of the family">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 一个成员 · <kbd>E</kbd> 全部成员</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> one member · <kbd>E</kbd> every member</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">一个 n × n 的置换矩阵在每行每列各有一个 1。两个置换矩阵强互补，是说它们的 1 不在同一位置，并且满足一个四指标条件。Rajchel、Gąsiorowski 与 Życzkowski 用它们在 Birkhoff 多面体里构造单随机的三角形；支撑不相交说明族最多 n 个，他们问最大值究竟怎样依赖 n。</p>
+      <ol>
+        <li><b>答案。</b>Lean 证明最大值是 2^v₂(n)：n 里有多少个因子 2，就能有 2 的那么多次方个。n = 8 时是 8，n = 12 时只有 4，n 为奇数时只有 1。</li>
+        <li><b>为什么。</b>把族平移到包含恒等，其余成员都是两两交换、没有不动点的对合，生成一个 2 群；族的大小不超过它的一个轨道，而最小的轨道大小 2^a 整除 n。平移族——只对前 a 位二进制做异或——正好达到这个数。</li>
+        <li><b>三维视图。</b>每一层是族里的一个置换矩阵，从下往上加入；地面上是它们的投影，永不重叠。n 为 2 的幂时，最后一层加入后地面被铺满：这是一个拉丁方。下方右图把最新成员相对于恒等的置换画成配对弧——每个点恰好配一个对象，没有不动点。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/rajchel-gasiorowski-zyczkowski-2018-strongly-complementary-permutations.md" target="_blank" rel="noopener">问题卷宗</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Permutation/StronglyComplementaryPermutationMaximum.lean" target="_blank" rel="noopener">StronglyComplementaryPermutationMaximum.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Combinatorics/Permutation/StronglyComplementaryPermutationMaximum.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/FiniteGroups/rajchelgasiorowskizyczkowski2018robust.md" target="_blank" rel="noopener">文献笔记</a> · <a href="https://doi.org/10.1007/s11786-018-0384-y" target="_blank" rel="noopener">doi:10.1007/s11786-018-0384-y</a> · <a href="https://arxiv.org/abs/1804.10715" target="_blank" rel="noopener">arXiv:1804.10715</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">An n × n permutation matrix has one 1 in every row and every column. Two permutation matrices are strongly complementary when their 1s never share a position and a four-index condition holds. Rajchel, Gąsiorowski and Życzkowski use them to build unistochastic triangles in the Birkhoff polytope; disjoint supports allow at most n of them, and they ask how the maximum actually depends on n.</p>
+      <ol>
+        <li><b>The answer.</b> Lean proves the maximum is 2^v₂(n): as many as the largest power of two dividing n. For n = 8 it is 8, for n = 12 only 4, and for odd n only 1.</li>
+        <li><b>Why.</b> Shift the family to contain the identity; the other members are then pairwise commuting fixed-point-free involutions and generate a 2-group. A family is no larger than one of its orbits, and the smallest orbit size 2^a divides n. The translation family — XOR on the first a binary digits — attains this number.</li>
+        <li><b>3D view.</b> Each layer is one permutation matrix of the family, added from the bottom up; their shadows on the floor never overlap. When n is a power of two the floor is filled once the last layer arrives: a Latin square. The lower-right chart draws the newest member relative to the identity as pairing arcs — every point is paired with exactly one other, with no fixed point.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/rajchel-gasiorowski-zyczkowski-2018-strongly-complementary-permutations.md" target="_blank" rel="noopener">Problem dossier</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Permutation/StronglyComplementaryPermutationMaximum.lean" target="_blank" rel="noopener">StronglyComplementaryPermutationMaximum.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Combinatorics/Permutation/StronglyComplementaryPermutationMaximum.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/FiniteGroups/rajchelgasiorowskizyczkowski2018robust.md" target="_blank" rel="noopener">literature note</a> · <a href="https://doi.org/10.1007/s11786-018-0384-y" target="_blank" rel="noopener">doi:10.1007/s11786-018-0384-y</a> · <a href="https://arxiv.org/abs/1804.10715" target="_blank" rel="noopener">arXiv:1804.10715</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
