@@ -2,6 +2,55 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "yb-automaton",
+      "code": "YB//AUTOMATON",
+      "path": "viz/yb-automaton/",
+      "thumbnail": "viz/yb-automaton/thumb.jpg",
+      "title": "2ⁿ 元域上的杨–巴克斯特元胞自动机周期整除 2ⁿ",
+      "title_en": "Yang–Baxter automata over a field of order 2ⁿ have period dividing 2ⁿ",
+      "summary": "Araoka 与 Tokihiro（2026）用 R 矩阵 R(x, y) = (y + f(x + y), x − f(x + y)) 沿一排格子运行、带螺旋边界的元胞自动机，并猜想：在 2ⁿ 元域上、f 为满足约化杨–巴克斯特方程的双射时，周期总整除 2ⁿ；他们证明了 4 与 8。本库在 Lean 里对所有 2ⁿ、所有格子数证明了 step^q = id 并已冻结：关键是这样的 f 总有平移对称 f(x + u) = f(x) + u。页面在 4、8、16 元域上运行自动机，把时空图绕成螺旋，穷举初态的周期分布，并给出一个不满足方程、周期为 6 与 10 的对照。",
+      "summary_en": "Araoka and Tokihiro (2026) run the R-matrix R(x, y) = (y + f(x + y), x − f(x + y)) along a row of cells with a helical boundary and conjectured that over a field of order 2ⁿ, for a bijective f solving the reduced Yang–Baxter equation, the period divides 2ⁿ; they proved the orders 4 and 8. This library proves step^q = id in Lean for every order 2ⁿ and every number of cells, frozen: the key is that such an f always has a translation symmetry f(x + u) = f(x) + u. The page runs the automaton over fields of order 4, 8 and 16, winds the space-time diagram into a helix, counts the periods of the initial states, and shows a contrasting f that fails the equation, with periods 6 and 10.",
+      "status": "live",
+      "added": "2026-10-31",
+      "tags": [
+        "元胞自动机",
+        "杨–巴克斯特方程",
+        "有限域",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "cellular automata",
+        "Yang–Baxter equation",
+        "finite fields",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：杨–巴克斯特自动机的周期",
+          "label_en": "Problem dossier: the period of Yang–Baxter automata",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/araoka-2026-yang-baxter-automaton-period.md"
+        },
+        {
+          "label": "Blueprint：周期整除 2ⁿ",
+          "label_en": "Blueprint: the period divides 2ⁿ",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/StatisticalMechanics/CellularAutomata/YangBaxterAutomatonPeriod.md"
+        },
+        {
+          "label": "文献笔记：Araoka、Tokihiro 2026",
+          "label_en": "Literature note: Araoka and Tokihiro 2026",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Library/StatisticalMechanics/araoka2026integrable.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "YangBaxterAutomatonPeriod.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/CellularAutomata/YangBaxterAutomatonPeriod.lean"
+        }
+      ]
+    },
+    {
       "id": "mpemba-four",
       "code": "MPEMBA//FOUR",
       "path": "viz/mpemba-four/",
