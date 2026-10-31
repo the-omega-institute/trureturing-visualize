@@ -9,6 +9,7 @@ Every page is bilingual (中文 / English, switchable in the header) and states 
 
 | id | Page | Theory |
 | --- | --- | --- |
+| `crossword-rooks` | [CROSSWORD//ROOKS 每个自然数都是某个填字网格的放车数](https://the-omega-institute.github.io/trureturing-visualize/viz/crossword-rooks/) | 问题卷宗：每个自然数都是填字网格的放车数 |
 | `granular-two` | [GRANULAR//TWO 同一组正速率，颗粒堆积有两个物理稳态](https://the-omega-institute.github.io/trureturing-visualize/viz/granular-two/) | 问题卷宗：颗粒系统稳态唯一性的反例 |
 | `area-walks` | [AREA//WALKS 面积接近最大的格点游走由 theta 系数计数](https://the-omega-institute.github.io/trureturing-visualize/viz/area-walks/) | 问题卷宗：面积接近最大的格点游走 |
 | `knight-range` | [KNIGHT//RANGE 马的随机游走：期望访问格数乘 2^(3n−3) 是整数](https://the-omega-institute.github.io/trureturing-visualize/viz/knight-range/) | 问题卷宗：马的随机游走期望访问格数的整数性 |
