@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="KNIGHT//RANGE · The expected range of a knight's random walk times 2^(3n−3) is an integer">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KNIGHT//RANGE 马的随机游走：期望访问格数乘 2^(3n−3) 是整数</title>
+<meta name="description" content="一匹马在无限大的棋盘上随机走 n 步，每步在八种走法中等概率选一种；E(n) 是它访问过的不同格子数（含起点）的期望。Sloane 在 OEIS A309221（2019）里把 a(n) = E(n)·2^(3n−3) 列为整数序列，并注明“这总是整数只是猜想”。本库在 Lean 里证明并已冻结：对每个 n ≥ 1，a(n) 都是整数。方格点阵的八个对称恰好把马的八种走法互相置换，于是全部 8ⁿ 条游走按第一步分成八类，每类的访问格数总和相同，总和 S(n) 能被 8 整除。页面画出一条游走和它在八个对称下的像，并对 n ≤ 8 枚举全部游走。A knight makes n random moves on an infinite chessboard, each chosen uniformly among its eight moves; E(n) is the expected number of distinct squares it visits, the start included. In OEIS A309221 (2019) Sloane listed a(n) = E(n)·2^(3n−3) as an integer sequence and noted that its integrality was only a conjecture. This library proves in Lean, frozen, that a(n) is an integer for every n ≥ 1. The eight symmetries of the square lattice permute the eight knight moves, so the 8ⁿ walks split by their first move into eight classes with equal totals of visited squares, and the total S(n) is divisible by 8. The page draws one walk with its images under the eight symmetries and enumerates every walk for n ≤ 8.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="knight-range">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="KNIGHT//RANGE">KNIGHT<b>//</b>RANGE</h1>
+      <div class="tagline">
+        <span class="zh">马的随机游走访问多少格 · <em>a(n) = E(n)·2^(3n−3) 总是整数（已冻结的证明）</em></span>
+        <span class="en">Squares a random knight visits · <em>a(n) = E(n)·2^(3n−3) is an integer (frozen proof)</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="lean" aria-pressed="true"><span class="code">n = 6</span><span class="cn zh">一条路径与七个像</span><span class="cn en">A path and seven images</span></button>
+        <button class="preset" data-preset="two" aria-pressed="false"><span class="code">n = 2</span><span class="cn zh">跳回原点</span><span class="cn en">Jumping back</span></button>
+        <button class="preset" data-preset="back" aria-pressed="false"><span class="code">n = 6 · 2 SQ</span><span class="cn zh">来回跳</span><span class="cn en">Back and forth</span></button>
+        <button class="preset" data-preset="star" aria-pressed="false"><span class="code">n = 5 · STAR</span><span class="cn zh">八角星</span><span class="cn en">An eight-pointed star</span></button>
+        <button class="preset" data-preset="seven" aria-pressed="false"><span class="code">n = 7</span><span class="cn zh">两百万条游走</span><span class="cn en">Two million walks</span></button>
+        <button class="preset" data-preset="eight" aria-pressed="false"><span class="code">n = 8</span><span class="cn zh">一千六百万条</span><span class="cn en">Sixteen million</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">参数</span><span class="en">Parameters</span><span class="aside">n</span></h2>
+      <div class="slider-row"><label for="nIn"><span class="zh">步数 n</span><span class="en">Steps n</span></label><input type="range" id="nIn" min="1" max="8" step="1" value="6"><b id="nOut">6</b></div>
+      <div class="btn-row"><button class="chip" id="walkBtn"><span class="zh">换一条路径</span><span class="en">Another path</span></button></div>
+      <p class="note" id="sysNote"></p>
+    </section>
+  </aside>
+
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：棋盘上的一条马的游走和它在八个对称下的像；拖动旋转，滚轮缩放" data-aria-en="3D view: a knight's walk on the board and its images under the eight symmetries; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="side" aria-pressed="false"><span class="zh">侧视</span><span class="en">Side</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="按第一步分类的访问格数总和" data-aria-en="Totals of visited squares by first move"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="访问格数的分布" data-aria-en="Distribution of the range"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">8 | S(n)</span></h2>
+      <dl class="ro">
+        <div class="c w"><dt id="ro1L"></dt><dd id="ro1" class="ftab">—</dd></div>
+        <div class="m w"><dt id="ro2L"></dt><dd id="ro2" class="ftab">—</dd></div>
+        <div class="a w"><dt id="ro3L"></dt><dd id="ro3" class="ftab">—</dd></div>
+        <div class="w"><dt id="ro4L"></dt><dd id="ro4" class="ftab">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5" class="ftab">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">定义：move 是马的八种走法，move 0 = (1, 2)；position w j 是走了前 j 步后的位置；visited w 是访问过的格子（含起点）；expectedRange n = Σ_w |visited w| / 8ⁿ，对全部 8ⁿ 条步序求和。猜想 claim：对每个 n ≥ 1，存在整数 m 使 expectedRange n · 2^(3n−3) = m。本库证明 claim。已冻结：</span><span class="en">Definitions: move, the eight knight moves, move 0 = (1, 2); position w j, the position after the first j steps; visited w, the squares visited, the start included; expectedRange n = Σ_w |visited w| / 8ⁿ over all 8ⁿ step sequences. The statement claim: for every n ≥ 1 there is an integer m with expectedRange n · 2^(3n−3) = m. This library proves claim. Frozen: </span><code>KnightWalkRangeIntegrality.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">证明的步骤（同一个冻结模块）：sym m 是把走法 0 送到走法 m 的走法置换（m 为偶数时 i ↦ m + i，奇数时 i ↦ m − i），symInv 是它的逆；latFun / lat 是与之配套的带符号坐标置换，它是加法映射，把 move i 送到 move (sym m i)。把一条游走的每一步 i 换成 sym m i，所有位置都被 lat m 映射，访问格数不变；这把第一步为走法 0 的游走一一映到第一步为走法 m 的游走，所以 S(k + 1) = 8T，E(k + 1)·2^(3k) = T。冻结：</span><span class="en">The steps of the proof (in the same frozen module): sym m is the permutation of moves sending move 0 to move m (i ↦ m + i for even m, i ↦ m − i for odd m), symInv its inverse; latFun / lat is the matching signed permutation of coordinates, an additive map sending move i to move (sym m i). Replacing every step i of a walk by sym m i maps all its positions by lat m and keeps the number of visited squares; this maps the walks starting with move 0 one-to-one onto those starting with move m, so S(k + 1) = 8T and E(k + 1)·2^(3k) = T. Frozen: </span><code>sym · symInv · latFun · lat · result</code></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：页面对 n ≤ 8 用深度优先枚举全部 8ⁿ 条游走，得到 S(n)、八类各自的总和与访问格数的分布；S(n)/8 与 OEIS 的 a(1) … a(8) 一致。</span><span class="en">Numbers computed on the page, not theorems: for n ≤ 8 the page enumerates all 8ⁿ walks depth-first, giving S(n), the eight class totals and the distribution of the range; S(n)/8 agrees with OEIS a(1) … a(8).</span></span></div>
+      <div class="lean theory"><span class="ok">ARGUED</span><span><span class="zh">问题卷宗里的记录（未形式化）：条目自 2019 年起未修订、仍称这是猜想；条目链接的 Math StackExchange 回答只用了四重旋转对称，只给出 4 | S(n)；卷宗的穷举复现了 n ≤ 7 的 S(n)，并验证 S(n) = 8·S₁(n)，S₁ 是第一步为 (1, 2) 的游走之和。</span><span class="en">Records in the problem dossier (not formalized): the entry has not been revised since 2019 and still calls this a conjecture; the Math StackExchange answer it links uses only the four-fold rotation and gets only 4 | S(n); the dossier’s enumeration reproduces S(n) for n ≤ 7 and checks S(n) = 8·S₁(n), with S₁ the total over walks starting with (1, 2).</span></span></div>
+      <div class="lean page"><span class="ok">ARGUED</span><span><span class="zh">页面自己的论证（未形式化，未经评审）：同一个一一对应保持每条游走的访问格数，所以八类不仅总和相同，访问 r 格的游走数也相同；于是对每个 r，访问恰好 r 格的游走数都能被 8 整除。</span><span class="en">The page’s own argument (not formalized, not reviewed): the same one-to-one correspondence keeps the number of squares of every single walk, so the eight classes share not only their totals but also the number of walks visiting r squares; hence for every r the number of walks visiting exactly r squares is divisible by 8.</span></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">卷宗标为未核实：有限范围的文献检索不能排除已有独立证明或更早的结果。</span><span class="en">Marked unverified in the dossier: the bounded literature search cannot rule out an independent proof or an earlier result.</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">N. J. A. Sloane，OEIS A309221（2019）：E(n)·2^(3n−3) 的整数序列与“只是猜想”的注记；O. R. L. Peters，OEIS A326954 / A326955（2019）：E(n) 的分子与分母。</span><span class="en">N. J. A. Sloane, OEIS A309221 (2019): the integer sequence E(n)·2^(3n−3) and the note that its integrality is only a conjecture; O. R. L. Peters, OEIS A326954 / A326955 (2019): the numerators and denominators of E(n).</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0001" value="0" aria-label="步" data-aria-en="Step">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 一步 · <kbd>E</kbd> 最后一步</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> one step · <kbd>E</kbd> last step</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">一匹马站在无限大的棋盘上，每一步从它的八种走法里随便挑一种。走 n 步后它到过多少个不同的格子？对全部 8ⁿ 种走法取平均，就是 E(n)。E(n) 是分母为 2 的幂的分数，Sloane 发现乘上 2^(3n−3)——比 8ⁿ 少一个 8——就总是整数，但只是猜想。</p>
+      <ol>
+        <li><b>答案。</b>Lean 证明对每个 n ≥ 1 都是整数：所有游走访问格数的总和 S(n) 能被 8 整除。</li>
+        <li><b>为什么。</b>棋盘有八个对称（四个旋转、四个翻转），它们恰好把马的八种走法互相置换，而且对每两种走法都恰有一个对称把一种变成另一种。把一条游走的每一步都换成对称后的那一步，整条路径就被旋转或翻转，访问的格子数不变。按第一步分成八类，这个替换把一类一一变成另一类，所以八类的总和相同，S(n) 是某个数的 8 倍。</li>
+        <li><b>三维视图。</b>棋盘上同时画着一条游走和它的七个像，八种颜色各从一个方向出发。每条路径访问的格子数都一样。</li>
+        <li><b>下面的图。</b>左图是八类各自的总和，八根柱子一样高，都等于 a(n)。右图是“访问 r 个格子的游走有多少条”，品红短线是第一类的条数乘 8——两者完全重合。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/sloane-2019-a309221-knight-walk-range-integrality.md" target="_blank" rel="noopener">问题卷宗</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/RandomWalks/KnightWalkRangeIntegrality.lean" target="_blank" rel="noopener">KnightWalkRangeIntegrality.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/StatisticalMechanics/RandomWalks/KnightWalkRangeIntegrality.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/Combinatorics/sloane2019a309221.md" target="_blank" rel="noopener">文献笔记</a> · <a href="https://oeis.org/A309221" target="_blank" rel="noopener">OEIS A309221</a> · <a href="https://oeis.org/A326954" target="_blank" rel="noopener">A326954</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">A knight stands on an infinite chessboard and at every step picks one of its eight moves at random. How many different squares has it been on after n steps? The average over all 8ⁿ choices is E(n). E(n) is a fraction whose denominator is a power of two, and Sloane noticed that multiplying by 2^(3n−3) — one factor of 8 short of 8ⁿ — always gives an integer, but only as a conjecture.</p>
+      <ol>
+        <li><b>The answer.</b> Lean proves it is an integer for every n ≥ 1: the total S(n) of visited squares over all walks is divisible by 8.</li>
+        <li><b>Why.</b> The board has eight symmetries (four rotations and four reflections), and they permute the eight knight moves, with exactly one symmetry taking any move to any other. Replacing every step of a walk by its symmetric counterpart rotates or reflects the whole path and keeps the number of visited squares. Sorted by their first step into eight classes, this replacement maps one class one-to-one onto another, so the eight classes have equal totals and S(n) is eight times a whole number.</li>
+        <li><b>The 3D view.</b> One walk and its seven images are drawn on the board at once, each colour starting in a different direction. Every path visits the same number of squares.</li>
+        <li><b>The charts below.</b> The left chart shows the eight class totals, eight bars of equal height a(n). The right chart counts the walks that visit r squares; the magenta ticks are eight times the count in the first class — they coincide exactly.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/sloane-2019-a309221-knight-walk-range-integrality.md" target="_blank" rel="noopener">Problem dossier</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/RandomWalks/KnightWalkRangeIntegrality.lean" target="_blank" rel="noopener">KnightWalkRangeIntegrality.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/StatisticalMechanics/RandomWalks/KnightWalkRangeIntegrality.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/Combinatorics/sloane2019a309221.md" target="_blank" rel="noopener">literature note</a> · <a href="https://oeis.org/A309221" target="_blank" rel="noopener">OEIS A309221</a> · <a href="https://oeis.org/A326954" target="_blank" rel="noopener">A326954</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

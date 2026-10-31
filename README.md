@@ -9,6 +9,7 @@ Every page is bilingual (中文 / English, switchable in the header) and states 
 
 | id | Page | Theory |
 | --- | --- | --- |
+| `knight-range` | [KNIGHT//RANGE 马的随机游走：期望访问格数乘 2^(3n−3) 是整数](https://the-omega-institute.github.io/trureturing-visualize/viz/knight-range/) | 问题卷宗：马的随机游走期望访问格数的整数性 |
 | `coin-walk` | [COIN//WALK 对称硬币让圆环上的 Hadamard 行走纠缠最大](https://the-omega-institute.github.io/trureturing-visualize/viz/coin-walk/) | 问题卷宗：对称硬币让行走的纠缠最大 |
 | `diploid-ca` | [CA//DIPLOID 二倍体元胞自动机 10-245 的密度从第一步起恰为 1/4 + λ/2](https://the-omega-institute.github.io/trureturing-visualize/viz/diploid-ca/) | 问题卷宗：二倍体元胞自动机 10-245 的精确密度 |
 | `exit-disk` | [EXIT//DISK 格点圆盘比正方形更难走出：正方形不是平均出逃时间的最大者](https://the-omega-institute.github.io/trureturing-visualize/viz/exit-disk/) | 问题卷宗：正方形不是平均出逃时间的最大者 |
