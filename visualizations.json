@@ -2,6 +2,55 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "dice-cycle",
+      "code": "DICE//CYCLE",
+      "path": "viz/dice-cycle/",
+      "thumbnail": "viz/dice-cycle/thumb.jpg",
+      "title": "最小优势骰子循环只在六面时刚好等于面数",
+      "title_en": "Minimal-advantage dice cycles are longest exactly at six faces",
+      "summary": "Easlick（2026，猜想 1）猜想：在每面取 1 到 n 的 n 面骰子里，每一步都以最小优势（n² 种掷法里赢 ⌊n²/2⌋ + 1 种）赢下一个的循环，最大长度恰好等于 n 只发生在 n = 6。本库在 Lean 里证明了这个猜想并已冻结：n = 6 时 462 颗骰子只有两个 7 颗骰子的结，结里有两颗骰子只能走向同一颗，所以循环至多 6，且六循环存在；n ≥ 7 时总有比 n 更长的循环。页面画出 n ≤ 7 的全部胜负图、两颗骰子对掷的 n² 种结果，并沿 Lean 核对过的循环一步步走。",
+      "summary_en": "Easlick (2026, Conjecture 1) conjectured that among n-sided dice with faces in 1 … n, cycles in which every die beats the next with the minimal advantage (⌊n²/2⌋ + 1 wins of n²) reach maximum length exactly n only for n = 6. This library proves the conjecture in Lean, frozen: the 462 six-sided dice form just two knots of 7 dice, in each of which two dice can only move to the same die, so cycles have at most 6 dice and a six-cycle exists; for every n ≥ 7 a cycle longer than n exists. The page draws the whole graph for n ≤ 7 and the n² outcomes of a duel, and walks the cycles that Lean checks step by step.",
+      "status": "live",
+      "added": "2026-10-31",
+      "tags": [
+        "组合",
+        "非传递骰子",
+        "有向图",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "combinatorics",
+        "non-transitive dice",
+        "directed graphs",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：Easlick 的最小优势循环猜想",
+          "label_en": "Problem dossier: Easlick’s minimal-advantage cycle conjecture",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/easlick-2026-minimal-advantage-cycle-conjecture-one.md"
+        },
+        {
+          "label": "Blueprint：六面骰子的循环上界",
+          "label_en": "Blueprint: the six-face cycle bound",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Combinatorics/Dice/EaslickSixBound.md"
+        },
+        {
+          "label": "文献笔记：Easlick 2026",
+          "label_en": "Literature note: Easlick 2026",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Library/Certificates/easlick2026minimaldice.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "EaslickSixBound.conjecture_one",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Dice/EaslickSixBound.lean"
+        }
+      ]
+    },
+    {
       "id": "error-disturbance",
       "code": "ERROR//DISTURB",
       "path": "viz/error-disturbance/",
