@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="COIN//WALK · The symmetric coin maximizes the entanglement of the Hadamard walk on every circle">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>COIN//WALK 对称硬币让圆环上的 Hadamard 行走纠缠最大</title>
+<meta name="description" content="Donkersloot、Sondenheimer 与 Sperling（2026）研究圆环上的 Hadamard 量子行走：一个光子从格点 0 出发，初始硬币为 c，每一步先做 Hadamard 再按硬币方向平移；他们用所有 2P 个光学模之间的几何纠缠 E_g 衡量多体纠缠，并预期硬币 (1, i)/√2 对每个圆环大小和每个时刻都给出最大值。本库在 Lean 里证明并已冻结：对每个 P ≥ 1、每个时刻 n 和每个单位硬币，E_g 都不超过从 (1, i)/√2 出发的值。关键是反射对 (0, x)、(1, −x)：对称硬币让每一对的概率相等，而把一对的概率拉平只会降低与乘积态的最大重叠。页面把所有初始硬币的 E_g 画在 Bloch 球上，在圆环上显示行走的概率与反射对，并画出 E_g 随时间和沿原文插值的变化。Donkersloot, Sondenheimer and Sperling (2026) study the Hadamard quantum walk on a circle: one photon starts at site 0 with coin c, and each step applies the Hadamard coin and shifts by the coin direction. They measure multipartite entanglement by the geometric entanglement E_g across all 2P optical modes and expect the coin (1, i)/√2 to give the maximum for every circle size and time. This library proves in Lean, frozen, that for every P ≥ 1, every time n and every unit coin, E_g is at most the value from (1, i)/√2. The key is the reflection pairs (0, x), (1, −x): the symmetric coin makes the two probabilities in every pair equal, and evening out a pair can only lower the largest overlap with a product state. The page paints E_g for every initial coin on the Bloch sphere, shows the walk's probabilities and reflection pairs on the circle, and plots E_g over time and along the source's interpolation.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="coin-walk">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="COIN//WALK">COIN<b>//</b>WALK</h1>
+      <div class="tagline">
+        <span class="zh">量子行走的多体纠缠 · <em>对称硬币 (1, i)/√2 在每个圆环、每个时刻都最大（已冻结的证明）</em></span>
+        <span class="en">Entanglement of a quantum walk · <em>the coin (1, i)/√2 is maximal on every circle (frozen proof)</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="lean" aria-pressed="true"><span class="code">P = 8 · |0⟩</span><span class="cn zh">c* 始终在上</span><span class="cn en">c* stays on top</span></button>
+        <button class="preset" data-preset="one" aria-pressed="false"><span class="code">P = 1</span><span class="cn zh">两个模</span><span class="cn en">Two modes</span></button>
+        <button class="preset" data-preset="conj" aria-pressed="false"><span class="code">(1, −i)/√2</span><span class="cn zh">最大值不唯一</span><span class="cn en">Not unique</span></button>
+        <button class="preset" data-preset="interp" aria-pressed="false"><span class="code">θ = π/4</span><span class="cn zh">原文的插值</span><span class="cn en">The interpolation</span></button>
+        <button class="preset" data-preset="plus" aria-pressed="false"><span class="code">|+⟩</span><span class="cn zh">相位不对</span><span class="cn en">Wrong phase</span></button>
+        <button class="preset" data-preset="big" aria-pressed="false"><span class="code">P = 16</span><span class="cn zh">一般的硬币</span><span class="cn en">A generic coin</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">参数</span><span class="en">Parameters</span><span class="aside">P · θ · φ</span></h2>
+      <div class="chips subchips" id="coinChips" role="group" aria-label="硬币" data-aria-en="Coin">
+        <button class="chip" data-coin="star" aria-pressed="false">c*</button>
+        <button class="chip" data-coin="conj" aria-pressed="false">c̄*</button>
+        <button class="chip" data-coin="zero" aria-pressed="true">|0⟩</button>
+        <button class="chip" data-coin="one" aria-pressed="false">|1⟩</button>
+        <button class="chip" data-coin="plus" aria-pressed="false">|+⟩</button>
+      </div>
+      <div class="slider-row"><label for="pIn"><span class="zh">格点数 P</span><span class="en">Sites P</span></label><input type="range" id="pIn" min="1" max="16" step="1" value="8"><b id="pOut">8</b></div>
+      <div class="slider-row"><label for="thIn"><span class="zh">极角 θ</span><span class="en">Polar θ</span></label><input type="range" id="thIn" min="0" max="3.14159265" step="0.01" value="0"><b id="thOut">0</b></div>
+      <div class="slider-row"><label for="phIn"><span class="zh">相位 φ</span><span class="en">Phase φ</span></label><input type="range" id="phIn" min="-3.15" max="3.15" step="0.01" value="0"><b id="phOut">0</b></div>
+      <p class="note" id="sysNote"></p>
+    </section>
+  </aside>
+
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：左边是初始硬币的 Bloch 球，按纠缠着色；右边是圆环上的量子行走；拖动旋转，滚轮缩放" data-aria-en="3D view: on the left the Bloch sphere of initial coins coloured by entanglement, on the right the quantum walk on its circle; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="side" aria-pressed="false"><span class="zh">侧视</span><span class="en">Side</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="E_g 随时间的变化" data-aria-en="E_g over time"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="沿经线的 E_g" data-aria-en="E_g along meridians"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">E_g ≤ E_g(c*)</span></h2>
+      <dl class="ro">
+        <div class="c w"><dt id="ro1L"></dt><dd id="ro1" class="ftab">—</dd></div>
+        <div class="m w"><dt id="ro2L"></dt><dd id="ro2" class="ftab">—</dd></div>
+        <div class="a w"><dt id="ro3L"></dt><dd id="ro3" class="ftab">—</dd></div>
+        <div class="w"><dt id="ro4L"></dt><dd id="ro4" class="ftab">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5" class="ftab">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">定义：hadamardStep p 先做 Hadamard，再把分量 0 左移、分量 1 右移（ZMod p 上周期）；walkState p n c 是从格点 0、硬币 c 出发走 n 步；cStar = (1, i)/√2；wState 把振幅族写成单光子态 Σ λ_k|1_k⟩；overlap 是它与单位二分量因子之积的内积；gMax 是 |overlap|² 在所有单位因子上的上确界；geometricEntanglement = 1 − gMax。猜想 claim：对每个 p ≥ 1、每个 n、每个单位硬币 c，geometricEntanglement (walkState p n c) ≤ geometricEntanglement (walkState p n cStar)。本库证明 claim。已冻结：</span><span class="en">Definitions: hadamardStep p applies the Hadamard coin, then shifts component 0 left and component 1 right (periodic on ZMod p); walkState p n c, n steps from site 0 with coin c; cStar = (1, i)/√2; wState writes an amplitude family as the single-photon vector Σ λ_k|1_k⟩; overlap, its inner product with a product of unit two-component factors; gMax, the supremum of |overlap|² over all unit factors; geometricEntanglement = 1 − gMax. The statement claim: for every p ≥ 1, every n and every unit coin c, geometricEntanglement (walkState p n c) ≤ geometricEntanglement (walkState p n cStar). This library proves claim. Frozen: </span><code>SymmetricCoinMaximalWalkEntanglement.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">证明的步骤（同一个冻结模块）：上确界可以取到（overlap_bounded、overlap_attained），并且只依赖各模概率（phase_invariance）；两个模的显式最大值（two_factor_max）给出：保持一对概率之和不变、把它们拉平，gMax 不会变大（pair_balancing）；行走关于硬币是线性的（walk_linearity），两个基硬币的演化 u、w 是实的并满足反射关系 u(1, −x) = −(−1)ⁿ w(0, x)、w(1, −x) = (−1)ⁿ u(0, x)（walk_reflection）；于是 c* 在每对 (0, x)、(1, −x) 上概率相等，且对和与任何单位硬币相同（walk_pair_probabilities）；逐对拉平得到结论（pair_average_le）。冻结：</span><span class="en">The steps of the proof (in the same frozen module): the supremum is attained (overlap_bounded, overlap_attained) and depends only on the mode probabilities (phase_invariance); the explicit two-mode maximum (two_factor_max) shows that evening out a pair of probabilities at a fixed sum cannot increase gMax (pair_balancing); the walk is linear in the coin (walk_linearity), and the evolutions u, w of the two basis coins are real with the reflection relations u(1, −x) = −(−1)ⁿ w(0, x) and w(1, −x) = (−1)ⁿ u(0, x) (walk_reflection); so c* has equal probabilities on every pair (0, x), (1, −x), with the same pair sums as any unit coin (walk_pair_probabilities); evening out pair by pair gives the result (pair_average_le). Frozen: </span><code>phase_invariance · two_factor_max · pair_balancing · walk_reflection · walk_pair_probabilities · pair_average_le · result</code></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：页面用 u、w 的线性组合得到每个硬币的模概率，用平稳方程 c_k(1 + t_k²) = S t_k 计算单光子态与乘积态的最大重叠 g（候选：全取小根、最大模取大根、边界 max c_k²），并在球面的 1400 个硬币上计算 E_g；球面网格上的最大值从不超过 c*。</span><span class="en">Numbers computed on the page, not theorems: the page gets each coin’s mode probabilities as a combination of u and w, computes the largest overlap g of the single-photon vector with a product state from the stationary equations c_k(1 + t_k²) = S t_k (candidates: every smaller root, the larger root for the largest mode, and the edge value max c_k²), and evaluates E_g at 1400 coins of the sphere; the sphere grid’s maximum never exceeds c*.</span></span></div>
+      <div class="lean theory"><span class="ok">ARGUED</span><span><span class="zh">问题卷宗里的论证（未形式化）：每一步保持总概率为 1；把局部因子限制在真空与单光子两维，与原文的光学 Fock 因子给出同一个上确界；共轭硬币 (1, −i)/√2 的演化是 c* 演化的共轭，E_g 相同，所以最大值不唯一（相差的不只是整体相位）；沿原文的插值 c_θ = (cos θ/2, i sin θ/2)，θ 从 0 到 π/2，E_g 单调不减。</span><span class="en">Arguments in the problem dossier (not formalized): each step preserves the total probability; restricting the local factors to the vacuum and one-photon components gives the same supremum as the source’s optical Fock factors; the conjugate coin (1, −i)/√2 evolves into the conjugate of the evolution from c*, with the same E_g, so the maximizer is not unique (the two differ by more than a global phase); along the source’s interpolation c_θ = (cos θ/2, i sin θ/2), E_g does not decrease as θ goes from 0 to π/2.</span></span></div>
+      <div class="lean page"><span class="ok">ARGUED</span><span><span class="zh">页面自己的论证（未形式化，未经评审）：因为 u、w 是实的，硬币 (θ, φ) 的模概率是 cos²(θ/2)u² + sin²(θ/2)w² + sin θ·cos φ·u w，只通过 cos φ 依赖相位；所以球面上的 E_g 关于过 |0⟩、|1⟩ 和 |+⟩ 的大圆所在平面镜面对称，c* 与 c̄* 互为镜像。</span><span class="en">The page’s own argument (not formalized, not reviewed): since u and w are real, the mode probabilities of the coin (θ, φ) are cos²(θ/2)u² + sin²(θ/2)w² + sin θ·cos φ·u w and depend on the phase only through cos φ; so E_g on the sphere is mirror-symmetric across the plane of the great circle through |0⟩, |1⟩ and |+⟩, and c* and c̄* are mirror images.</span></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">卷宗列为未决：所有最大化硬币的分类；原文关于无限直线上局部极大值所在大圆的渐近猜想；其他划分方式与多个行走者。</span><span class="en">Open per the dossier: the classification of all maximizing coins; the source’s asymptotic conjecture on the great circle of local maxima on the infinite line; other partitions and several walkers.</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">E. K. F. Donkersloot、R. Sondenheimer、J. Sperling，Multipartite entanglement dynamics in quantum walks，arXiv:2603.24679（2026），doi:10.48550/arXiv.2603.24679：圆环上的行走与几何纠缠（§II A–C），以及 §III C 2 中“这个行走总是给出最大纠缠”的预期。</span><span class="en">E. K. F. Donkersloot, R. Sondenheimer and J. Sperling, Multipartite entanglement dynamics in quantum walks, arXiv:2603.24679 (2026), doi:10.48550/arXiv.2603.24679: the walk on the circle and the geometric entanglement (§II A–C), and the expectation in §III C 2 that this walk always yields the maximum entanglement.</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0001" value="0" aria-label="时间步 n" data-aria-en="Time step n">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 一步 · <kbd>E</kbd> 最后一步</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> one step · <kbd>E</kbd> last step</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">一个光子在 P 个格点的圆环上做量子行走：它带着一个二维“硬币”，每一步先用 Hadamard 混合硬币，再按硬币的两个分量分别往左、往右走一格。走了 n 步之后，光子以叠加的方式分布在 2P 个光学模上。这种分布离“各模各自独立”有多远，就是几何纠缠 E_g。原文问：初始硬币怎样选，纠缠最大？</p>
+      <ol>
+        <li><b>答案。</b>Lean 证明：对每个圆环大小、每个时刻，(1, i)/√2 都给出最大的 E_g。原文在他们试过的所有大小和时刻都观察到这一点。</li>
+        <li><b>为什么。</b>模 (0, x) 和 (1, −x) 组成一对。行走对硬币是线性的，而且两个基硬币的演化互为反射；结果是：无论初始硬币是什么，每一对的概率之和都一样，而 c* 恰好把每一对平分。把一对的概率拉平只会让态离乘积态更远——这一步由两个模的显式最大值证明。</li>
+        <li><b>Bloch 球。</b>左边的球上每一点是一个初始硬币，颜色是它在当前时刻的 E_g。最亮处在 c*（琥珀点），以及它的镜像 (1, −i)/√2——最大值并不唯一。</li>
+        <li><b>圆环。</b>右边每个格点有两根柱子，青色是分量 0、品红是分量 1，白色短线是 c* 的值。地面上的弦连起反射对；所选硬币让某一对不平衡时，弦变成品红。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/donkersloot-sondenheimer-sperling-2026-symmetric-coin-entanglement.md" target="_blank" rel="noopener">问题卷宗</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Walks/SymmetricCoinMaximalWalkEntanglement.lean" target="_blank" rel="noopener">SymmetricCoinMaximalWalkEntanglement.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Quantum/Walks/SymmetricCoinMaximalWalkEntanglement.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/Entropy/donkerslootsondenheimersperling2026walks.md" target="_blank" rel="noopener">文献笔记</a> · <a href="https://doi.org/10.48550/arXiv.2603.24679" target="_blank" rel="noopener">doi:10.48550/arXiv.2603.24679</a> · <a href="https://arxiv.org/abs/2603.24679" target="_blank" rel="noopener">arXiv:2603.24679</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">One photon performs a quantum walk on a circle of P sites. It carries a two-dimensional “coin”; each step mixes the coin with the Hadamard matrix and then moves the two coin components one site left and one site right. After n steps the photon is spread in superposition over 2P optical modes. How far this spread is from “every mode on its own” is the geometric entanglement E_g. The source asks: which initial coin gives the most entanglement?</p>
+      <ol>
+        <li><b>The answer.</b> Lean proves that (1, i)/√2 gives the largest E_g for every circle size at every time. The source observed this for every size and time it tried.</li>
+        <li><b>Why.</b> The modes (0, x) and (1, −x) form a pair. The walk is linear in the coin, and the evolutions of the two basis coins are reflections of each other. As a result every pair has the same total probability whatever the initial coin, and c* splits each pair evenly. Evening out a pair can only move the state further from product states — this step is proved from the explicit two-mode maximum.</li>
+        <li><b>The Bloch sphere.</b> Each point of the sphere on the left is an initial coin, coloured by its E_g at the current time. The brightest spots are c* (the amber dot) and its mirror image (1, −i)/√2 — the maximum is not unique.</li>
+        <li><b>The circle.</b> On the right each site has two bars, cyan for component 0 and magenta for component 1, with white ticks for the values from c*. Chords on the floor join the reflection pairs; when the chosen coin leaves a pair unbalanced its chord turns magenta.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/donkersloot-sondenheimer-sperling-2026-symmetric-coin-entanglement.md" target="_blank" rel="noopener">Problem dossier</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Walks/SymmetricCoinMaximalWalkEntanglement.lean" target="_blank" rel="noopener">SymmetricCoinMaximalWalkEntanglement.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Quantum/Walks/SymmetricCoinMaximalWalkEntanglement.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/Entropy/donkerslootsondenheimersperling2026walks.md" target="_blank" rel="noopener">literature note</a> · <a href="https://doi.org/10.48550/arXiv.2603.24679" target="_blank" rel="noopener">doi:10.48550/arXiv.2603.24679</a> · <a href="https://arxiv.org/abs/2603.24679" target="_blank" rel="noopener">arXiv:2603.24679</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
