@@ -2,6 +2,55 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "knight-range",
+      "code": "KNIGHT//RANGE",
+      "path": "viz/knight-range/",
+      "thumbnail": "viz/knight-range/thumb.jpg",
+      "title": "马的随机游走：期望访问格数乘 2^(3n−3) 是整数",
+      "title_en": "The expected range of a knight’s random walk times 2^(3n−3) is an integer",
+      "summary": "一匹马在无限棋盘上随机走 n 步，E(n) 是它访问过的不同格子数的期望。Sloane 在 OEIS A309221（2019）里把 a(n) = E(n)·2^(3n−3) 列为整数序列，但注明这只是猜想。本库在 Lean 里证明并已冻结：对每个 n ≥ 1，a(n) 都是整数。方格点阵的八个对称恰好互相置换马的八种走法，所以按第一步分成的八类游走访问格数总和相同，总和能被 8 整除。页面画出一条游走和它的七个像，并对 n ≤ 8 枚举全部游走。",
+      "summary_en": "A knight makes n random moves on an infinite chessboard, and E(n) is the expected number of distinct squares it visits. In OEIS A309221 (2019) Sloane listed a(n) = E(n)·2^(3n−3) as an integer sequence but noted that this was only a conjecture. This library proves in Lean, frozen, that a(n) is an integer for every n ≥ 1. The eight symmetries of the square lattice permute the eight knight moves, so the eight classes of walks by first move have equal totals of visited squares, and the total is divisible by 8. The page draws one walk with its seven images and enumerates every walk for n ≤ 8.",
+      "status": "live",
+      "added": "2026-10-31",
+      "tags": [
+        "随机游走",
+        "马的走法",
+        "OEIS",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "random walks",
+        "knight moves",
+        "OEIS",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：马的随机游走期望访问格数的整数性",
+          "label_en": "Problem dossier: integrality of the knight walk’s expected range",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/sloane-2019-a309221-knight-walk-range-integrality.md"
+        },
+        {
+          "label": "Blueprint：S(n) 能被 8 整除",
+          "label_en": "Blueprint: S(n) is divisible by 8",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/StatisticalMechanics/RandomWalks/KnightWalkRangeIntegrality.md"
+        },
+        {
+          "label": "文献笔记：OEIS A309221",
+          "label_en": "Literature note: OEIS A309221",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Library/Combinatorics/sloane2019a309221.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "KnightWalkRangeIntegrality.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/RandomWalks/KnightWalkRangeIntegrality.lean"
+        }
+      ]
+    },
+    {
       "id": "coin-walk",
       "code": "COIN//WALK",
       "path": "viz/coin-walk/",
