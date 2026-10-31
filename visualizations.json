@@ -2,6 +2,55 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "coin-walk",
+      "code": "COIN//WALK",
+      "path": "viz/coin-walk/",
+      "thumbnail": "viz/coin-walk/thumb.jpg",
+      "title": "对称硬币让圆环上的 Hadamard 行走纠缠最大",
+      "title_en": "The symmetric coin maximizes the entanglement of the Hadamard walk on every circle",
+      "summary": "Donkersloot、Sondenheimer 与 Sperling（2026）在圆环上运行 Hadamard 量子行走，用所有 2P 个光学模之间的几何纠缠衡量多体纠缠，并预期初始硬币 (1, i)/√2 总给出最大值。本库在 Lean 里证明并已冻结：对每个圆环大小 P ≥ 1、每个时刻和每个单位硬币，几何纠缠都不超过 (1, i)/√2 的值。证明靠反射对 (0, x)、(1, −x)：对称硬币把每一对的概率平分，而对和与硬币无关。页面把所有初始硬币的纠缠画在 Bloch 球上，在圆环上显示行走的概率与反射对，并画出纠缠随时间和沿原文插值的变化。",
+      "summary_en": "Donkersloot, Sondenheimer and Sperling (2026) run the Hadamard quantum walk on a circle, measure multipartite entanglement by the geometric entanglement across all 2P optical modes, and expect the initial coin (1, i)/√2 always to give the maximum. This library proves in Lean, frozen, that for every circle size P ≥ 1, every time and every unit coin the geometric entanglement is at most the value for (1, i)/√2. The proof uses the reflection pairs (0, x), (1, −x): the symmetric coin splits each pair evenly, and the pair sums do not depend on the coin. The page paints the entanglement of every initial coin on the Bloch sphere, shows the walk’s probabilities and reflection pairs on the circle, and plots the entanglement over time and along the source’s interpolation.",
+      "status": "live",
+      "added": "2026-10-31",
+      "tags": [
+        "量子行走",
+        "几何纠缠",
+        "多体纠缠",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "quantum walks",
+        "geometric entanglement",
+        "multipartite entanglement",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：对称硬币让行走的纠缠最大",
+          "label_en": "Problem dossier: the symmetric coin maximizes the walk’s entanglement",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/donkersloot-sondenheimer-sperling-2026-symmetric-coin-entanglement.md"
+        },
+        {
+          "label": "Blueprint：对称硬币的最大性",
+          "label_en": "Blueprint: maximality of the symmetric coin",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Quantum/Walks/SymmetricCoinMaximalWalkEntanglement.md"
+        },
+        {
+          "label": "文献笔记：Donkersloot、Sondenheimer、Sperling 2026",
+          "label_en": "Literature note: Donkersloot, Sondenheimer and Sperling 2026",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Library/Entropy/donkerslootsondenheimersperling2026walks.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "SymmetricCoinMaximalWalkEntanglement.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Walks/SymmetricCoinMaximalWalkEntanglement.lean"
+        }
+      ]
+    },
+    {
       "id": "diploid-ca",
       "code": "CA//DIPLOID",
       "path": "viz/diploid-ca/",
