@@ -2,6 +2,55 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "area-walks",
+      "code": "AREA//WALKS",
+      "path": "viz/area-walks/",
+      "thumbnail": "viz/area-walks/thumb.jpg",
+      "title": "面积接近最大的格点游走由 theta 系数计数",
+      "title_en": "Walks of near-maximal algebraic area are counted by theta coefficients",
+      "summary": "OEIS A385672（Zabolotskii，2025）按代数面积 ∫ y dx 给方格点阵上的游走计数。条目的 FORMULA 行猜测：k < n 时 T(2n, n² − k) = 2·A029552(k)，T(2n + 1, n² + n − k) = 4·A098613(k)。本库在 Lean 里证明并已冻结：面积这么大的游走只能一直往右上或一直往左下，而单调游走的面积等于盒子面积减去逆序数，逆序由划分计数。页面列出给定面积的全部游走，画出每条游走在盒子里留下的杨图，并把计数与公式比到边界 k = n 之外。",
+      "summary_en": "OEIS A385672 (Zabolotskii, 2025) counts walks on the square lattice by their algebraic area ∫ y dx. Its FORMULA line conjectures T(2n, n² − k) = 2·A029552(k) and T(2n + 1, n² + n − k) = 4·A098613(k) for k < n. This library proves it in Lean, frozen: walks of such large area go only right and up or only left and down, and a monotone walk’s area is its box’s area minus its inversions, which are counted by partitions. The page lists every walk of the chosen area, draws the Young diagram each leaves in its box, and compares the counts with the formula past the boundary k = n.",
+      "status": "live",
+      "added": "2026-10-31",
+      "tags": [
+        "格点游走",
+        "整数划分",
+        "OEIS",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "lattice walks",
+        "integer partitions",
+        "OEIS",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：面积接近最大的格点游走",
+          "label_en": "Problem dossier: walks of near-maximal area",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/zabolotskii-2025-a385672-near-maximal-area-walks.md"
+        },
+        {
+          "label": "Blueprint：A385672 的 theta 系数公式",
+          "label_en": "Blueprint: the theta-coefficient formula for A385672",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Combinatorics/LatticeWalkNearMaximalArea.md"
+        },
+        {
+          "label": "文献笔记：OEIS A385672",
+          "label_en": "Literature note: OEIS A385672",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Library/Combinatorics/zabolotskii2025a385672.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "LatticeWalkNearMaximalArea.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/LatticeWalkNearMaximalArea.lean"
+        }
+      ]
+    },
+    {
       "id": "knight-range",
       "code": "KNIGHT//RANGE",
       "path": "viz/knight-range/",
