@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="YB//AUTOMATON · Yang–Baxter automata over a field of order 2ⁿ have period dividing 2ⁿ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>YB//AUTOMATON 2ⁿ 元域上的杨–巴克斯特元胞自动机周期整除 2ⁿ</title>
+<meta name="description" content="Araoka 与 Tokihiro（2026）用有限域 F 上的 R 矩阵 R(x, y) = (y + f(x + y), x − f(x + y)) 造出元胞自动机：R 沿一排 N 个格子依次作用，最后输出的辅助值作为下一步的边界值（螺旋边界）。他们猜想：在 2ⁿ 元域上、f 为满足约化杨–巴克斯特方程的双射时，自动机的周期总整除域的阶 2ⁿ，并证明了 4 与 8 的情形。本库在 Lean 里对所有 2ⁿ、所有 N 证明了它并已冻结：step^q = id。页面在 4、8、16 元域上运行自动机，把时空图画成一条螺旋，并统计全部初态的周期。Araoka and Tokihiro (2026) build cellular automata over a finite field F from the R-matrix R(x, y) = (y + f(x + y), x − f(x + y)): R acts along a row of N cells and the last auxiliary value becomes the next boundary value (helical boundary). They conjectured that over a field of order 2ⁿ, for a bijective f solving the reduced Yang–Baxter equation, the period always divides the order 2ⁿ, and proved the orders 4 and 8. This library proves it in Lean for every order 2ⁿ and every N, frozen: step^q = id. The page runs the automaton over fields of order 4, 8 and 16, draws its space-time diagram as a helix, and counts the periods of all initial states.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="yb-automaton">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="YB//AUTOMATON">YB<b>//</b>AUTOMATON</h1>
+      <div class="tagline">
+        <span class="zh">杨–巴克斯特元胞自动机 · <em>2ⁿ 元域上的周期总整除 2ⁿ（已冻结的证明）</em></span>
+        <span class="en">Yang–Baxter cellular automata · <em>over a field of order 2ⁿ the period divides 2ⁿ (frozen proof)</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="lean" aria-pressed="true"><span class="code">q = 16 · p = 16</span><span class="cn zh">周期正好是 q</span><span class="cn en">Period exactly q</span></button>
+        <button class="preset" data-preset="even" aria-pressed="false"><span class="code">q = 8 · N = 4</span><span class="cn zh">全部初态</span><span class="cn en">Every initial state</span></button>
+        <button class="preset" data-preset="odd" aria-pressed="false"><span class="code">q = 8 · N = 3</span><span class="cn zh">奇数个格子</span><span class="cn en">An odd number of cells</span></button>
+        <button class="preset" data-preset="four" aria-pressed="false"><span class="code">q = 4 · 16 f</span><span class="cn zh">原文证明的情形</span><span class="cn en">The case the paper proves</span></button>
+        <button class="preset" data-preset="linear" aria-pressed="false"><span class="code">f additive</span><span class="cn zh">加法的对合</span><span class="cn en">An additive involution</span></button>
+        <button class="preset" data-preset="broken" aria-pressed="false"><span class="code">FYB ✗</span><span class="cn zh">不满足方程的 f</span><span class="cn en">An f that fails the equation</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">域、映射与格子</span><span class="en">Field, map and cells</span><span class="aside">F_q</span></h2>
+      <div class="chips" id="qChips" role="group" aria-label="域的阶 q" data-aria-en="Field order q">
+        <button class="chip" data-q="4">q = 4</button><button class="chip" data-q="8">q = 8</button><button class="chip" data-q="16" aria-pressed="true">q = 16</button>
+      </div>
+      <div class="slider-row"><label for="fIn"><span class="zh">映射 f 的编号</span><span class="en">Map f number</span></label><input type="range" id="fIn" min="0" max="7" step="1" value="0"><b id="fOut">0</b></div>
+      <div class="slider-row"><label for="nIn"><span class="zh">格子数 N</span><span class="en">Cells N</span></label><input type="range" id="nIn" min="1" max="12" step="1" value="2"><b id="nOut">2</b></div>
+      <div class="btn-row"><button class="chip" id="reseed"><span class="zh">换一个初态</span><span class="en">New initial state</span></button></div>
+      <p class="note" id="sysNote"></p>
+    </section>
+  </aside>
+
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：自动机的时空图绕成一条螺旋，每一圈是一个时间步，每个点是一个格子的值；拖动旋转，滚轮缩放" data-aria-en="3D view: the automaton's space-time diagram wound into a helix, one turn per time step and one point per cell value; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="时空图：每行一个时间步" data-aria-en="Space-time diagram: one row per time step"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="全部初态的周期分布" data-aria-en="Periods of all initial states"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">Fine</span></h2>
+      <dl class="ro">
+        <div class="c w"><dt id="ro1L"></dt><dd id="ro1">—</dd></div>
+        <div class="m w"><dt id="ro2L"></dt><dd id="ro2" class="ftab">—</dd></div>
+        <div class="a w"><dt id="ro3L"></dt><dd id="ro3">—</dd></div>
+        <div class="w"><dt id="ro4L"></dt><dd id="ro4">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">R 矩阵 R(x, y) = (y + f(x + y), x − f(x + y))（rmat）；辅助值从边界 b 出发，第 i 个格子输出的第二个分量传给下一个格子（carry）；一步 step 把每个格子换成 R 的第一个分量，并把最后的辅助值作为新的边界值（螺旋边界）。猜想 claim：对每个特征为 2 的有限域 F、每个满足 f(x) + f(x + f(y)) = f(x + f(y + f(x)))（约化的杨–巴克斯特方程）的双射 f 与每个 N，step 迭代 |F| 次是恒等映射。本库证明 claim。已冻结：</span><span class="en">The R-matrix R(x, y) = (y + f(x + y), x − f(x + y)) (rmat); the auxiliary value starts at the boundary b and the second output of cell i is passed to the next cell (carry); one step replaces every cell by the first output of R and makes the last auxiliary value the new boundary (helical boundary). The conjecture, claim: for every finite field F of characteristic 2, every bijective f with f(x) + f(x + f(y)) = f(x + f(y + f(x))) (the reduced Yang–Baxter equation) and every N, iterating step |F| times is the identity. This library proves claim. Frozen: </span><code>YangBaxterAutomatonPeriod.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">证明的步骤（同一模块里一起冻结）：两两交换的对合生成 2 群（isPGroup_closure_of_commuting_involutions）；把 f 平移成 f(0) = 0 后，对合 L_x = t_x f t_x 满足循环恒等式，与平移一起生成 2 群（isPGroup_cycle）；它的非平凡中心元是平移 t_u，所以存在 u ≠ 0 使 f(x + u) = f(x) + u（exists_translation）；于是一步与加上取值在 {0, u} 的状态交换，对 q 归纳得 step^q = id（step_iterate_card）。冻结：</span><span class="en">The steps of the proof (frozen in the same module): pairwise commuting involutions generate a 2-group (isPGroup_closure_of_commuting_involutions); after translating f so that f(0) = 0, the involutions L_x = t_x f t_x satisfy the cycle identity and generate a 2-group together with the translations (isPGroup_cycle); a nontrivial central element is a translation t_u, so some u ≠ 0 has f(x + u) = f(x) + u (exists_translation); then one step commutes with adding {0, u}-valued states, and induction on q gives step^q = id (step_iterate_card). Frozen: </span><code>isPGroup_closure_of_commuting_involutions · isPGroup_cycle · step_iterate_card · result</code></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：q = 4、8 时页面枚举全部 q! 个排列，留下满足方程的双射（16 个与 736 个）；q = 16 时只内嵌 8 个离线找到的解，它们由测试独立核对。周期统计在 q^{N+1} ≤ 65536 时穷举全部初态，否则抽 4096 个。观察：q = 8 时这里的 f 在 N 为奇数时周期不超过 4，N 为偶数时出现 8。</span><span class="en">Numbers computed on the page, not theorems: for q = 4 and 8 the page enumerates all q! permutations and keeps the bijections that solve the equation (16 and 736 of them); for q = 16 it embeds 8 solutions found offline, which the test checks independently. The period counts cover every initial state when q^{N+1} ≤ 65536 and 4096 sampled states otherwise. Observation: for q = 8 the map used here has periods at most 4 when N is odd, while 8 appears when N is even.</span></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">定理之外：给定 f 与 N，周期 q 是否一定出现，以及周期分布怎样依赖 N 的奇偶；不是双射的 f（原文给出了别的周期）。</span><span class="en">Outside the theorem: whether, for a given f and N, the period q is always attained, and how the distribution of periods depends on the parity of N; non-bijective maps f (for which the paper shows other periods).</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">A. Araoka、T. Tokihiro，Integrable cellular automata on finite fields of order 2ⁿ，Mathematical Physics, Analysis and Geometry 29, 30（2026），doi:10.1007/s11040-026-09569-9，arXiv:2602.17148：猜想，以及 q = 4、8 的证明。证明里的群论一步是关于二阶循环集的已知事实：Dehornoy，Adv. Math. 282（2015），命题 5.2；Feingesicht，IJAC 34（2024），命题 2.9。</span><span class="en">A. Araoka and T. Tokihiro, Integrable cellular automata on finite fields of order 2ⁿ, Mathematical Physics, Analysis and Geometry 29, 30 (2026), doi:10.1007/s11040-026-09569-9, arXiv:2602.17148: the conjecture and its proof for q = 4 and 8. The group-theoretic step of the proof is a known fact about class-2 cycle sets: Dehornoy, Adv. Math. 282 (2015), Prop. 5.2; Feingesicht, IJAC 34 (2024), Prop. 2.9.</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0001" value="0" aria-label="时间步" data-aria-en="Time step">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 一步 · <kbd>E</kbd> 跳到末尾</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> one step · <kbd>E</kbd> jump to the end</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">一排 N 个格子，每个格子里放一个 q 元域的元素（q = 2ⁿ，这里只用到加法：n 位二进制数按位异或）。一步更新时，一个辅助值从边界出发，依次穿过每个格子：在格子 i，R(x_i, y) = (y + f(x_i + y), x_i + f(x_i + y)) 把格子换成第一个分量，把第二个分量传下去；穿过最后一个格子后，它成为下一步的边界值——所以时空图是一条螺旋。f 满足约化杨–巴克斯特方程时，这是一个可积的自动机。Araoka 与 Tokihiro 猜想它的周期总整除 q，并证明了 q = 4、8。</p>
+      <ol>
+        <li><b>证明。</b>本库证明了所有 q：满足方程的双射 f 总有一个“平移对称” u ≠ 0，f(x + u) = f(x) + u。于是一步与给某些格子同时加上 u 的操作交换，自动机降到 q/2 元的商上，归纳就得到 step^q = id。</li>
+        <li><b>三维视图。</b>每一圈是一个时间步，圈上依次是 N 个格子与边界值，颜色是元素的值；白色圆环标出与初态相同的时刻。下方左图是同一张时空图摊平，右图是全部初态的周期分布：只出现 q 的因子。</li>
+        <li><b>对照。</b>“不满足方程的 f”一档里，R 仍是双射，自动机仍有周期，但周期是 6 与 10——都不整除 8。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/araoka-2026-yang-baxter-automaton-period.md" target="_blank" rel="noopener">问题卷宗</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/CellularAutomata/YangBaxterAutomatonPeriod.lean" target="_blank" rel="noopener">YangBaxterAutomatonPeriod.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/StatisticalMechanics/CellularAutomata/YangBaxterAutomatonPeriod.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/StatisticalMechanics/araoka2026integrable.md" target="_blank" rel="noopener">文献笔记</a> · <a href="https://doi.org/10.1007/s11040-026-09569-9" target="_blank" rel="noopener">doi:10.1007/s11040-026-09569-9</a> · <a href="https://arxiv.org/abs/2602.17148" target="_blank" rel="noopener">arXiv:2602.17148</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">A row of N cells holds elements of a field with q elements (q = 2ⁿ; only addition is used, so the elements are n-bit numbers added by XOR). In one update an auxiliary value starts at the boundary and passes through the cells in turn: at cell i, R(x_i, y) = (y + f(x_i + y), x_i + f(x_i + y)) replaces the cell by the first output and passes the second one on; after the last cell it becomes the next boundary value — so the space-time diagram is a helix. When f solves the reduced Yang–Baxter equation the automaton is integrable. Araoka and Tokihiro conjectured that its period always divides q, and proved it for q = 4 and 8.</p>
+      <ol>
+        <li><b>The proof.</b> This library proves every q: a bijective solution f always has a “translation symmetry” u ≠ 0 with f(x + u) = f(x) + u. Then one step commutes with adding u to some of the cells at once, the automaton descends to a quotient with q/2 elements, and induction gives step^q = id.</li>
+        <li><b>3D view.</b> Each turn is one time step, carrying the N cells and the boundary value in order, coloured by their values; white rings mark the times at which the state equals the initial one. The left chart below is the same space-time diagram laid flat, and the right chart is the distribution of periods over all initial states: only divisors of q appear.</li>
+        <li><b>A contrast.</b> In the “f that fails the equation” preset, R is still a bijection and the automaton is still periodic, but its periods are 6 and 10 — neither divides 8.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/araoka-2026-yang-baxter-automaton-period.md" target="_blank" rel="noopener">Problem dossier</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/CellularAutomata/YangBaxterAutomatonPeriod.lean" target="_blank" rel="noopener">YangBaxterAutomatonPeriod.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/StatisticalMechanics/CellularAutomata/YangBaxterAutomatonPeriod.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/StatisticalMechanics/araoka2026integrable.md" target="_blank" rel="noopener">literature note</a> · <a href="https://doi.org/10.1007/s11040-026-09569-9" target="_blank" rel="noopener">doi:10.1007/s11040-026-09569-9</a> · <a href="https://arxiv.org/abs/2602.17148" target="_blank" rel="noopener">arXiv:2602.17148</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
