@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="DICE//CYCLE · Minimal-advantage dice cycles are longest exactly at six faces">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DICE//CYCLE 最小优势骰子循环只在六面时刚好等于面数</title>
+<meta name="description" content="Easlick（2026，猜想 1）猜想：在每面取 1 到 n 的 n 面骰子里，以“刚好过半”的最小优势依次赢下一个的循环，最长恰为 n 的情形只有 n = 6，n ≥ 7 都不会。本库在 Lean 里证明了这个猜想并已冻结：n = 6 时 462 颗骰子里最长的这种循环恰为 6；n ≥ 7 时总有比 n 更长的循环。页面画出全部骰子的最小优势胜负图、两颗骰子对掷的 n² 种结果，以及各个 n 下已知最长循环与 n 的比较。Easlick (2026, Conjecture 1) conjectured that among n-sided dice with faces in 1 … n, the cycles in which every die beats the next with the smallest advantage above one half have maximum length exactly n only for n = 6, and never for n ≥ 7. This library proves the conjecture in Lean, frozen: for n = 6 the longest such cycle among the 462 dice has length 6, and for every n ≥ 7 there is a cycle longer than n. The page draws the minimal-advantage graph of all dice, the n² outcomes of a duel between two dice, and the longest known cycle against n.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="dice-cycle">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="DICE//CYCLE">DICE<b>//</b>CYCLE</h1>
+      <div class="tagline">
+        <span class="zh">非传递骰子 · <em>最小优势循环最长刚好等于面数，只发生在 n = 6（已冻结的证明）</em></span>
+        <span class="en">Non-transitive dice · <em>the longest minimal-advantage cycle equals n only at n = 6 (frozen proof)</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="lean" aria-pressed="true"><span class="code">n = 6 · k = 6</span><span class="cn zh">Lean 里的六循环</span><span class="cn en">The six-cycle in Lean</span></button>
+        <button class="preset" data-preset="cut" aria-pressed="false"><span class="code">7 → 6</span><span class="cn zh">第七颗为什么进不来</span><span class="cn en">Why the seventh die is left out</span></button>
+        <button class="preset" data-preset="mirror" aria-pressed="false"><span class="code">n = 6 · knot B</span><span class="cn zh">另一个结</span><span class="cn en">The other knot</span></button>
+        <button class="preset" data-preset="five" aria-pressed="false"><span class="code">n = 5 · 126</span><span class="cn zh">没有循环</span><span class="cn en">No cycle at all</span></button>
+        <button class="preset" data-preset="seven" aria-pressed="false"><span class="code">n = 7 · k = 14</span><span class="cn zh">一个大结</span><span class="cn en">One giant knot</span></button>
+        <button class="preset" data-preset="ten" aria-pressed="false"><span class="code">n = 10 · k = 110</span><span class="cn zh">最长的种子</span><span class="cn en">The longest seed</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">面数 n</span><span class="en">Faces n</span><span class="aside">[1, n]</span></h2>
+      <div class="chips" id="nChips" role="group" aria-label="面数" data-aria-en="Number of faces">
+        <button class="chip" data-n="3">3</button><button class="chip" data-n="4">4</button><button class="chip" data-n="5">5</button><button class="chip" data-n="6" aria-pressed="true">6</button><button class="chip" data-n="7">7</button><button class="chip" data-n="8">8</button><button class="chip" data-n="9">9</button><button class="chip" data-n="10">10</button><button class="chip" data-n="11">11</button>
+      </div>
+      <p class="note" id="nNote"></p>
+    </section>
+  </aside>
+
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：n 面骰子的最小优势胜负图，高度是骰子的总点数；拖动旋转，滚轮缩放" data-aria-en="3D view: the minimal-advantage graph of n-sided dice, with height given by the sum of faces; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="当前一步两颗骰子对掷的 n² 种结果" data-aria-en="The n² outcomes of the current duel"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="各个 n 的已知最长循环与 n 的比较" data-aria-en="Longest known cycle against n"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">Fine</span></h2>
+      <dl class="ro">
+        <div class="c w"><dt id="ro1L"></dt><dd id="ro1">—</dd></div>
+        <div class="m w"><dt id="ro2L"></dt><dd id="ro2">—</dd></div>
+        <div class="a w"><dt id="ro3L"></dt><dd id="ro3">—</dd></div>
+        <div class="w"><dt id="ro4L"></dt><dd id="ro4">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">骰子是 n 个取值在 1 … n 的非降列表（IsDie，允许重复，标准骰子也算）。d 胜 e 的计数是 n² 对面里 d 的面严格大于 e 的面的对数（winCount），概率是它除以 n²，平局留在分母里（winProbability）。边 d → e 表示这个概率恰好等于所有骰子对里大于 1/2 的最小概率（IsMinimum、Edge）。S(n)：存在长度 n 的简单循环，且没有更长的（HasCycle、S）。猜想 ConjectureOne：S(6)，且对每个 n ≥ 7 都有 ¬S(n)。本库证明 ConjectureOne。已冻结：</span><span class="en">A die is a nondecreasing list of n labels in 1 … n (IsDie; repeats allowed, the standard die included). The win count of d over e is the number of the n² face pairs in which d’s face is strictly larger (winCount); the probability divides it by n², so ties stay in the denominator (winProbability). An edge d → e means that this probability equals the smallest probability above 1/2 over all pairs of dice (IsMinimum, Edge). S(n): a simple cycle of length n exists and no longer one does (HasCycle, S). The conjecture, ConjectureOne: S(6), and ¬S(n) for every n ≥ 7. This library proves ConjectureOne. Frozen: </span><code>EaslickSixBound.conjecture_one</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">证明的步骤（四个模块里一起冻结）：最小概率在 n 偶时是 1/2 + 1/n²、n 奇时是 1/2 + 1/(2n²)，即胜的计数等于 ⌊n²/2⌋ + 1（threshold_attained、minimum_probability、edge_iff）；n = 6 … 11 的六个种子循环由通用检查器核对（checkCycle_sound、sourceSeed_check），n ≥ 12 由嵌套填充得到长度 3n − 12（偶）或 7(n − 5)（奇）的循环（padded_cycle、longer_cycle、not_S_above_six）；n = 6 的 462 颗骰子按秩分层，每个秩纤维至多 7 颗，两个 7 颗的纤维里各有两颗骰子只能走向同一颗，所以循环至多 6（checkRank_sound、sixRank_check、six_cycle_bound、S_six）。冻结：</span><span class="en">The steps of the proof (frozen across four modules): the smallest probability is 1/2 + 1/n² for even n and 1/2 + 1/(2n²) for odd n, i.e. a win count of ⌊n²/2⌋ + 1 (threshold_attained, minimum_probability, edge_iff); six seed cycles for n = 6 … 11 pass a general checker (checkCycle_sound, sourceSeed_check), and for n ≥ 12 nested padding gives cycles of length 3n − 12 (even) or 7(n − 5) (odd) (padded_cycle, longer_cycle, not_S_above_six); the 462 six-sided dice are layered by rank, every rank fiber has at most 7 dice, and in each of the two 7-dice fibers two dice can only move to the same die, so a cycle has at most 6 dice (checkRank_sound, sixRank_check, six_cycle_bound, S_six). Frozen: </span><code>minimum_probability · edge_iff · sourceSeed_check · longer_cycle · not_S_above_six · sixRank_check · six_cycle_bound · S_six</code></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：n ≤ 7 时页面枚举全部 C(2n − 1, n) 颗骰子与全部有序对，按 winCount = ⌊n²/2⌋ + 1 连边，用 Tarjan 算法求强连通分支，n ≤ 6 时在每个分支里穷举最长循环。n = 3、4、5 的图没有循环；n = 6 只有两个 7 颗骰子的分支；n = 7 的 1716 颗骰子里有 1081 颗落在同一个强连通分支里。</span><span class="en">Numbers computed on the page, not theorems: for n ≤ 7 the page enumerates all C(2n − 1, n) dice and all ordered pairs, joins d → e when winCount = ⌊n²/2⌋ + 1, finds strongly connected components with Tarjan’s algorithm, and for n ≤ 6 searches every component for its longest cycle. The graphs for n = 3, 4 and 5 have no cycle; n = 6 has just two components of 7 dice; for n = 7, 1081 of the 1716 dice lie in a single strongly connected component.</span></span></div>
+      <div class="lean page"><span class="ok">ARGUED</span><span><span class="zh">本页的论证（未形式化、未经评审）：把每颗骰子的每个面 x 换成 n + 1 − x 再排序，记作 φ(d)。d 的面大于 e 的面当且仅当 φ(e) 的对应面大于 φ(d) 的，所以 winCount(φ(d), φ(e)) = winCount(e, d)：φ 把每条边 d → e 变成 φ(e) → φ(d)，把强连通分支映成强连通分支。n = 6 时它把一个 7 颗骰子的结映成另一个，两个结的最长循环因此一样长。</span><span class="en">The page’s argument (not formalized, not reviewed): replace every face x of a die by n + 1 − x and sort, calling the result φ(d). A face of d beats a face of e exactly when the corresponding face of φ(e) beats that of φ(d), so winCount(φ(d), φ(e)) = winCount(e, d): φ turns every edge d → e into φ(e) → φ(d) and maps strongly connected components to strongly connected components. For n = 6 it maps one 7-dice knot onto the other, so the two knots have equally long longest cycles.</span></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">定理之外：n ≥ 7 时这种循环的最大长度到底是多少。定理只造出比 n 长的循环，没有定出最大值；图里的条形是已知下界。</span><span class="en">Outside the theorem: the actual maximum length of such a cycle for each n ≥ 7. The theorem only builds a cycle longer than n and does not determine the maximum; the bars in the chart are known lower bounds.</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">T. Easlick，Computer-assisted results for n-sided non-transitive dice taking face values in [n]，arXiv:2610.40321（2026），doi:10.48550/arXiv.2610.40321：猜想 1。n = 7 … 10 的种子循环取自原文附录 G–J（CC BY 4.0）；n = 6 的循环是本库构造的，n = 11 的由 n = 7 的循环平移并加嵌套极值得到。</span><span class="en">T. Easlick, Computer-assisted results for n-sided non-transitive dice taking face values in [n], arXiv:2610.40321 (2026), doi:10.48550/arXiv.2610.40321: Conjecture 1. The seed cycles for n = 7 … 10 are from the paper’s Appendices G–J (CC BY 4.0); the n = 6 cycle is constructed in this library, and the n = 11 cycle is derived from the n = 7 cycle by shifting labels and adding nested extremes.</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0001" value="0" aria-label="沿循环走到第几步" data-aria-en="Position along the cycle">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 走一步 · <kbd>E</kbd> 回到起点</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> one step · <kbd>E</kbd> back to the start</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">两颗骰子各掷一次，点大的赢，平局不算谁赢。非传递骰子是一串骰子，每颗都比下一颗更可能赢，最后一颗又更可能赢第一颗，像石头剪刀布。Easlick 只看每面取 1 到 n 的 n 面骰子，并要求每一步的优势都是最小可能的那个：胜的计数恰好是 ⌊n²/2⌋ + 1（n = 6 时是 36 种掷法里赢 19 种）。他猜想，这种循环的最大长度恰好等于 n，只有 n = 6 这一种情况。</p>
+      <ol>
+        <li><b>n = 6。</b>462 颗骰子之间有 5491 条最小优势的边，约 95% 从总点数大的骰子指向小的（页面数值），整张图只有两个打结的地方，每个结有 7 颗骰子。每个结里都有两颗骰子只能走向同一颗下一颗，所以一个循环最多用到 6 颗——六循环存在，七循环不存在。</li>
+        <li><b>n ≥ 7。</b>原文附录给出 n = 7 … 10 的长循环（14、29、10、110），本库再用“嵌套填充”把种子循环推广到所有更大的 n，于是 n ≥ 7 时最长循环总比 n 长。</li>
+        <li><b>三维视图。</b>每个点是一颗骰子，高度是它的总点数；细线是最小优势的边，琥珀色的点在某个强连通分支里，青色是当前的循环。时间轴沿着循环一步一步走，下方左图是当前这一步两颗骰子对掷的 n² 种结果。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/easlick-2026-minimal-advantage-cycle-conjecture-one.md" target="_blank" rel="noopener">问题卷宗</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Dice/EaslickSixBound.lean" target="_blank" rel="noopener">EaslickSixBound.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Dice/EaslickCycleSeeds.lean" target="_blank" rel="noopener">EaslickCycleSeeds.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Combinatorics/Dice/EaslickSixBound.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/Certificates/easlick2026minimaldice.md" target="_blank" rel="noopener">文献笔记</a> · <a href="https://doi.org/10.48550/arXiv.2610.40321" target="_blank" rel="noopener">doi:10.48550/arXiv.2610.40321</a> · <a href="https://arxiv.org/abs/2610.40321" target="_blank" rel="noopener">arXiv:2610.40321</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">Roll two dice once each; the higher face wins and a tie counts for neither. Non-transitive dice form a chain in which every die is more likely to beat the next one and the last is more likely to beat the first, like rock–paper–scissors. Easlick looks only at n-sided dice with faces in 1 … n and asks every step to have the smallest possible advantage: a win count of exactly ⌊n²/2⌋ + 1 (for n = 6, 19 of the 36 outcomes). He conjectured that the maximum length of such a cycle equals n only in the single case n = 6.</p>
+      <ol>
+        <li><b>n = 6.</b> The 462 dice carry 5491 minimal-advantage edges, about 95% of which point from a die with a larger face sum to one with a smaller sum (page numbers); the whole graph has only two knots, each of 7 dice. In each knot two dice can only move to the same next die, so a cycle uses at most 6 dice — a six-cycle exists and a seven-cycle does not.</li>
+        <li><b>n ≥ 7.</b> The paper’s appendices give long cycles for n = 7 … 10 (lengths 14, 29, 10 and 110); this library extends the seed cycles to every larger n by nested padding, so for n ≥ 7 the longest cycle is always longer than n.</li>
+        <li><b>3D view.</b> Every point is a die, raised to the height of its face sum; thin lines are minimal-advantage edges, amber points lie in a strongly connected component, and cyan marks the current cycle. The time rail walks the cycle step by step, and the left chart below shows the n² outcomes of the current duel.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/easlick-2026-minimal-advantage-cycle-conjecture-one.md" target="_blank" rel="noopener">Problem dossier</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Dice/EaslickSixBound.lean" target="_blank" rel="noopener">EaslickSixBound.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Dice/EaslickCycleSeeds.lean" target="_blank" rel="noopener">EaslickCycleSeeds.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Combinatorics/Dice/EaslickSixBound.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/Certificates/easlick2026minimaldice.md" target="_blank" rel="noopener">literature note</a> · <a href="https://doi.org/10.48550/arXiv.2610.40321" target="_blank" rel="noopener">doi:10.48550/arXiv.2610.40321</a> · <a href="https://arxiv.org/abs/2610.40321" target="_blank" rel="noopener">arXiv:2610.40321</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

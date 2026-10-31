@@ -9,6 +9,7 @@ Every page is bilingual (中文 / English, switchable in the header) and states 
 
 | id | Page | Theory |
 | --- | --- | --- |
+| `dice-cycle` | [DICE//CYCLE 最小优势骰子循环只在六面时刚好等于面数](https://the-omega-institute.github.io/trureturing-visualize/viz/dice-cycle/) | 问题卷宗：Easlick 的最小优势循环猜想 |
 | `error-disturbance` | [ERROR//DISTURB 中间的测量比两个端点都好](https://the-omega-institute.github.io/trureturing-visualize/viz/error-disturbance/) | 问题卷宗：Zhou–Wu–Chau 端点下界 |
 | `book-roots` | [BOOK//ROOTS 书图支配多项式根的猜想在正方形上不成立](https://the-omega-institute.github.io/trureturing-visualize/viz/book-roots/) | 问题卷宗：书图支配多项式根的猜想 |
 | `caterpillar-pairs` | [CATER//PAIRS 只有第三次主特化分不开的毛毛虫图](https://the-omega-institute.github.io/trureturing-visualize/viz/caterpillar-pairs/) | 问题卷宗：毛毛虫主特化整族与唯一性 |
