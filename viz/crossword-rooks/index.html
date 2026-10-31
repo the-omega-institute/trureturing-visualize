@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="CROSSWORD//ROOKS · Every natural number is the rook-placement count of a crossword grid">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CROSSWORD//ROOKS 每个自然数都是某个填字网格的放车数</title>
+<meta name="description" content="填字网格由白格与黑格组成；横词（竖词）是一行（一列）里极长的一段白格。完全不相攻的放车方式在每个横词和每个竖词里恰好放一个车，也就是词图的一个完美匹配。Lewis 与 Won（arXiv:2609.03081）问：哪些 r 是某个填字网格的放法数？本库在 Lean 里证明并已冻结：每个 r ≥ 0 都是——边长 max(5, 2r − 1) 的网格，放法由第 2 列唯一的车所在的行决定；另一个冻结模块用置换网格 2 7 4 8 1 6 3 5 的 155 种放法否定了他们的猜想 3.10。页面画出网格、车和词图，并枚举全部放法。A crossword grid is made of white and black cells; an across (down) word is a maximal run of white cells in a row (column). A complete non-attacking rook placement puts exactly one rook in every across word and every down word — a perfect matching of the word graph. Lewis and Won (arXiv:2609.03081) ask which r occur as placement counts. This library proves in Lean, frozen, that every r ≥ 0 does, with grids of side max(5, 2r − 1) whose placements are fixed by the row of the one rook in column 2; another frozen module refutes their Conjecture 3.10 with the 155 placements of the permutation grid 2 7 4 8 1 6 3 5. The page draws the grids, the rooks and the word graph, and enumerates every placement.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="crossword-rooks">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="CROSSWORD//ROOKS">CROSSWORD<b>//</b>ROOKS</h1>
+      <div class="tagline">
+        <span class="zh">填字网格上的放车 · <em>每个 r ≥ 0 都是某个网格的放法数（已冻结的证明）</em></span>
+        <span class="en">Rooks on crossword grids · <em>every r ≥ 0 is some grid's placement count (frozen proof)</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="lean" aria-pressed="true"><span class="code">r = 5</span><span class="cn zh">五种放法</span><span class="cn en">Five placements</span></button>
+        <button class="preset" data-preset="one" aria-pressed="false"><span class="code">r = 1</span><span class="cn zh">一个白格</span><span class="cn en">One white cell</span></button>
+        <button class="preset" data-preset="three" aria-pressed="false"><span class="code">r = 3</span><span class="cn zh">两个区块</span><span class="cn en">Two blocks</span></button>
+        <button class="preset" data-preset="zero" aria-pressed="false"><span class="code">r = 0</span><span class="cn zh">没有放法</span><span class="cn en">No placement</span></button>
+        <button class="preset" data-preset="big" aria-pressed="false"><span class="code">r = 12</span><span class="cn zh">23 × 23</span><span class="cn en">23 × 23</span></button>
+        <button class="preset" data-preset="perm" aria-pressed="false"><span class="code">27481635</span><span class="cn zh">155 ≡ 3 (mod 4)</span><span class="cn en">155 ≡ 3 (mod 4)</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">参数</span><span class="en">Parameters</span><span class="aside">r</span></h2>
+      <div class="slider-row"><label for="rIn"><span class="zh">目标放法数 r</span><span class="en">Target count r</span></label><input type="range" id="rIn" min="0" max="20" step="1" value="5"><b id="rOut">5</b></div>
+      <p class="note" id="sysNote"></p>
+    </section>
+  </aside>
+
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：填字网格（黑格凸起）、车与它们所在的横词和竖词；拖动旋转，滚轮缩放" data-aria-en="3D view: the crossword grid (black cells raised), the rooks and their across and down words; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="side" aria-pressed="false"><span class="zh">侧视</span><span class="en">Side</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="出现的放法数" data-aria-en="Counts that occur"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="词图与匹配" data-aria-en="The word graph and the matching"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">|RP| = perm(B)</span></h2>
+      <dl class="ro">
+        <div class="c w"><dt id="ro1L"></dt><dd id="ro1" class="ftab">—</dd></div>
+        <div class="m w"><dt id="ro2L"></dt><dd id="ro2" class="ftab">—</dd></div>
+        <div class="a w"><dt id="ro3L"></dt><dd id="ro3" class="ftab">—</dd></div>
+        <div class="w"><dt id="ro4L"></dt><dd id="ro4" class="ftab">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5" class="ftab">—</dd></div>
+        <div class="w"><dt id="ro6L"></dt><dd id="ro6" class="ftab">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">定义：Cell N 是 N × N 网格的格子；SameAcross、SameDown 说两个格子同行（同列）且之间全是白格，即在同一个横词（竖词）里；IsRookPlacement W R：R 是白格的子集，其中任意两个车不共词，且每个白格的横词和竖词里都有车；rookCount W 数这样的 R。猜想 claim：每个自然数 r 都是某个方形网格的 rookCount。构造：gridSize r = max(5, 2r − 1)，白格是 rowLeft 到 rowRight 的行区间（white）；candidate r k 是第 2 列的车在第 2k 行时的放法。本库证明 claim。已冻结：</span><span class="en">Definitions: Cell N, a cell of the N × N grid; SameAcross, SameDown, two cells in the same row (column) with only white cells between them, i.e. in one across (down) word; IsRookPlacement W R, R is a set of white cells, no two of its rooks share a word, and every white cell's across and down words hold a rook; rookCount W counts such R. The statement claim: every natural number r is the rookCount of some square grid. The construction: gridSize r = max(5, 2r − 1), white cells the row intervals from rowLeft to rowRight (white); candidate r k, the placement whose column-2 rook is in row 2k. This library proves claim. Frozen: </span><code>CrosswordRookCounts.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">证明的步骤（同一冻结模块）：每个 candidate 都是放法（candidate_is_placement）；任何放法里，第 2 列的车之前的侧边词取上端、之后取下端（placement_top_before_central、placement_bottom_after_central），所以它等于某个 candidate（placement_eq_candidate）；不同的 k 给出不同的放法（candidate_injective）；r = 0 用 3 × 3 网格 zeroWhite（zero_rook_count）。另一个冻结模块否定猜想 3.10：放法就是词图的完美匹配（rookPlacement_iff_wordMatching），对 witness = 2 7 4 8 1 6 3 5 的置换网格，内核算出 155 种（witness_matchingCount）。冻结：</span><span class="en">The steps of the proof (same frozen module): every candidate is a placement (candidate_is_placement); in any placement the side words take their upper cell before the column-2 rook and their lower cell after it (placement_top_before_central, placement_bottom_after_central), so it equals some candidate (placement_eq_candidate); different k give different placements (candidate_injective); r = 0 uses the 3 × 3 grid zeroWhite (zero_rook_count). Another frozen module refutes Conjecture 3.10: placements are the perfect matchings of the word graph (rookPlacement_iff_wordMatching), and for the permutation grid of witness = 2 7 4 8 1 6 3 5 the kernel computes 155 (witness_matchingCount). Frozen: </span><code>candidate_is_placement · placement_eq_candidate · candidate_injective · zero_rook_count · CrosswordPermutationGridRefutation.result</code></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：页面把放法当作词图的完美匹配逐一枚举；对 r ≤ 20 的每个构造网格都恰好数出 r 种；穷举边长 2、3、4 的全部网格（2⁴、2⁹、2¹⁶ 个），得到 {0, 1, 2}、{0 … 4, 6}、{0 … 8, 10, 12, 14, 18, 24}——卷宗写的 2 × 2 是 {1, 2}，但按 Lean 的定义，只有第一行是白格的 2 × 2 网格没有放法，所以 0 也出现；穷举 n ≤ 7 的全部置换网格，最大放法数依次是 1, 1, 1, 5, 17, 73, 469，没有一个 ≡ 3 (mod 4)。</span><span class="en">Numbers computed on the page, not theorems: the page enumerates placements as perfect matchings of the word graph; each family grid with r ≤ 20 has exactly r; all grids of side 2, 3 and 4 (2⁴, 2⁹ and 2¹⁶ of them) give {0, 1, 2}, {0 … 4, 6} and {0 … 8, 10, 12, 14, 18, 24} — the dossier lists {1, 2} for 2 × 2, but under Lean's definition the 2 × 2 grid whose only white cells are its first row has no placement, so 0 occurs as well; over all permutation grids with n ≤ 7 the maxima are 1, 1, 1, 5, 17, 73, 469, and no count is ≡ 3 (mod 4).</span></span></div>
+      <div class="lean theory"><span class="ok">ARGUED</span><span><span class="zh">论文与卷宗（未形式化）：论文指出两个网格分块对角拼接时放法数相乘，所以只需处理素数 r；卷宗对 1 ≤ r ≤ 120 独立复算了构造。猜想 3.10 来自论文对 n ≤ 8 的穷举，只报告到 r ≤ 108；反驳卷宗的穷举显示 n = 8 时有 32 个置换违反猜想，放法数为 155（24 个）、191（4 个）与 195（4 个），155 由三个独立程序复算（其中之一是 14 × 14 词交矩阵的 Ryser 积和式）。</span><span class="en">The paper and the dossiers (not formalized): the paper notes that block-diagonal juxtaposition multiplies counts, so only prime r need treatment; the dossier recounted the family independently for 1 ≤ r ≤ 120. Conjecture 3.10 comes from the paper's exhaustive search up to n = 8, reported only for r ≤ 108; the refutation dossier's enumeration finds 32 permutations of size 8 that violate it, with counts 155 (24 of them), 191 (4) and 195 (4), and 155 was recomputed by three independent programs, one of them the Ryser permanent of the 14 × 14 word-intersection matrix.</span></span></div>
+      <div class="lean page"><span class="ok">ARGUED</span><span><span class="zh">页面自己的观察（未形式化，未经评审）：155 超出了论文报告的 r ≤ 108，所以反例并不与论文的数据冲突，只与由数据推出的猜想冲突。构造的网格边长 2r − 1 不是最省的：4 × 4 的网格已经能有 24 种放法。</span><span class="en">The page's own observation (not formalized, not reviewed): 155 lies beyond the r ≤ 108 the paper reported, so the counterexample does not contradict the paper's data, only the conjecture drawn from it. The family's side 2r − 1 is not economical: a 4 × 4 grid already reaches 24 placements.</span></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">没有回答：Question 4.2 的第二部分（刻画恰有 r 种放法的网格）；置换网格能达到哪些值（猜想 3.10 其余的部分，例如 4 与 12 是否永远达不到）。文献检索只覆盖卷宗列出的来源。</span><span class="en">Not answered: the second part of Question 4.2 (characterizing the grids with exactly r placements); which values permutation grids attain (the rest of Conjecture 3.10, for example whether 4 and 12 never occur). The literature search covers only the sources the dossiers list.</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">J. B. Lewis 与 R. Won，Non-attacking rook placements on crossword grids，arXiv:2609.03081（2026），doi:10.48550/arXiv.2609.03081（经 DataCite 核对）：|RP(G)| = perm(B_G)；Question 4.2 问哪些 r 出现；猜想 3.10：置换网格的放法数 r 出现当且仅当 r ≠ 4、r ≠ 12 且 r ≢ 3 (mod 4)。</span><span class="en">J. B. Lewis and R. Won, Non-attacking rook placements on crossword grids, arXiv:2609.03081 (2026), doi:10.48550/arXiv.2609.03081 (checked on DataCite): |RP(G)| = perm(B_G); Question 4.2 asks which r occur; Conjecture 3.10: a positive r is a permutation grid's count if and only if r ≠ 4, r ≠ 12 and r ≢ 3 (mod 4).</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0001" value="0" aria-label="第几种放法" data-aria-en="Which placement">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 一种 · <kbd>E</kbd> 最后一种</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> one placement · <kbd>E</kbd> last</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">在填字网格上放车：车沿着白格横走竖走，遇到黑格就停。要求每个横词、每个竖词里恰好一个车——既不互相攻击，又把每个词都占住。Lewis 与 Won 问：放法数可以是哪些数？</p>
+      <ol>
+        <li><b>答案。</b>每个 r ≥ 0 都可以。Lean 给出边长 max(5, 2r − 1) 的网格，恰有 r 种放法；r = 0 用一个 3 × 3 的小网格。</li>
+        <li><b>为什么恰好 r 种。</b>第 2 列是一个长竖词，只能有一个车，落在某个偶数行 2k。每个区块的单格竖词必须有车，于是同一行的其他格子都被封住；三格的侧边竖词因此在第 2k 行之前只能取上端、之后只能取下端。k 有 r 种取法，每种恰好对应一种放法。</li>
+        <li><b>r = 0。</b>一个横词里的两个白格各自是单格竖词：两个竖词都要车，但同一个横词只能放一个。</li>
+        <li><b>置换网格。</b>黑格恰好是一个置换矩阵时，论文猜测放法数永远不 ≡ 3 (mod 4)（也不是 4 或 12）。2 7 4 8 1 6 3 5 的网格有 155 种，155 ≡ 3 (mod 4)，猜想不成立。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/lewis-won-crossword-rook-counts.md" target="_blank" rel="noopener">问题卷宗</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/CrosswordRookCounts.lean" target="_blank" rel="noopener">CrosswordRookCounts.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Combinatorics/CrosswordRookCounts.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/lewis-won-permutation-grid-counts-refutation.md" target="_blank" rel="noopener">反例卷宗</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/CrosswordPermutationGridRefutation.lean" target="_blank" rel="noopener">CrosswordPermutationGridRefutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/Combinatorics/lewis2026crossword.md" target="_blank" rel="noopener">文献笔记</a> · <a href="https://arxiv.org/abs/2609.03081v1" target="_blank" rel="noopener">arXiv:2609.03081</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">Place rooks on a crossword grid: a rook moves along white cells across and down and stops at black cells. Every across word and every down word must hold exactly one rook — no two attack each other, and every word is covered. Lewis and Won ask which numbers of placements can occur.</p>
+      <ol>
+        <li><b>The answer.</b> Every r ≥ 0. Lean gives a grid of side max(5, 2r − 1) with exactly r placements; r = 0 uses a small 3 × 3 grid.</li>
+        <li><b>Why exactly r.</b> Column 2 is one long down word and holds a single rook, in some even row 2k. Each block's one-cell down word must hold a rook, which blocks the rest of its row; so a three-cell side word can only use its upper cell before row 2k and its lower cell after it. There are r choices of k, each giving exactly one placement.</li>
+        <li><b>r = 0.</b> Two white cells of one across word are each a one-cell down word: both down words need a rook, but the across word can hold only one.</li>
+        <li><b>Permutation grids.</b> When the black cells form a permutation matrix, the paper conjectures that the count is never ≡ 3 (mod 4) (nor 4 or 12). The grid of 2 7 4 8 1 6 3 5 has 155 placements, and 155 ≡ 3 (mod 4), so the conjecture fails.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/lewis-won-crossword-rook-counts.md" target="_blank" rel="noopener">Problem dossier</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/CrosswordRookCounts.lean" target="_blank" rel="noopener">CrosswordRookCounts.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Combinatorics/CrosswordRookCounts.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/lewis-won-permutation-grid-counts-refutation.md" target="_blank" rel="noopener">refutation dossier</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/CrosswordPermutationGridRefutation.lean" target="_blank" rel="noopener">CrosswordPermutationGridRefutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/Combinatorics/lewis2026crossword.md" target="_blank" rel="noopener">literature note</a> · <a href="https://arxiv.org/abs/2609.03081v1" target="_blank" rel="noopener">arXiv:2609.03081</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

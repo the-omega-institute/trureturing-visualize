@@ -2,6 +2,64 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "crossword-rooks",
+      "code": "CROSSWORD//ROOKS",
+      "path": "viz/crossword-rooks/",
+      "thumbnail": "viz/crossword-rooks/thumb.jpg",
+      "title": "每个自然数都是某个填字网格的放车数",
+      "title_en": "Every natural number is the rook-placement count of a crossword grid",
+      "summary": "在填字网格上放车，要求每个横词和每个竖词里恰好一个车。Lewis 与 Won（arXiv，2026）问哪些放法数会出现。本库在 Lean 里证明并已冻结：每个 r ≥ 0 都会出现——边长 max(5, 2r − 1) 的网格恰有 r 种放法，由第 2 列唯一的车所在的行决定；另一个冻结模块用置换网格 2 7 4 8 1 6 3 5 的 155 种放法否定了他们的猜想 3.10。页面画出网格、车和词图，枚举全部放法，并穷举小网格能达到的放法数。",
+      "summary_en": "Place rooks on a crossword grid so that every across word and every down word holds exactly one. Lewis and Won (arXiv, 2026) ask which counts of placements occur. This library proves in Lean, frozen, that every r ≥ 0 does: a grid of side max(5, 2r − 1) has exactly r placements, fixed by the row of the single rook in column 2; another frozen module refutes their Conjecture 3.10 with the 155 placements of the permutation grid 2 7 4 8 1 6 3 5. The page draws the grids, the rooks and the word graph, enumerates every placement, and lists the counts small grids attain.",
+      "status": "live",
+      "added": "2026-10-31",
+      "tags": [
+        "组合",
+        "放车",
+        "完美匹配",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "combinatorics",
+        "rook placements",
+        "perfect matchings",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：每个自然数都是填字网格的放车数",
+          "label_en": "Problem dossier: every natural number counts the rook placements of a crossword grid",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/lewis-won-crossword-rook-counts.md"
+        },
+        {
+          "label": "问题卷宗：置换网格放车数猜想的反例",
+          "label_en": "Problem dossier: a counterexample to the permutation-grid count conjecture",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/lewis-won-permutation-grid-counts-refutation.md"
+        },
+        {
+          "label": "Blueprint：填字网格的放车数",
+          "label_en": "Blueprint: rook counts of crossword grids",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Combinatorics/CrosswordRookCounts.md"
+        },
+        {
+          "label": "文献笔记：Lewis–Won 2026",
+          "label_en": "Literature note: Lewis–Won 2026",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Library/Combinatorics/lewis2026crossword.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "CrosswordRookCounts.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/CrosswordRookCounts.lean"
+        },
+        {
+          "label": "CrosswordPermutationGridRefutation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/CrosswordPermutationGridRefutation.lean"
+        }
+      ]
+    },
+    {
       "id": "granular-two",
       "code": "GRANULAR//TWO",
       "path": "viz/granular-two/",
