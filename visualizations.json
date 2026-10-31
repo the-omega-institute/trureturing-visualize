@@ -2,6 +2,55 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "diploid-ca",
+      "code": "CA//DIPLOID",
+      "path": "viz/diploid-ca/",
+      "thumbnail": "viz/diploid-ca/thumb.jpg",
+      "title": "二倍体元胞自动机 10-245 的密度从第一步起恰为 1/4 + λ/2",
+      "title_en": "The diploid cellular automaton 10-245 has density exactly 1/4 + λ/2 from the first step",
+      "summary": "Fukś 与 Fatès（2026）让一维点阵上每个格子每一步独立地以 1 − λ 的概率用初等规则 10、以 λ 的概率用规则 245；三阶局部结构理论预测极限密度 1/4 + λ/2，他们问这是否精确。本库在 Lean 里证明并已冻结：从公平的 Bernoulli 初态出发，对每个 λ ∈ [0, 1]，从第一步起密度恰为 1/4 + λ/2。关键是“左 0、右 1”的概率满足自我封闭的递推并一直等于 1/4。页面把环上的演化画成时空之塔，对 ℤ 上的过程精确计算前八步，并与平均场以及平均场方程相同的规则 36-219 对照。",
+      "summary_en": "Fukś and Fatès (2026) let every cell of the line apply elementary rule 10 with probability 1 − λ and rule 245 with probability λ, independently at every step; third-order local structure theory predicts the limit density 1/4 + λ/2, and they ask whether it is exact. This library proves in Lean, frozen, that from the fair Bernoulli start the density is exactly 1/4 + λ/2 from the first step on, for every λ ∈ [0, 1]. The key is that the probability of “0 on the left, 1 on the right” obeys a closed recursion and stays at 1/4. The page draws the evolution on a ring as a space-time tower, computes the process on ℤ exactly for the first eight steps, and contrasts mean field and rule 36-219, which has the same mean-field equation.",
+      "status": "live",
+      "added": "2026-10-31",
+      "tags": [
+        "元胞自动机",
+        "概率元胞自动机",
+        "密度",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "cellular automata",
+        "probabilistic cellular automata",
+        "density",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：二倍体元胞自动机 10-245 的精确密度",
+          "label_en": "Problem dossier: the exact density of the diploid cellular automaton 10-245",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/fuks-fates-2026-diploid-10-245-density.md"
+        },
+        {
+          "label": "Blueprint：密度 1/4 + λ/2",
+          "label_en": "Blueprint: the density 1/4 + λ/2",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/StatisticalMechanics/CellularAutomata/Diploid10245Density.md"
+        },
+        {
+          "label": "文献笔记：Fukś、Fatès 2026",
+          "label_en": "Literature note: Fukś and Fatès 2026",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Library/StatisticalMechanics/fuksfates2026diploid.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "Diploid10245Density.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/CellularAutomata/Diploid10245Density.lean"
+        }
+      ]
+    },
+    {
       "id": "exit-disk",
       "code": "EXIT//DISK",
       "path": "viz/exit-disk/",

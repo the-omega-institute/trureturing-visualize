@@ -9,6 +9,7 @@ Every page is bilingual (中文 / English, switchable in the header) and states 
 
 | id | Page | Theory |
 | --- | --- | --- |
+| `diploid-ca` | [CA//DIPLOID 二倍体元胞自动机 10-245 的密度从第一步起恰为 1/4 + λ/2](https://the-omega-institute.github.io/trureturing-visualize/viz/diploid-ca/) | 问题卷宗：二倍体元胞自动机 10-245 的精确密度 |
 | `exit-disk` | [EXIT//DISK 格点圆盘比正方形更难走出：正方形不是平均出逃时间的最大者](https://the-omega-institute.github.io/trureturing-visualize/viz/exit-disk/) | 问题卷宗：正方形不是平均出逃时间的最大者 |
 | `perm-complement` | [PERM//COMPLEMENT 两两强互补的置换矩阵最多 2^v₂(n) 个](https://the-omega-institute.github.io/trureturing-visualize/viz/perm-complement/) | 问题卷宗：两两强互补的置换矩阵的最大个数 |
 | `modes-eighteen` | [MODES//EIGHTEEN 十八模式的玻色子占据数恰在粒子数为偶数时可以非语境地分配](https://the-omega-institute.github.io/trureturing-visualize/viz/modes-eighteen/) | 问题卷宗：十八模式玻色子分配的奇偶 |
