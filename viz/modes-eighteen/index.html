@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="MODES//EIGHTEEN · Eighteen-mode boson occupations can be assigned exactly for even particle numbers">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MODES//EIGHTEEN 十八模式的玻色子占据数恰在粒子数为偶数时可以非语境地分配</title>
+<meta name="description" content="Kurzyński（2017）把 N 个全同玻色子放进 18 矢量 Kochen–Specker 集合的 18 个模式：模式 v_ij 同时属于语境 i 与 j，非语境模型给每个模式一个与语境无关的占据数，使九个语境里各有 N 个粒子。他证明 N = 2 时可以分配，并问是否对某个 N > 2 不行。本库在 Lean 里证明并已冻结：当且仅当 N 为偶数时存在这样的分配。每个模式被两个语境各数一次，所以 9N = 2 ×（粒子数），N 必为偶数；N = 2m 时在 9 个构成一个环的模式上各放 m 个粒子即可。页面把九个语境放在环面上（它们恰好构成 3 × 3 的车图），用局部搜索和 Lean 的构造一个一个地放粒子，并追踪缺额 D 的奇偶。Kurzyński (2017) places N identical bosons on the 18 modes of the 18-vector Kochen–Specker set: mode v_ij lies in contexts i and j, and a non-contextual model gives every mode one occupation, independent of the context, so that each of the nine contexts holds N particles. He showed that N = 2 admits an assignment and asked whether some N > 2 does not. This library proves in Lean, frozen, that an assignment exists if and only if N is even. Every mode is counted by two contexts, so 9N = 2 × (particles) and N must be even; for N = 2m, m particles on each of 9 modes forming a cycle suffice. The page puts the nine contexts on a torus (they form the 3 × 3 rook's graph), places particles one at a time by local search and by Lean's construction, and tracks the parity of the defect D.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="modes-eighteen">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="MODES//EIGHTEEN">MODES<b>//</b>EIGHTEEN</h1>
+      <div class="tagline">
+        <span class="zh">全同玻色子的语境性 · <em>十八个模式的占据数恰在 N 为偶数时可分配（已冻结的证明）</em></span>
+        <span class="en">Contextuality of identical bosons · <em>occupations of the eighteen modes exist exactly for even N (frozen proof)</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="lean" aria-pressed="true"><span class="code">N = 2 · LEAN</span><span class="cn zh">原文的两个玻色子</span><span class="cn en">The paper’s two bosons</span></button>
+        <button class="preset" data-preset="one" aria-pressed="false"><span class="code">N = 1 · KS</span><span class="cn zh">单粒子的 KS 证明</span><span class="cn en">The one-particle KS proof</span></button>
+        <button class="preset" data-preset="three" aria-pressed="false"><span class="code">N = 3</span><span class="cn zh">原文问的 N &gt; 2</span><span class="cn en">The paper’s N &gt; 2</span></button>
+        <button class="preset" data-preset="six" aria-pressed="false"><span class="code">N = 6 · SEARCH</span><span class="cn zh">搜索找到一个</span><span class="cn en">Search finds one</span></button>
+        <button class="preset" data-preset="ten" aria-pressed="false"><span class="code">N = 10 · LEAN</span><span class="cn zh">环上各 5 个</span><span class="cn en">Five on each cycle mode</span></button>
+        <button class="preset" data-preset="nine" aria-pressed="false"><span class="code">N = 9</span><span class="cn zh">最好也差一个</span><span class="cn en">One short at best</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">粒子数与放法</span><span class="en">Particles and method</span><span class="aside">N</span></h2>
+      <div class="slider-row"><label for="nIn"><span class="zh">粒子数 N</span><span class="en">Particles N</span></label><input type="range" id="nIn" min="0" max="12" step="1" value="2"><b id="nOut">2</b></div>
+      <div class="chips" id="methodChips" role="group" aria-label="放法" data-aria-en="Method">
+        <button class="chip" data-method="lean"><span class="zh">Lean 的环构造</span><span class="en">Lean’s cycle</span></button><button class="chip" data-method="greedy"><span class="zh">局部搜索</span><span class="en">Local search</span></button>
+      </div>
+      <div class="btn-row"><button class="chip" id="reseed"><span class="zh">换一次搜索</span><span class="en">Another search</span></button></div>
+      <p class="note" id="sysNote"></p>
+    </section>
+  </aside>
+
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：九个语境放在环面上，十八条弧是模式，弧上的点是粒子；拖动旋转，滚轮缩放" data-aria-en="3D view: the nine contexts on a torus, the eighteen arcs are the modes and the dots on them are particles; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="side" aria-pressed="false"><span class="zh">侧视</span><span class="en">Side</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="九个语境里的粒子数" data-aria-en="Particles in the nine contexts"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="缺额 D 随步数的变化" data-aria-en="The defect D move by move"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">Σ = 9N</span></h2>
+      <dl class="ro">
+        <div class="c w"><dt id="ro1L"></dt><dd id="ro1" class="ftab">—</dd></div>
+        <div class="m w"><dt id="ro2L"></dt><dd id="ro2" class="ftab">—</dd></div>
+        <div class="a w"><dt id="ro3L"></dt><dd id="ro3" class="ftab">—</dd></div>
+        <div class="w"><dt id="ro4L"></dt><dd id="ro4" class="ftab">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5" class="ftab">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">定义：十八个模式 modes，每个以它所在的两个语境 (i, j) 为标签；非语境分配 IsNoncontextualAssignment N v：v 给每个模式一个自然数，九个语境 i = 1 … 9 中的和都等于 N。猜想 claim：对每个自然数 N，存在这样的 v 当且仅当 N 为偶数。本库证明 claim。已冻结：</span><span class="en">Definitions: the eighteen modes modes, each labelled by the two contexts (i, j) that contain it; a non-contextual assignment IsNoncontextualAssignment N v: v gives every mode a natural number and the sum in each of the nine contexts i = 1 … 9 equals N. The statement claim: for every natural N such a v exists if and only if N is even. This library proves claim. Frozen: </span><code>EighteenModeBosonicAssignmentParity.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">证明的三步（同一模块里一起冻结）：双重计数（incidence_double_count：九个语境和之和 = 2 × 模式占据数之和）；必要性（assignment_even：于是 9N 为偶数，N 为偶数）；充分性（even_assignment：在 S = {(1,2), (1,6), (2,8), (3,7), (3,9), (4,7), (4,8), (5,6), (5,9)} 上各放 m 个，其余为 0，每个语境恰含 S 的两个模式，和为 2m）。冻结：</span><span class="en">The three steps of the proof (frozen in the same module): double counting (incidence_double_count: the nine context sums add up to 2 × the sum of the occupations); necessity (assignment_even: hence 9N is even, so N is even); sufficiency (even_assignment: m on each mode of S = {(1,2), (1,6), (2,8), (3,7), (3,9), (4,7), (4,8), (5,6), (5,9)} and 0 elsewhere; each context contains exactly two modes of S, so its sum is 2m). Frozen: </span><code>incidence_double_count · assignment_even · even_assignment · result</code></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：局部搜索从空的分配出发，每步加或减一个粒子；N ≤ 12 时它对偶数 N 都到达 D = 0，对奇数 N 停在 D = 1。奇数 N 时 D = 1 可以达到（页面的环构造加一个四边匹配）。</span><span class="en">Numbers computed on the page, not theorems: the local search starts from the empty assignment and adds or removes one particle per move; for N ≤ 12 it reaches D = 0 for every even N and stops at D = 1 for every odd N. For odd N, D = 1 is attained (the page’s cycle construction plus a matching of four modes).</span></span></div>
+      <div class="lean theory"><span class="ok">ARGUED</span><span><span class="zh">问题卷宗里的论证（未形式化）：S 是环 1 → 2 → 8 → 4 → 7 → 3 → 9 → 5 → 6 → 1 的九条边，每个语境是环上的一个点，碰到相邻的两条边；任何“每个模式恰在两个语境里、语境数为奇数”的结构都只允许偶数 N。N = 1 时这就是原文第 83 行的奇偶论证；每个奇数 N ≥ 3 都肯定地回答了原文的问题。</span><span class="en">Arguments in the problem dossier (not formalized): S is the nine edges of the cycle 1 → 2 → 8 → 4 → 7 → 3 → 9 → 5 → 6 → 1, and each context is a vertex of the cycle meeting its two adjacent edges; any structure with every mode in exactly two contexts and an odd number of contexts admits only even N. For N = 1 this is the parity argument of the source, line 83; every odd N ≥ 3 answers the source’s question affirmatively.</span></span></div>
+      <div class="lean page"><span class="ok">ARGUED</span><span><span class="zh">页面自己的论证（未形式化，未经评审）：九个语境、十八个模式构成 3 × 3 车图（同行或同列的两个语境共享一个模式），所以可以画在环面上。每加减一个粒子，两个语境的和各变 1，D 的变化是 −2、0 或 +2；D ≡ Σ(sᵢ − N) = 2 × 粒子数 − 9N ≡ N（mod 2），所以奇数 N 时 D 永远是奇数。</span><span class="en">The page’s own argument (not formalized, not reviewed): the nine contexts and eighteen modes form the 3 × 3 rook’s graph (two contexts in the same row or column share a mode), so they can be drawn on a torus. Adding or removing one particle changes two context sums by 1 each, so D changes by −2, 0 or +2; D ≡ Σ(sᵢ − N) = 2 × particles − 9N ≡ N (mod 2), so for odd N, D is always odd.</span></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">卷宗列为本结算之外：两粒子是否有别的态无关语境性不等式（原文第 113 行）；其他维数或其他模式集合（第 242 行）；费米子的分类与物理测量的实现。</span><span class="en">Outside this settlement, per the dossier: whether two particles admit other state-independent contextuality inequalities (source line 113); other dimensions or mode sets (line 242); a fermionic classification and a realization by physical measurements.</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">P. Kurzyński，Contextuality of identical particles，Phys. Rev. A 95，012133（2017），doi:10.1103/PhysRevA.95.012133，arXiv:1609.01250：占据数模型、N = 2 的结论与这里回答的问题（v1 TeX 第 233 行）。十八个模式来自 A. Cabello、J. M. Estebaranz、G. García-Alcaine，Bell–Kochen–Specker theorem: A proof with 18 vectors，Phys. Lett. A 212，183–187（1996），doi:10.1016/0375-9601(96)00134-X。</span><span class="en">P. Kurzyński, Contextuality of identical particles, Phys. Rev. A 95, 012133 (2017), doi:10.1103/PhysRevA.95.012133, arXiv:1609.01250: the occupation model, the result for N = 2 and the question answered here (v1 TeX, line 233). The eighteen modes come from A. Cabello, J. M. Estebaranz and G. García-Alcaine, Bell–Kochen–Specker theorem: A proof with 18 vectors, Phys. Lett. A 212, 183–187 (1996), doi:10.1016/0375-9601(96)00134-X.</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0001" value="0" aria-label="步数" data-aria-en="Moves">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 一步 · <kbd>E</kbd> 跳到最后</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> one move · <kbd>E</kbd> jump to the end</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">18 矢量的 Kochen–Specker 集合有 18 个模式和 9 个语境（四个互相正交的模式组成一组完备测量），每个模式恰好属于两个语境。把 N 个全同玻色子放进去：非语境模型要给每个模式一个固定的占据数，并且每个语境里的占据数加起来都是 N。Kurzyński 指出 N = 1 不行、N = 2 可以，并问较大的 N 会怎样。</p>
+      <ol>
+        <li><b>奇偶。</b>把九个语境的和加起来，每个模式被数了两次，总和是粒子数的两倍——偶数；而它又应等于 9N。所以 N 必为偶数。Lean 证明这一点，并证明每个偶数都可以：在环 1 → 2 → 8 → 4 → 7 → 3 → 9 → 5 → 6 → 1 的九个模式上各放 N/2 个。</li>
+        <li><b>三维视图。</b>九个语境恰好构成 3 × 3 的车图：同一行或同一列的两个语境共享一个模式。所以把它们画在环面上，模式是沿管或沿环的弧，粒子是弧上的点；和等于 N 的语境变绿。</li>
+        <li><b>缺额。</b>右下图是 D = Σ|sᵢ − N|。每放或拿一个粒子，D 变化 0 或 ±2，奇偶不变：N 为奇数时 D 从 9N 开始，永远是奇数，降不到 0。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/kurzynski-2017-eighteen-mode-bosonic-assignment-parity.md" target="_blank" rel="noopener">问题卷宗</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Contextuality/EighteenModeBosonicAssignmentParity.lean" target="_blank" rel="noopener">EighteenModeBosonicAssignmentParity.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Quantum/Contextuality/EighteenModeBosonicAssignmentParity.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/Observer/kurzynski2017contextualityidentical.md" target="_blank" rel="noopener">文献笔记</a> · <a href="https://doi.org/10.1103/PhysRevA.95.012133" target="_blank" rel="noopener">doi:10.1103/PhysRevA.95.012133</a> · <a href="https://arxiv.org/abs/1609.01250" target="_blank" rel="noopener">arXiv:1609.01250</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">The 18-vector Kochen–Specker set has 18 modes and 9 contexts (four mutually orthogonal modes form a complete measurement), and every mode lies in exactly two contexts. Put N identical bosons into it: a non-contextual model must give every mode a fixed occupation such that the occupations in every context add up to N. Kurzyński pointed out that N = 1 fails and N = 2 works, and asked what happens for larger N.</p>
+      <ol>
+        <li><b>Parity.</b> Adding the nine context sums counts every mode twice, so the total is twice the number of particles — even; yet it should be 9N. So N must be even. Lean proves this, and proves that every even N works: put N/2 particles on each of the nine modes of the cycle 1 → 2 → 8 → 4 → 7 → 3 → 9 → 5 → 6 → 1.</li>
+        <li><b>3D view.</b> The nine contexts form the 3 × 3 rook’s graph: two contexts in the same row or column share a mode. So they are drawn on a torus, with the modes as arcs along the tube or around the ring and the particles as dots on the arcs; a context whose sum equals N turns green.</li>
+        <li><b>The defect.</b> The lower-right chart shows D = Σ|sᵢ − N|. Adding or removing a particle changes D by 0 or ±2, so its parity never changes: for odd N, D starts at 9N, stays odd, and cannot reach 0.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/kurzynski-2017-eighteen-mode-bosonic-assignment-parity.md" target="_blank" rel="noopener">Problem dossier</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Contextuality/EighteenModeBosonicAssignmentParity.lean" target="_blank" rel="noopener">EighteenModeBosonicAssignmentParity.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Quantum/Contextuality/EighteenModeBosonicAssignmentParity.md" target="_blank" rel="noopener">Blueprint</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/Observer/kurzynski2017contextualityidentical.md" target="_blank" rel="noopener">literature note</a> · <a href="https://doi.org/10.1103/PhysRevA.95.012133" target="_blank" rel="noopener">doi:10.1103/PhysRevA.95.012133</a> · <a href="https://arxiv.org/abs/1609.01250" target="_blank" rel="noopener">arXiv:1609.01250</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

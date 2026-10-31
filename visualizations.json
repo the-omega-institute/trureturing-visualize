@@ -2,6 +2,55 @@
   "version": 1,
   "visualizations": [
     {
+      "id": "modes-eighteen",
+      "code": "MODES//EIGHTEEN",
+      "path": "viz/modes-eighteen/",
+      "thumbnail": "viz/modes-eighteen/thumb.jpg",
+      "title": "十八模式的玻色子占据数恰在粒子数为偶数时可以非语境地分配",
+      "title_en": "Eighteen-mode boson occupations can be assigned exactly for even particle numbers",
+      "summary": "Kurzyński（2017）把 N 个全同玻色子放进 18 矢量 Kochen–Specker 集合的 18 个模式，问非语境模型（每个模式一个占据数，九个语境里各 N 个）是否对某个 N > 2 不存在。本库在 Lean 里证明并已冻结：当且仅当 N 为偶数时存在。每个模式被两个语境各数一次，九个语境之和是粒子数的两倍，而它又是 9N；偶数 N 则在一个九边环的模式上各放 N/2 个。页面把九个语境画在环面上（它们构成 3 × 3 车图），用 Lean 的构造与局部搜索一个一个地放粒子，缺额 D 的奇偶始终等于 N 的奇偶。",
+      "summary_en": "Kurzyński (2017) puts N identical bosons on the 18 modes of the 18-vector Kochen–Specker set and asks whether a non-contextual model (one occupation per mode, N particles in each of the nine contexts) fails for some N > 2. This library proves in Lean, frozen, that it exists if and only if N is even. Every mode is counted by two contexts, so the nine context sums total twice the number of particles, yet they should total 9N; for even N, N/2 particles on each mode of a nine-edge cycle work. The page draws the nine contexts on a torus (they form the 3 × 3 rook’s graph) and places particles one at a time by Lean’s construction and by local search; the parity of the defect D always equals the parity of N.",
+      "status": "live",
+      "added": "2026-10-31",
+      "tags": [
+        "量子语境性",
+        "Kochen–Specker",
+        "全同粒子",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "quantum contextuality",
+        "Kochen–Specker",
+        "identical particles",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：十八模式玻色子分配的奇偶",
+          "label_en": "Problem dossier: parity of eighteen-mode boson assignments",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/kurzynski-2017-eighteen-mode-bosonic-assignment-parity.md"
+        },
+        {
+          "label": "Blueprint：恰为偶数",
+          "label_en": "Blueprint: exactly the even numbers",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S3/Quantum/Contextuality/EighteenModeBosonicAssignmentParity.md"
+        },
+        {
+          "label": "文献笔记：Kurzyński 2017",
+          "label_en": "Literature note: Kurzyński 2017",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Library/Observer/kurzynski2017contextualityidentical.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "EighteenModeBosonicAssignmentParity.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Contextuality/EighteenModeBosonicAssignmentParity.lean"
+        }
+      ]
+    },
+    {
       "id": "sandpile-torus",
       "code": "SANDPILE//TORUS",
       "path": "viz/sandpile-torus/",
