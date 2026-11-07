@@ -27,6 +27,7 @@ await page.evaluate(() => RQA_DEBUG.setStep(2)); await page.evaluate(() => RQA_D
 check('phase step keeps normalization and records the phase', i.step === 2 && i.phase === 90 && Math.abs(i.norm - 1) < 1e-12 && Math.abs(i.born[0] - 0.5) < 1e-12);
 await page.evaluate(() => RQA_DEBUG.setStep(3)); i = await info();
 check('network step closes the triangle and keeps the norm', i.step === 3 && i.edges === 6 && Math.abs(i.norm - 1) < 1e-12 && i.bloch.length === 3);
+check('closure trace reaches a visible finite fixed point', (await page.locator('#fixedPointBadge').textContent()).includes('FIXED') && (await page.locator('#closureTrace .fixed').count()) === 1 && (await page.locator('#closureNote').textContent()).includes('S3'));
 check('rule inspector exposes six finite closure rules', i.rules.length === 6 && i.rules[0].status === 'PASS' && i.rules.every((r) => r.status === 'PASS'));
 await page.click('[data-rule="2"]'); await page.click('#faultBtn'); i = await info();
 check('selected rule can expose a concrete counterexample state', i.rules[2].status === 'FAIL' && i.rules[2].reason.length > 0);
