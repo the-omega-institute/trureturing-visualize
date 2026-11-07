@@ -54,6 +54,24 @@
       </dl>
       <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
     </section>
+    <section class="panel sec rules" aria-label="闭包规则检查器" data-aria-en="Closure rule checker">
+      <h2><span class="zh">规则检查</span><span class="en">Rule checker</span><span class="aside">6 RULES</span></h2>
+      <div class="rule-tabs" id="ruleTabs" role="tablist" aria-label="六条闭包规则" data-aria-en="Six closure rules">
+        <button class="rule-tab" data-rule="0" aria-selected="true"><b>R0</b><span class="zh">恒等 / 归一化</span><span class="en">Identity / norm</span></button>
+        <button class="rule-tab" data-rule="1" aria-selected="false"><b>R1</b><span class="zh">二元区分</span><span class="en">Binary split</span></button>
+        <button class="rule-tab" data-rule="2" aria-selected="false"><b>R2</b><span class="zh">有向三元</span><span class="en">Oriented ternary</span></button>
+        <button class="rule-tab" data-rule="3" aria-selected="false"><b>R3</b><span class="zh">后继一致</span><span class="en">Successor</span></button>
+        <button class="rule-tab" data-rule="4" aria-selected="false"><b>R4</b><span class="zh">完整读出</span><span class="en">Complete readout</span></button>
+        <button class="rule-tab" data-rule="5" aria-selected="false"><b>R5</b><span class="zh">独立复合</span><span class="en">Composition</span></button>
+      </div>
+      <div class="rule-detail" id="ruleDetail" role="status" aria-live="polite">
+        <div class="rule-title"><strong id="ruleCode">R0</strong><span id="ruleName"></span><span class="rule-status" id="ruleStatus">PASS</span></div>
+        <p id="ruleCondition"></p>
+        <p id="ruleTransition"></p>
+        <p class="rule-failure" id="ruleFailure"></p>
+        <button class="chip fault-btn" id="faultBtn"><span class="zh">注入反例</span><span class="en">Inject counterexample</span></button>
+      </div>
+    </section>
   </aside>
 
   <section class="panel lower">
