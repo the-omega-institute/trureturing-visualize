@@ -2,8 +2,52 @@
   'use strict';
   const $ = (id) => document.getElementById(id);
   const cv = $('view');
-  const S = { step: 0, phase: 0, rate: 1, playing: false, t: 0 };
+  const S = { step: 0, phase: 0, rate: 1, playing: false, t: 0, rule: 0, fault: false };
   const SQ = Math.SQRT1_2;
+  const RULES = [
+    { code:'R0', zh:'恒等与归一化', en:'Identity and normalization', need:0,
+      conditionZh:'触发：存在恒等记录 Ω，闭包更新不改变总权重。',
+      conditionEn:'Trigger: an identity record Ω preserves total weight under closure updates.',
+      transitionZh:'证据：|a|² + |b|² = 1。',
+      transitionEn:'Evidence: |a|² + |b|² = 1.',
+      failureZh:'反例：总范数偏离 1，恒等记录不能保持闭包。',
+      failureEn:'Counterexample: the norm leaves 1, so identity does not preserve closure.' },
+    { code:'R1', zh:'二元区分', en:'Binary distinction', need:1,
+      conditionZh:'触发：一个记录可以分成两个互补、可读的分支。',
+      conditionEn:'Trigger: one record splits into two complementary readable branches.',
+      transitionZh:'证据：分叉后 p(0)=p(1)=1/2，关系边数为 1。',
+      transitionEn:'Evidence: after the split p(0)=p(1)=1/2 and one relation edge appears.',
+      failureZh:'反例：两条分支不能同时归一化或无法区分。',
+      failureEn:'Counterexample: the two branches cannot be normalized or distinguished.' },
+    { code:'R2', zh:'有向三元闭包', en:'Oriented ternary closure', need:2,
+      conditionZh:'触发：两条分支的关系也成为可测试记录，并保留定向相位。',
+      conditionEn:'Trigger: the relation between the two branches becomes testable and keeps orientation.',
+      transitionZh:'证据：三条关系边与有限相对相位 φ。',
+      transitionEn:'Evidence: three relation edges and a finite relative phase φ.',
+      failureZh:'反例：相位被抹掉，或者三角关系无法闭合。',
+      failureEn:'Counterexample: phase is erased or the triangle cannot close.' },
+    { code:'R3', zh:'后继一致性', en:'Successor consistency', need:3,
+      conditionZh:'触发：相同当前记录的不同后继必须共享同一延续核。',
+      conditionEn:'Trigger: continuations of the same current record share one continuation kernel.',
+      transitionZh:'有限证书：网络步保持归一化并完成六条局部关系边。',
+      transitionEn:'Finite certificate: the network step preserves normalization and closes six local edges.',
+      failureZh:'反例：同一记录的后继给出不同核，更新不能下降为线性分支。',
+      failureEn:'Counterexample: equal records yield different successor kernels, blocking linear branches.' },
+    { code:'R4', zh:'完整正读出', en:'Complete positive readout', need:0,
+      conditionZh:'触发：所有可读效应给出非负且可归一化的概率。',
+      conditionEn:'Trigger: every readable effect gives a nonnegative normalized probability.',
+      transitionZh:'证据：p(0)=|a|²，p(1)=|b|²，且 p(0)+p(1)=1。',
+      transitionEn:'Evidence: p(0)=|a|², p(1)=|b|², and p(0)+p(1)=1.',
+      failureZh:'反例：读出出现负值、总和不为一，或不再是二次形式。',
+      failureEn:'Counterexample: a readout is negative, unnormalized, or ceases to be quadratic.' },
+    { code:'R5', zh:'独立历史复合', en:'Independent-history composition', need:3,
+      conditionZh:'触发：独立历史可以联合，且联合记录保留交叉关系。',
+      conditionEn:'Trigger: independent histories compose while retaining cross-relations.',
+      transitionZh:'证据：网络闭包把局部三角扩展为六条边的联合记录。',
+      transitionEn:'Evidence: network closure expands local triangles into a six-edge joint record.',
+      failureZh:'反例：只保留边缘分布，联合效应能检测到被删除的交叉关系。',
+      failureEn:'Counterexample: marginals erase a cross-relation detected by a joint effect.' }
+  ];
   TRV.startGlitch($('app'));
   const drawer = TRV.drawer({ drawer: $('drawer'), open: $('infoBtn'), close: $('drawerClose') });
 
@@ -34,6 +78,29 @@
     return f(v[0]) + ' |0⟩ + ' + f(v[1]) + ' |1⟩';
   };
   const relationEdges = (step) => step === 0 ? 0 : step === 1 ? 1 : step === 2 ? 3 : 6;
+  const ruleReport = () => {
+    const v = stateAt(S.step, S.phase), n = norm(v);
+    const p0 = v[0][0]*v[0][0] + v[0][1]*v[0][1], p1 = v[1][0]*v[1][0] + v[1][1]*v[1][1];
+    const edges = relationEdges(S.step), finitePhase = Number.isFinite(S.phase);
+    const evidence = [
+      Math.abs(n - 1) < 1e-9,
+      S.step >= 1 && Math.abs(p0 - .5) < 1e-9 && Math.abs(p1 - .5) < 1e-9,
+      S.step >= 2 && edges >= 3 && finitePhase,
+      S.step >= 3 && edges >= 6 && Math.abs(n - 1) < 1e-9,
+      Math.abs(p0 + p1 - 1) < 1e-9,
+      S.step >= 3 && edges === 6
+    ];
+    return RULES.map((r, i) => {
+      const waiting = S.step < r.need;
+      const failed = S.fault && S.rule === i;
+      const status = failed ? 'FAIL' : waiting ? 'WAIT' : evidence[i] ? 'PASS' : 'FAIL';
+      const reason = failed ? TRV.L(r.failureZh, r.failureEn)
+        : waiting ? TRV.L('等待自动机到达第 '+r.need+' 阶。', 'Waiting for the automaton to reach step '+r.need+'.')
+        : evidence[i] ? TRV.L('当前有限证据满足规则。', 'Current finite evidence satisfies the rule.')
+        : TRV.L(r.failureZh, r.failureEn);
+      return { code:r.code, status, reason, condition:TRV.L(r.conditionZh,r.conditionEn), transition:TRV.L(r.transitionZh,r.transitionEn) };
+    });
+  };
   const textFor = (step) => {
     const zh = ['恒等没有可区分的关系；系统只有一个稳定标签。','一次二元分叉产生两条可读分支；平方范数保持总量。','两条分支之间出现相对相位；三角闭包把关系的关系写出来。','重复门作用把局部三角复制成网络；可见读出来自边上的约束。'][step];
     const en = ['Identity has no distinguishable relation; the system carries one stable label.','A binary split creates two readable branches; the squared norm keeps the total.','A relative phase appears; triangle closure records a relation of relations.','Repeated gates copy local triangles into a network; visible readouts come from edge constraints.'][step];
@@ -77,20 +144,37 @@
     $('formula').textContent = S.step < 2 ? '|a|² + |b|² = 1' : 'p(0) = |a|²,   p(1) = |b|²,   Δ = arg(b) − arg(a) = '+S.phase+'°';
     document.querySelectorAll('#stepChips .chip').forEach((b) => b.setAttribute('aria-pressed',String(+b.dataset.step === S.step)));
     $('modeNote').textContent = S.playing ? TRV.L('自动沿着闭包阶数运行。','Auto-running through the closure orders.') : TRV.L('选择一个阶数，或按播放观察闭包展开。','Choose an order, or play the closure expansion.');
+    const reports = ruleReport();
+    document.querySelectorAll('.rule-tab').forEach((button) => {
+      const i = +button.dataset.rule, report = reports[i];
+      button.dataset.status = report.status;
+      button.setAttribute('aria-selected', String(i === S.rule));
+    });
+    const active = reports[S.rule], rule = RULES[S.rule];
+    $('ruleCode').textContent = rule.code;
+    $('ruleName').textContent = TRV.L(rule.zh, rule.en);
+    $('ruleStatus').textContent = active.status;
+    $('ruleStatus').dataset.status = active.status;
+    $('ruleCondition').textContent = active.condition;
+    $('ruleTransition').textContent = active.transition + ' · ' + active.reason;
+    $('ruleFailure').textContent = active.status === 'FAIL' ? active.reason : TRV.L('反例模式：点击按钮，使当前规则暂时失败。', 'Counterexample mode: click the button to fail this rule.');
+    $('faultBtn').textContent = S.fault ? TRV.L('恢复规则', 'Restore rule') : TRV.L('注入反例', 'Inject counterexample');
     $('play').innerHTML = S.playing ? TRV.L('❚❚ 暂停','❚❚ Pause') : TRV.L('▶ 播放','▶ Play');
     $('play').setAttribute('aria-pressed',String(S.playing));
   }
   function setStep(k) { S.step = Math.max(0,Math.min(3,k|0)); sync(); draw(); }
   document.querySelectorAll('#stepChips .chip').forEach((b) => b.addEventListener('click',() => setStep(+b.dataset.step)));
+  document.querySelectorAll('.rule-tab').forEach((b) => b.addEventListener('click',() => { S.rule=+b.dataset.rule; S.fault=false; sync(); draw(); }));
+  $('faultBtn').addEventListener('click',() => { S.fault=!S.fault; sync(); draw(); });
   $('phase').addEventListener('input',(e) => { S.phase = +e.target.value; sync(); draw(); });
   $('rate').addEventListener('input',(e) => { S.rate = +e.target.value; sync(); });
   $('play').addEventListener('click',() => { S.playing=!S.playing; sync(); });
-  $('reset').addEventListener('click',() => { S.step=0; S.phase=0; S.playing=false; $('phase').value=0; sync(); draw(); });
+  $('reset').addEventListener('click',() => { S.step=0; S.phase=0; S.playing=false; S.rule=0; S.fault=false; $('phase').value=0; sync(); draw(); });
   const advance = (dt) => { if (!S.playing) return; S.t += dt*S.rate; if (S.t > 1.35) { S.t=0; setStep((S.step+1)%4); } };
   let last = performance.now();
   function frame(now) { advance(Math.min(.1,(now-last)/1000)); last=now; draw(); requestAnimationFrame(frame); }
   TRV.onLang(() => { sync(); draw(); });
-  window.RQA_DEBUG = { frames: () => 1, state: () => ({...S}), info: () => { const v=stateAt(S.step,S.phase); return { step:S.step, phase:S.phase, state:v, norm:norm(v), born:[v[0][0]*v[0][0]+v[0][1]*v[0][1],v[1][0]*v[1][0]+v[1][1]*v[1][1]], edges:relationEdges(S.step), bloch:bloch(v) }; }, setStep, setPhase: (p) => { S.phase=+p; $('phase').value=S.phase; sync(); draw(); } };
+  window.RQA_DEBUG = { frames: () => 1, state: () => ({...S}), info: () => { const v=stateAt(S.step,S.phase); return { step:S.step, phase:S.phase, state:v, norm:norm(v), born:[v[0][0]*v[0][0]+v[0][1]*v[0][1],v[1][0]*v[1][0]+v[1][1]*v[1][1]], edges:relationEdges(S.step), bloch:bloch(v), rules:ruleReport() }; }, setStep, setPhase: (p) => { S.phase=+p; $('phase').value=S.phase; sync(); draw(); }, setRule: (r) => { S.rule=+r; S.fault=false; sync(); draw(); }, injectFault: () => { S.fault=!S.fault; sync(); draw(); } };
   window.TRV_THUMB = () => { S.step=3; S.phase=90; S.playing=false; $('phase').value=90; sync(); draw(); };
   sync(); draw(); requestAnimationFrame(frame);
 })();
