@@ -32,3 +32,13 @@ header.top { grid-column: 1 / -1; }
 .rule-failure { min-height:2.1em; }
 .fault-btn { margin-top:8px; width:100%; }
 @media (max-width: 900px) { .rule-tabs { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+
+.closure-ledger { border-top:1px solid rgba(220,235,245,.12); padding-top:10px; }
+.closure-trace { display:grid; gap:4px; }
+.closure-row { display:grid; grid-template-columns:34px 1fr 1fr 1.4fr; gap:5px; align-items:center; border-left:2px solid rgba(220,235,245,.16); padding:5px 7px; color:var(--muted); font: .64rem var(--mono); background:rgba(255,255,255,.02); }
+.closure-row.active { border-left-color:var(--cyan); color:var(--ink); }
+.closure-row.fixed { border-left-color:#73f0b2; background:rgba(115,240,178,.08); }
+.closure-row strong { color:var(--cyan); }
+.closure-row.fixed strong { color:#73f0b2; }
+.closure-note { margin:7px 0 0; color:var(--muted); font-size:.7rem; line-height:1.4; }
+#fixedPointBadge[data-fixed="true"] { color:#73f0b2; }
