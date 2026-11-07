@@ -3125,6 +3125,50 @@
           "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/GoldenResourceOptimalInteger.lean"
         }
       ]
+    },
+    {
+      "id": "relational-automaton",
+      "code": "REL//AUTOMATON",
+      "path": "viz/relational-automaton/",
+      "thumbnail": "viz/relational-automaton/thumb.svg",
+      "title": "关系量子自动机 · 一生二，二生三，三把网络打开",
+      "title_en": "Relational quantum automaton · one becomes two, two becomes three, three opens the network",
+      "summary": "把最小关系闭包画成可运行的二能级自动机：恒等态分成两条可读分支，分支之间生成相对相位，重复门作用把三角关系复制成网络。页面显示归一化、Born 平方、Bloch 读出和关系边数，并明确区分示意模型与仓库里的正式约束。",
+      "summary_en": "A runnable two-level automaton for the minimal relational closure: identity splits into two readable branches, a relative phase appears between them, and repeated gates copy triangle relations into a network. The page shows normalization, the Born square, the Bloch readout and relation-edge count, while distinguishing the schematic model from formal repository constraints.",
+      "status": "live",
+      "added": "2026-11-07",
+      "tags": [
+        "关系闭包",
+        "量子自动机",
+        "Born 读出",
+        "相位",
+        "WebGL"
+      ],
+      "tags_en": [
+        "relational closure",
+        "quantum automata",
+        "Born readout",
+        "phase",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "C128 闭三角与稀疏尺度关系",
+          "label_en": "C128 closed triangles and sparse scale relations",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/AURIC_C128_CLOSED_TRIANGLE_AND_SPARSE_SCALE_RELATIONS.md"
+        },
+        {
+          "label": "FIB-ATOM 根纤维与凸秩一裂变",
+          "label_en": "FIB-ATOM radical fibres and convex rank-one rulings",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/FIB_ATOM_RECURSIVE_HOLOGRAPHIC_BOUNDARY_GEOMETRY_CONTINUATION_III_APPENDIX_IV.md"
+        },
+        {
+          "label": "ready rank-two 隐藏输运",
+          "label_en": "Ready rank-two hidden transport",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/AURIC_FIB_ATOM_QUANTUM_PRINCIPLES_AND_COHERENT_RECONSTRUCTION_CONTINUATION_XIV.md"
+        }
+      ],
+      "lean": []
     }
   ]
 }
