@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="REL//AUTOMATON · Relational quantum automaton">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>REL//AUTOMATON 关系量子自动机</title>
+<meta name="description" content="从 1→2→3 的关系闭包走到一个可运行的二维量子自动机。From relational closure 1→2→3 to a runnable two-level quantum automaton.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="relational-automaton">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="REL//AUTOMATON">REL<b>//</b>AUTOMATON</h1>
+      <div class="tagline"><span class="zh">关系量子自动机 · <em>一生二，二生三，三把网络打开</em></span><span class="en">Relational quantum automaton · <em>one becomes two, two becomes three, three opens the network</em></span></div>
+    </div>
+    <div class="status"><span class="pill" id="pillStep">STEP <strong>0</strong></span><span class="pill hot" id="pillNorm">NORM <strong>1.000</strong></span><div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div></div>
+  </header>
+
+  <main class="stage" id="stage" data-thumb aria-label="关系量子自动机主视图" data-aria-en="Relational quantum automaton main view">
+    <canvas class="gl" id="view"></canvas>
+    <div class="scan"></div><div class="vig"></div>
+    <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+    <div class="hud-tl"><span class="big" id="hudBig">1 → 2 → 3</span><span class="sub" id="hudSub"></span></div>
+    <div class="hud-tr"><span class="code">RELATIONAL CLOSURE</span><span id="hudPhase"></span></div>
+    <div class="toast" id="toast"></div>
+  </main>
+
+  <aside class="col side" aria-label="自动机控制" data-aria-en="Automaton controls">
+    <section class="panel sec">
+      <h2><span class="zh">演化</span><span class="en">Evolution</span><span class="aside">GATE</span></h2>
+      <div class="chips" id="stepChips" role="group" aria-label="步骤" data-aria-en="Step">
+        <button class="chip" data-step="0" aria-pressed="true"><span class="zh">1 · 恒等</span><span class="en">1 · identity</span></button>
+        <button class="chip" data-step="1" aria-pressed="false"><span class="zh">2 · 分叉</span><span class="en">2 · split</span></button>
+        <button class="chip" data-step="2" aria-pressed="false"><span class="zh">3 · 相位</span><span class="en">3 · phase</span></button>
+        <button class="chip" data-step="3" aria-pressed="false"><span class="zh">∞ · 网络</span><span class="en">∞ · network</span></button>
+      </div>
+      <div class="field"><label for="phase"><span class="zh">相对相位 φ</span><span class="en">Relative phase φ</span></label><output id="oPhase" for="phase">0°</output><input id="phase" type="range" min="-180" max="180" step="1" value="0"></div>
+      <div class="field"><label for="rate"><span class="zh">自动播放速度</span><span class="en">Playback speed</span></label><output id="oRate" for="rate">1×</output><input id="rate" type="range" min="0.25" max="3" step="0.25" value="1"></div>
+      <div class="rowline"><button class="chip" id="play" aria-pressed="false"><span class="zh">▶ 播放</span><span class="en">▶ Play</span></button><button class="chip" id="reset"><span class="zh">重置</span><span class="en">Reset</span></button></div>
+      <p class="note" id="modeNote"></p>
+    </section>
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readout</span><span class="aside">Ω</span></h2>
+      <dl class="ro">
+        <div class="a"><dt><span class="zh">态矢 |ψ⟩</span><span class="en">State |ψ⟩</span></dt><dd id="roState">|0⟩</dd></div>
+        <div class="a"><dt><span class="zh">归一化残差</span><span class="en">Norm residual</span></dt><dd id="roNorm">0</dd></div>
+        <div class="a"><dt><span class="zh">关系边数</span><span class="en">Relation edges</span></dt><dd id="roEdges">0</dd></div>
+        <div class="a"><dt><span class="zh">Born 读出 p(0), p(1)</span><span class="en">Born readout p(0), p(1)</span></dt><dd id="roBorn">1.000 · 0.000</dd></div>
+      </dl>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </section>
+    <section class="panel sec rules" aria-label="闭包规则检查器" data-aria-en="Closure rule checker">
+      <h2><span class="zh">规则检查</span><span class="en">Rule checker</span><span class="aside">6 RULES</span></h2>
+      <div class="rule-tabs" id="ruleTabs" role="tablist" aria-label="六条闭包规则" data-aria-en="Six closure rules">
+        <button class="rule-tab" data-rule="0" aria-selected="true"><b>R0</b><span class="zh">恒等 / 归一化</span><span class="en">Identity / norm</span></button>
+        <button class="rule-tab" data-rule="1" aria-selected="false"><b>R1</b><span class="zh">二元区分</span><span class="en">Binary split</span></button>
+        <button class="rule-tab" data-rule="2" aria-selected="false"><b>R2</b><span class="zh">有向三元</span><span class="en">Oriented ternary</span></button>
+        <button class="rule-tab" data-rule="3" aria-selected="false"><b>R3</b><span class="zh">后继一致</span><span class="en">Successor</span></button>
+        <button class="rule-tab" data-rule="4" aria-selected="false"><b>R4</b><span class="zh">完整读出</span><span class="en">Complete readout</span></button>
+        <button class="rule-tab" data-rule="5" aria-selected="false"><b>R5</b><span class="zh">独立复合</span><span class="en">Composition</span></button>
+      </div>
+      <div class="rule-detail" id="ruleDetail" role="status" aria-live="polite">
+        <div class="rule-title"><strong id="ruleCode">R0</strong><span id="ruleName"></span><span class="rule-status" id="ruleStatus">PASS</span></div>
+        <p id="ruleCondition"></p>
+        <p id="ruleTransition"></p>
+        <p class="rule-failure" id="ruleFailure"></p>
+        <button class="chip fault-btn" id="faultBtn"><span class="zh">注入反例</span><span class="en">Inject counterexample</span></button>
+      </div>
+    </section>
+    <section class="panel sec closure-ledger" aria-label="有限闭包轨迹" data-aria-en="Finite closure trace">
+      <h2><span class="zh">闭包轨迹</span><span class="en">Closure trace</span><span class="aside" id="fixedPointBadge">OPEN</span></h2>
+      <div class="closure-trace" id="closureTrace" aria-live="polite"></div>
+      <p class="closure-note" id="closureNote"></p>
+    </section>
+  </aside>
+
+  <section class="panel lower">
+    <div><h2><span class="zh">三条闭包规则</span><span class="en">Three closure rules</span><span class="aside">1 → 2 → 3 → ∞</span></h2><p id="ruleText"></p></div>
+    <div class="formula" id="formula">|a|² + |b|² = 1</div>
+  </section>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 关系量子自动机</span><span class="en">Theory interface · relational quantum automaton</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">页面把“关系闭包”写成一个最小可运行自动机。它展示结构，不冒充独立物理定理。</p>
+      <ol>
+        <li><b>1 → 2。</b>恒等态被区分成两条可读分支；分叉门是规范化的二元关系。</li>
+        <li><b>2 → 3。</b>两条分支之间出现相对相位；三角关系同时记录两条边与它们的关系。</li>
+        <li><b>3 → ∞。</b>重复门作用生成关系网络；隐藏自由度可以改变轨迹，但只有可观测读出才属于物理内容。</li>
+      </ol>
+      <p>当前页面的数值是两维复振幅的示意模型。归一化、Born 平方和相位干涉与论文 B0/B/E/C/D/A/P 路线对应；C128、FIB 和 ready-rank-two 是仓库中的后续结构约束。</p>
+    </div>
+    <div class="en">
+      <p class="lede">The page turns relational closure into a minimal runnable automaton. It exposes the structure; it is not an independent physical theorem.</p>
+      <ol>
+        <li><b>1 → 2.</b>Identity becomes two distinguishable readable branches; the split gate is a normalized binary relation.</li>
+        <li><b>2 → 3.</b>A relative phase appears between the branches; the triangle records two edges and their relation.</li>
+        <li><b>3 → ∞.</b>Repeated gates generate a relation network; hidden fibres can change trajectories, while only observable readouts carry physical content.</li>
+      </ol>
+      <p>The numeric layer is a schematic two-dimensional complex-amplitude model. Normalization, the Born square and phase interference correspond to the paper's B0/B/E/C/D/A/P route; C128, FIB and ready-rank-two are later repository constraints.</p>
+    </div>
+    <div class="theory-links"><a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/AURIC_C128_CLOSED_TRIANGLE_AND_SPARSE_SCALE_RELATIONS.md">C128 closed triangles</a><a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/FIB_ATOM_RECURSIVE_HOLOGRAPHIC_BOUNDARY_GEOMETRY_CONTINUATION_III_APPENDIX_IV.md">FIB radical fibres</a><a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/AURIC_FIB_ATOM_QUANTUM_PRINCIPLES_AND_COHERENT_RECONSTRUCTION_CONTINUATION_XIV.md">ready rank two</a></div>
+  </div>
+</div>
+<script src="main.js"></script>
+</body>
+</html>
