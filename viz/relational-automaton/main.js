@@ -78,6 +78,12 @@
     return f(v[0]) + ' |0⟩ + ' + f(v[1]) + ' |1⟩';
   };
   const relationEdges = (step) => step === 0 ? 0 : step === 1 ? 1 : step === 2 ? 3 : 6;
+  const CLOSURE_TRACE = [
+    { label:'S0', records:1, edges:0, passed:['R0','R4'] },
+    { label:'S1', records:3, edges:1, passed:['R0','R1','R4'] },
+    { label:'S2', records:5, edges:3, passed:['R0','R1','R2','R4'] },
+    { label:'S3', records:6, edges:6, passed:['R0','R1','R2','R3','R4','R5'] }
+  ];
   const ruleReport = () => {
     const v = stateAt(S.step, S.phase), n = norm(v);
     const p0 = v[0][0]*v[0][0] + v[0][1]*v[0][1], p1 = v[1][0]*v[1][0] + v[1][1]*v[1][1];
@@ -145,6 +151,20 @@
     document.querySelectorAll('#stepChips .chip').forEach((b) => b.setAttribute('aria-pressed',String(+b.dataset.step === S.step)));
     $('modeNote').textContent = S.playing ? TRV.L('自动沿着闭包阶数运行。','Auto-running through the closure orders.') : TRV.L('选择一个阶数，或按播放观察闭包展开。','Choose an order, or play the closure expansion.');
     const reports = ruleReport();
+    const trace = CLOSURE_TRACE.map((item, index) => ({
+      ...item,
+      active: index <= S.step,
+      fixed: index === 3 && S.step === 3 && !S.fault
+    }));
+    $('fixedPointBadge').textContent = S.step === 3 && !S.fault ? TRV.L('FIXED POINT','FIXED POINT') : TRV.L('OPEN','OPEN');
+    $('fixedPointBadge').dataset.fixed = String(S.step === 3 && !S.fault);
+    $('closureTrace').innerHTML = trace.map((item) => {
+      const state = item.fixed ? 'fixed' : item.active ? 'closed' : 'waiting';
+      return '<div class="closure-row '+state+'"><strong>'+item.label+'</strong><span>'+item.records+' '+TRV.L('记录','records')+'</span><span>'+item.edges+' '+TRV.L('边','edges')+'</span><span>'+item.passed.join(' ')+'</span></div>';
+    }).join('');
+    $('closureNote').textContent = S.step === 3 && !S.fault
+      ? TRV.L('S3 = S4：本有限生成族没有新增记录。','S3 = S4: this finite generated family adds no new record.')
+      : TRV.L('继续生成后继记录，直到下一轮不再增加。','Continue generating successors until the next round adds nothing.');
     document.querySelectorAll('.rule-tab').forEach((button) => {
       const i = +button.dataset.rule, report = reports[i];
       button.dataset.status = report.status;
