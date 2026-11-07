@@ -12,3 +12,23 @@ header.top { grid-column: 1 / -1; }
 .theory-links { display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; }
 .theory-links a { color:var(--cyan); font: .75rem var(--mono); text-decoration:none; border-bottom:1px solid rgba(25,240,255,.4); }
 @media (max-width: 900px) { .app { grid-template-columns: minmax(0,1fr); grid-template-rows:auto auto auto; } .stage { min-height: 58vh; } .lower { grid-column: auto; grid-template-columns: minmax(0,1fr); } }
+
+.rule-tabs { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:5px; margin-bottom:8px; }
+.rule-tab { position:relative; display:grid; grid-template-columns:auto 1fr; gap:4px 7px; align-items:center; width:100%; border:1px solid rgba(220,235,245,.16); background:rgba(255,255,255,.03); color:var(--muted); padding:7px 8px; text-align:left; font: .68rem var(--mono); cursor:pointer; }
+.rule-tab b { color:var(--cyan); font-size:.65rem; grid-row:span 2; }
+.rule-tab .zh,.rule-tab .en { grid-column:2; line-height:1.1; }
+.rule-tab::after { content:attr(data-status); position:absolute; right:6px; top:5px; font-size:.56rem; color:var(--muted); }
+.rule-tab[data-status="PASS"]::after { color:#73f0b2; }
+.rule-tab[data-status="WAIT"]::after { color:var(--amber); }
+.rule-tab[data-status="FAIL"]::after { color:#ff6e91; }
+.rule-tab[aria-selected="true"] { border-color:var(--cyan); color:var(--ink); box-shadow:0 0 0 1px rgba(25,240,255,.18) inset; }
+.rule-detail { border-left:2px solid var(--cyan); padding:8px 10px; background:rgba(255,255,255,.025); }
+.rule-title { display:flex; align-items:center; gap:8px; color:var(--ink); font: .75rem var(--mono); }
+.rule-title strong { color:var(--cyan); }
+.rule-status { margin-left:auto; color:#73f0b2; font-weight:700; }
+.rule-status[data-status="WAIT"] { color:var(--amber); }
+.rule-status[data-status="FAIL"] { color:#ff6e91; }
+.rule-detail p { margin:5px 0 0; color:var(--muted); font-size:.72rem; line-height:1.45; }
+.rule-failure { min-height:2.1em; }
+.fault-btn { margin-top:8px; width:100%; }
+@media (max-width: 900px) { .rule-tabs { grid-template-columns:repeat(3,minmax(0,1fr)); } }
